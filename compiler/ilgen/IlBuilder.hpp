@@ -99,8 +99,8 @@ public:
       _partOfSequence(false),
       _connectedTrees(false),
       _comesBack(true),
-      _haveReplayName(false),
       _isHandler(false),
+      _haveReplayName(false),
       _rpILCpp(0)
       {
       }

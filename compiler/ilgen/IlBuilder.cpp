@@ -1054,8 +1054,8 @@ IlBuilder::NotEqualTo(TR::IlValue *left, TR::IlValue *right)
 void
 IlBuilder::Goto(TR::IlBuilder **dest)
    {
-   TraceIL("IlBuilder[ %p ]::Goto %p\n", this, *dest);
    *dest = createBuilderIfNeeded(*dest);
+   TraceIL("IlBuilder[ %p ]::Goto %p\n", this, *dest);
    appendGoto((*dest)->getEntry());
    setDoesNotComeBack();
 
@@ -1562,7 +1562,7 @@ IlBuilder::IfCmpNotEqualZero(TR::IlBuilder **target, TR::IlValue *condition)
    {
    *target = createBuilderIfNeeded(*target);
    ILB_REPLAY("%s->IfCmpNotEqualZero(%s, %s, %s);", REPLAY_BUILDER(this), REPLAY_BUILDER(target), REPLAY_VALUE(condition));
-   TraceIL("IlBuilder[ %p ]::IfCmpNotEqualZero %d? -> B%d\n", this, condition->getCPIndex(), (*target)->getEntry()->getNumber());
+   TraceIL("IlBuilder[ %p ]::IfCmpNotEqualZero %d? -> [ %p ] B%d\n", this, condition->getCPIndex(), (*target), (*target)->getEntry()->getNumber());
    ifCmpNotEqualZero(condition, (*target)->getEntry());
    }
 
@@ -1571,7 +1571,7 @@ IlBuilder::IfCmpNotEqual(TR::IlBuilder **target, TR::IlValue *left, TR::IlValue 
    {
    *target = createBuilderIfNeeded(*target);
    ILB_REPLAY("%s->IfCmpNotEqual(%s, %s, %s);", REPLAY_BUILDER(this), REPLAY_BUILDER(target), REPLAY_VALUE(left), REPLAY_VALUE(right));
-   TraceIL("IlBuilder[ %p ]::IfCmpNotEqual %d == %d? -> B%d\n", this, left->getCPIndex(), right->getCPIndex(), (*target)->getEntry()->getNumber());
+   TraceIL("IlBuilder[ %p ]::IfCmpNotEqual %d == %d? -> [ %p ] B%d\n", this, left->getCPIndex(), right->getCPIndex(), (*target), (*target)->getEntry()->getNumber());
    ifCmpNotEqual(left, right, (*target)->getEntry());
    }
 
@@ -1580,7 +1580,7 @@ IlBuilder::IfCmpEqualZero(TR::IlBuilder **target, TR::IlValue *condition)
    {
    *target = createBuilderIfNeeded(*target);
    ILB_REPLAY("%s->IfCmpEqualZero(%s, %s, %s);", REPLAY_BUILDER(this), REPLAY_BUILDER(target), REPLAY_VALUE(condition));
-   TraceIL("IlBuilder[ %p ]::IfCmpEqualZero %d == 0? -> B%d\n", this, condition->getCPIndex(), (*target)->getEntry()->getNumber());
+   TraceIL("IlBuilder[ %p ]::IfCmpEqualZero %d == 0? -> [ %p ] B%d\n", this, condition->getCPIndex(), *target, (*target)->getEntry()->getNumber());
    ifCmpEqualZero(condition, (*target)->getEntry());
    }
 
@@ -1589,7 +1589,7 @@ IlBuilder::IfCmpEqual(TR::IlBuilder **target, TR::IlValue *left, TR::IlValue *ri
    {
    *target = createBuilderIfNeeded(*target);
    ILB_REPLAY("%s->IfCmpEqual(%s, %s, %s);", REPLAY_BUILDER(this), REPLAY_BUILDER(target), REPLAY_VALUE(left), REPLAY_VALUE(right));
-   TraceIL("IlBuilder[ %p ]::IfCmpEqual %d == %d? -> B%d\n", this, left->getCPIndex(), right->getCPIndex(), (*target)->getEntry()->getNumber());
+   TraceIL("IlBuilder[ %p ]::IfCmpEqual %d == %d? -> [ %p ] B%d\n", this, left->getCPIndex(), right->getCPIndex(), (*target), (*target)->getEntry()->getNumber());
    ifCmpEqual(left, right, (*target)->getEntry());
    }
 
@@ -1598,7 +1598,7 @@ IlBuilder::IfCmpLessThan(TR::IlBuilder **target, TR::IlValue *left, TR::IlValue 
    {
    *target = createBuilderIfNeeded(*target);
    ILB_REPLAY("%s->IfCmpLessThan(%s, %s, %s);", REPLAY_BUILDER(this), REPLAY_BUILDER(target), REPLAY_VALUE(left), REPLAY_VALUE(right));
-   TraceIL("IlBuilder[ %p ]::IfCmpLessThan %d < %d? -> B%d\n", this, left->getCPIndex(), right->getCPIndex(), (*target)->getEntry()->getNumber());
+   TraceIL("IlBuilder[ %p ]::IfCmpLessThan %d < %d? -> [ %p ] B%d\n", this, left->getCPIndex(), right->getCPIndex(), (*target), (*target)->getEntry()->getNumber());
    ifCmpLessThan(left, right, (*target)->getEntry());
    }
 
@@ -1607,7 +1607,7 @@ IlBuilder::IfCmpGreaterThan(TR::IlBuilder **target, TR::IlValue *left, TR::IlVal
    {
    *target = createBuilderIfNeeded(*target);
    ILB_REPLAY("%s->IfCmpGreaterThan(%s, %s, %s);", REPLAY_BUILDER(this), REPLAY_BUILDER(target), REPLAY_VALUE(left), REPLAY_VALUE(right));
-   TraceIL("IlBuilder[ %p ]::IfCmpGreatThan %d < %d? -> B%d\n", this, left->getCPIndex(), right->getCPIndex(), (*target)->getEntry()->getNumber());
+   TraceIL("IlBuilder[ %p ]::IfCmpGreatThan %d < %d? -> [ %p ] B%d\n", this, left->getCPIndex(), right->getCPIndex(), (*target), (*target)->getEntry()->getNumber());
    ifCmpGreaterThan(left, right, (*target)->getEntry());
    }
 
