@@ -22,9 +22,13 @@
 
 #include "ilgen/MethodBuilder.hpp"
 
-#define STACKVALUEILTYPE	Int64
-#define	STACKVALUETYPE		int64_t
+#define STACKVALUEILTYPE	Int32
+#define	STACKVALUETYPE		int32_t
 
+//#define STACKVALUEILTYPE	Int64
+//#define	STACKVALUETYPE		int64_t
+
+namespace TR { class BytecodeBuilder; }
 
 class OperandStackTestMethod : public TR::MethodBuilder
    {
@@ -39,12 +43,9 @@ class OperandStackTestMethod : public TR::MethodBuilder
    STACKVALUETYPE *getSP()     { return _realStackTop; }
 
    protected:
-   bool testStack();
+   bool testStack(TR::BytecodeBuilder *b, bool useEqual);
 
    TR::IlType                      * _valueType;
-
-   OMR::VirtualMachineOperandStack * _stack;
-   OMR::VirtualMachineRegister     * _stackTop;
 
    static STACKVALUETYPE           * _realStack;
    static STACKVALUETYPE           * _realStackTop;

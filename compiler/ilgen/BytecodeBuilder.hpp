@@ -59,7 +59,11 @@ public:
    OMR::VirtualMachineState *vmState()                       { return _vmState; }
    void setVMState(OMR::VirtualMachineState *vmState)        { _vmState = vmState; }
 
-   void propagateVMState(OMR::VirtualMachineState *vmState);
+   void propagateVMState(OMR::VirtualMachineState *fromVMState);
+
+   void Goto(TR::BytecodeBuilder *dest);
+   void IfCmpEqual(TR::BytecodeBuilder **dest, TR::IlValue *v1, TR::IlValue *v2);
+   void IfCmpNotEqual(TR::BytecodeBuilder **dest, TR::IlValue *v1, TR::IlValue *v2);
 
 protected:
    TR::BytecodeBuilder       * _fallThroughBuilder;

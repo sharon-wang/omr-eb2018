@@ -27,6 +27,7 @@
 #include "Jit.hpp"
 #include "ilgen/TypeDictionary.hpp"
 #include "ilgen/MethodBuilder.hpp"
+#include "ilgen/BytecodeBuilder.hpp"
 #include "ilgen/VirtualMachineOperandStack.hpp"
 #include "ilgen/VirtualMachineRegister.hpp"
 #include "ilgen/VirtualMachineRegisterInStruct.hpp"
@@ -41,8 +42,72 @@ typedef struct Thread
    STACKVALUETYPE *sp;
    } Thread;
 
+class TestState : public OMR::VirtualMachineState
+   {
+   public:
+   TestState()
+      : OMR::VirtualMachineState(),
+      _stack(NULL),
+      _stackTop(NULL)
+      { }
 
+   TestState(OMR::VirtualMachineOperandStack *stack, OMR::VirtualMachineRegister *stackTop)
+      : OMR::VirtualMachineState(),
+      _stack(stack),
+      _stackTop(stackTop)
+      {
+      }
+
+   virtual void Commit(TR::IlBuilder *b)
+      {
+      _stack->Commit(b);
+      _stackTop->Commit(b);
+      }
+
+   virtual void Reload(TR::IlBuilder *b)
+      {
+      _stack->Reload(b);
+      _stackTop->Reload(b);
+      }
+
+   virtual VirtualMachineState *MakeCopy()
+      {
+      TestState *newState = new TestState();
+      newState->_stack = (OMR::VirtualMachineOperandStack *)_stack->MakeCopy();
+      newState->_stackTop = (OMR::VirtualMachineRegister *) _stackTop->MakeCopy();
+      return newState;
+      }
+
+   virtual void MergeInto(VirtualMachineState *other, TR::IlBuilder *b)
+      {
+      TestState *otherState = (TestState *)other;
+      _stack->MergeInto(((TestState *)other)->_stack, b);
+      _stackTop->MergeInto(((TestState *)other)->_stackTop, b);
+      }
+
+   OMR::VirtualMachineOperandStack * _stack;
+   OMR::VirtualMachineRegister     * _stackTop;
+   };
+
+static int32_t numFailingTests = 0;
+static int32_t numPassingTests = 0;
 static STACKVALUETYPE **verifySP = NULL;
+static STACKVALUETYPE expectedResult12Top = -1;
+static char * result12Operator;
+
+static void
+setupResult12Equals()
+   {
+   expectedResult12Top = 11;
+   result12Operator = (char *)"==";
+   }
+
+static void
+setupResult12NotEquals()
+   {
+   expectedResult12Top = 99;
+   result12Operator = (char *)"!=";
+   }
 
 int
 main(int argc, char *argv[])
@@ -70,6 +135,7 @@ main(int argc, char *argv[])
    typedef void (OperandStackTestMethodFunction)();
    OperandStackTestMethodFunction *ptrTest = (OperandStackTestMethodFunction *) entry2;
    verifySP = pointerMethod.getSPPtr();
+   setupResult12Equals();
    ptrTest();
 
    cout << "Step 4: compile operand stack tests using a Thread structure\n";
@@ -89,12 +155,18 @@ main(int argc, char *argv[])
 
    Thread thread;
    thread.sp = threadMethod.getSP();
-
    verifySP = &thread.sp;
+   setupResult12NotEquals();
    threadTest(&thread);
 
    cout << "Step 6: shutdown JIT\n";
    shutdownJit();
+
+   cout << "Number passing tests: " << numPassingTests << "\n";
+   cout << "Number failing tests: " << numFailingTests << "\n";
+
+   if (numFailingTests == 0)
+      cout << "ALL PASS\n";
    }
 
 
@@ -102,8 +174,18 @@ STACKVALUETYPE *OperandStackTestMethod::_realStack = NULL;
 STACKVALUETYPE *OperandStackTestMethod::_realStackTop = _realStack;
 int32_t OperandStackTestMethod::_realStackSize = -1;
 
-#define REPORT1(c,n,v)         { if (c) cout << "Pass\n"; else cout << "Fail: " << (n) << " is " << (v) << "\n"; }
-#define REPORT2(c,n1,v1,n2,v2) { if (c) cout << "Pass\n"; else cout << "Fail: " << (n1) << " is " << (v1) << ", " << (n2) << " is " << (v2) << "\n"; }
+static void Fail()
+   {
+   numFailingTests++;
+   }
+
+static void Pass()
+   {
+   numPassingTests++;
+   }
+
+#define REPORT1(c,n,v)         { if (c) { Pass(); cout << "Pass\n"; } else { Fail(); cout << "Fail: " << (n) << " is " << (v) << "\n"; } }
+#define REPORT2(c,n1,v1,n2,v2) { if (c) { Pass(); cout << "Pass\n"; } else { Fail(); cout << "Fail: " << (n1) << " is " << (v1) << ", " << (n2) << " is " << (v2) << "\n"; } }
 
 // Result 0: empty stack even though Push has happened
 void
@@ -214,6 +296,15 @@ verifyResult11()
    OperandStackTestMethod::verifyStack("11", 3, 4, 3, 3, 4, 5);
    }
 
+void
+verifyResult12(STACKVALUETYPE top)
+   {
+   cout << "Pop(); Pop(); if (3 " << result12Operator << " 3) { Push(11); } else { Push(99); } Commit(); Top();\n";
+   cout << "\tResult 12: top == " << expectedResult12Top << ": ";
+   REPORT1(top == expectedResult12Top, "top", top);
+   OperandStackTestMethod::verifyStack("11", 3, 3, expectedResult12Top, 4, 5);
+   }
+
 bool
 OperandStackTestMethod::verifyUntouched(int32_t maxTouched)
    {
@@ -226,15 +317,14 @@ OperandStackTestMethod::verifyUntouched(int32_t maxTouched)
 void
 OperandStackTestMethod::verifyStack(const char *step, int32_t max, int32_t num, ...)
    {
-   va_list args;
-
-   va_start(args, num);
 
    STACKVALUETYPE *realSP = *verifySP;
 
    cout << "\tResult " << step << ": realSP-_realStack == " << num << ": ";
    REPORT2((realSP-_realStack) == num, "_realStackTop-_realStack", (realSP-_realStack), "num", num);
 
+   va_list args;
+   va_start(args, num);
    for (int32_t a=0;a < num;a++)
       {
       STACKVALUETYPE val = va_arg(args, STACKVALUETYPE);
@@ -275,59 +365,89 @@ OperandStackTestMethod::OperandStackTestMethod(TR::TypeDictionary *d)
    DefineFunction("verifyResult9", "0", "0", (void *)&verifyResult9, NoType, 1, _valueType);
    DefineFunction("verifyResult10", "0", "0", (void *)&verifyResult10, NoType, 1, _valueType);
    DefineFunction("verifyResult11", "0", "0", (void *)&verifyResult11, NoType, 0);
+   DefineFunction("verifyResult12", "0", "0", (void *)&verifyResult12, NoType, 1, _valueType);
    }
 
+// convenience macros
+#define STACK(b)	(((TestState *)(b)->vmState())->_stack)
+#define STACKTOP(b)	(((TestState *)(b)->vmState())->_stackTop)
+#define COMMIT(b)       ((b)->vmState()->Commit(b))
+#define PUSH(b,v)	(STACK(b)->Push(b,v))
+#define POP(b)          (STACK(b)->Pop(b))
+#define TOP(b)          (STACK(b)->Top())
+#define DUP(b)          (STACK(b)->Dup(b))
+#define DROP(b,d)       (STACK(b)->Drop(b,d))
+#define PICK(b,d)       (STACK(b)->Pick(d))
 
 bool
-OperandStackTestMethod::testStack()
+OperandStackTestMethod::testStack(TR::BytecodeBuilder *b, bool useEqual)
    {
-   TR::IlBuilder *b = this;
+   PUSH(b, b->ConstInteger(_valueType, 1));
+   b->Call("verifyResult0", 0);
 
-   _stack->Push(b, ConstInteger(_valueType, 1));
-   Call("verifyResult0", 0);
+   COMMIT(b);
+   b->Call("verifyResult1", 0);
 
-   _stack->Commit(b);
-   Call("verifyResult1", 0);
+   PUSH(b, b->ConstInteger(_valueType, 2));
+   PUSH(b, b->ConstInteger(_valueType, 3));
+   b->Call("verifyResult2", 1, TOP(b));
 
-   _stack->Push(b, ConstInteger(_valueType, 2));
-   _stack->Push(b, ConstInteger(_valueType, 3));
-   Call("verifyResult2", 1, _stack->Top());
+   COMMIT(b);
+   b->Call("verifyResult3", 1, TOP(b));
 
-   _stack->Commit(b);
-   Call("verifyResult3", 1, _stack->Top());
+   TR::IlValue *val1 = POP(b);
+   b->Call("verifyResult4", 1, val1);
 
-   TR::IlValue *val1 = _stack->Pop(b);
-   Call("verifyResult4", 1, val1);
+   TR::IlValue *val2 = POP(b);
+   b->Call("verifyResult5", 1, val2);
 
-   TR::IlValue *val2 = _stack->Pop(b);
-   Call("verifyResult5", 1, val2);
+   TR::IlValue *sum = b->Add(val1, val2);
+   PUSH(b, sum);
+   COMMIT(b);
+   b->Call("verifyResult6", 1, TOP(b));
 
-   TR::IlValue *sum = Add(val1, val2);
-   _stack->Push(b, sum);
-   _stack->Commit(b);
-   Call("verifyResult6", 1, _stack->Top());
+   DROP(b, 2);
+   COMMIT(b);
+   b->Call("verifyResult7", 0);
 
-   _stack->Drop(b, 2);
-   _stack->Commit(b);
-   Call("verifyResult7", 0);
+   PUSH(b, b->ConstInteger(_valueType, 5));
+   PUSH(b, b->ConstInteger(_valueType, 4));
+   PUSH(b, b->ConstInteger(_valueType, 3));
+   PUSH(b, b->ConstInteger(_valueType, 2));
+   PUSH(b, b->ConstInteger(_valueType, 1));
+   b->Call("verifyResult8", 1, PICK(b, 3));
 
-   _stack->Push(b, ConstInteger(_valueType, 5));
-   _stack->Push(b, ConstInteger(_valueType, 4));
-   _stack->Push(b, ConstInteger(_valueType, 3));
-   _stack->Push(b, ConstInteger(_valueType, 2));
-   _stack->Push(b, ConstInteger(_valueType, 1));
-   Call("verifyResult8", 1, _stack->Pick(3));
+   DROP(b, 2);
+   b->Call("verifyResult9", 1, TOP(b));
 
-   _stack->Drop(b, 2);
-   Call("verifyResult9", 1, _stack->Top());
+   DUP(b);
+   b->Call("verifyResult10", 1, PICK(b, 2));
 
-   _stack->Dup(b);
-   Call("verifyResult10", 1, _stack->Pick(2));
+   COMMIT(b);
+   b->Call("verifyResult11", 0);
 
-   _stack->Commit(b);
-   Call("verifyResult11", 0);
+   TR::BytecodeBuilder *thenBB = OrphanBytecodeBuilder(0, (char*)"BCI_then");
+   TR::BytecodeBuilder *elseBB = OrphanBytecodeBuilder(1, (char*)"BCI_else");
+   TR::BytecodeBuilder *mergeBB = OrphanBytecodeBuilder(2, (char*)"BCI_merge");
 
-   Return();
+   TR::IlValue *v1 = POP(b);
+   TR::IlValue *v2 = POP(b);
+   if (useEqual)
+      b->IfCmpEqual(&thenBB, v1, v2);
+   else
+      b->IfCmpNotEqual(&thenBB, v1, v2);
+   b->AddFallThroughBuilder(elseBB);
+
+   PUSH(thenBB, thenBB->ConstInteger(_valueType, 11));
+   thenBB->Goto(mergeBB);
+
+   PUSH(elseBB, elseBB->ConstInteger(_valueType, 99));
+   elseBB->AddFallThroughBuilder(mergeBB);
+
+   COMMIT(mergeBB);
+   mergeBB->Call("verifyResult12", 1, TOP(mergeBB));
+
+   mergeBB->Return();
 
    return true;
    }
@@ -337,10 +457,16 @@ OperandStackTestMethod::buildIL()
    {
    TR::IlType *pValueType = _types->PointerTo(_valueType);
    TR::IlValue *realStackTopAddress = ConstAddress(&_realStackTop);
-   _stackTop = new OMR::VirtualMachineRegister(this, "SP", pValueType, sizeof(STACKVALUETYPE), realStackTopAddress);
-   _stack = new OMR::VirtualMachineOperandStack(this, 32, _valueType, _stackTop);
+   OMR::VirtualMachineRegister *stackTop = new OMR::VirtualMachineRegister(this, "SP", pValueType, sizeof(STACKVALUETYPE), realStackTopAddress);
+   OMR::VirtualMachineOperandStack *stack = new OMR::VirtualMachineOperandStack(this, 32, _valueType, stackTop);
 
-   return testStack();
+   TestState *vmState = new TestState(stack, stackTop);
+   setVMState(vmState);
+
+   TR::BytecodeBuilder *bb = OrphanBytecodeBuilder(0, (char *) "entry");
+   AppendBuilder(bb);
+
+   return testStack(bb, true);
    }
 
 
@@ -359,8 +485,14 @@ OperandStackTestUsingStructMethod::OperandStackTestUsingStructMethod(TR::TypeDic
 bool
 OperandStackTestUsingStructMethod::buildIL()
    {
-   _stackTop = new OMR::VirtualMachineRegisterInStruct(this, "Thread", "thread", "sp", "SP");
-   _stack = new OMR::VirtualMachineOperandStack(this, 32, _valueType, _stackTop);
+   OMR::VirtualMachineRegisterInStruct *stackTop = new OMR::VirtualMachineRegisterInStruct(this, "Thread", "thread", "sp", "SP");
+   OMR::VirtualMachineOperandStack *stack = new OMR::VirtualMachineOperandStack(this, 32, _valueType, stackTop);
 
-   return testStack();
+   TestState *vmState = new TestState(stack, stackTop);
+   setVMState(vmState);
+
+   TR::BytecodeBuilder *bb = OrphanBytecodeBuilder(0, (char *) "entry");
+   AppendBuilder(bb);
+
+   return testStack(bb, false);
    }

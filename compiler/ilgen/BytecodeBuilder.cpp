@@ -21,11 +21,11 @@
 #include "env/FrontEnd.hpp"
 #include "infra/List.hpp"
 #include "il/Block.hpp"
+#include "ilgen/VirtualMachineState.hpp"
 #include "ilgen/IlBuilder.hpp"
 #include "ilgen/MethodBuilder.hpp"
 #include "ilgen/BytecodeBuilder.hpp"
 #include "ilgen/TypeDictionary.hpp"
-#include "ilgen/VirtualMachineState.hpp"
 
 // should really move into IlInjector.hpp
 #define TraceEnabled    (comp()->getOption(TR_TraceILGen))
@@ -43,6 +43,9 @@ OMR::BytecodeBuilder::BytecodeBuilder(TR::MethodBuilder *methodBuilder,
    _vmState(0)
    {
    _successorBuilders = new (PERSISTENT_NEW) List<TR::BytecodeBuilder>(_types->trMemory());
+   initialize(methodBuilder->details(), methodBuilder->methodSymbol(),
+              methodBuilder->fe(), methodBuilder->symRefTab());
+   initSequence();
    }
 
 void
@@ -136,11 +139,14 @@ OMR::BytecodeBuilder::AddFallThroughBuilder(TR::BytecodeBuilder *ftb)
 
    TR::BytecodeBuilder *b = ftb;
    transferVMState(&b);    // may change what b points at!
+
+   if (b != ftb)
+      TraceIL("IlBuilder[ %p ]:: fallThrough successor changed to [ %p ]\n", this, b);
    _fallThroughBuilder = b;
 
    // add explicit goto and register the actual fall-through block
    TR::IlBuilder *tgtb = b;
-   Goto(&tgtb);
+   TR::IlBuilder::Goto(&tgtb);
    }
 
 // AddSuccessorBuilders() should be called with a list of TR::BytecodeBuilder ** pointers.
@@ -174,10 +180,10 @@ OMR::BytecodeBuilder::setHandlerInfo(uint32_t catchType)
    }
 
 void
-OMR::BytecodeBuilder::propagateVMState(OMR::VirtualMachineState *vmState)
+OMR::BytecodeBuilder::propagateVMState(OMR::VirtualMachineState *fromVMState)
    {
-   _initialVMState = vmState->MakeCopy();
-   _vmState = vmState->MakeCopy();
+   _initialVMState = (OMR::VirtualMachineState *) fromVMState->MakeCopy();
+   _vmState = (OMR::VirtualMachineState *) fromVMState->MakeCopy();
    }
 
 // transferVMState needs to be called before the actual transfer operation (Goto, IfCmp,
@@ -195,18 +201,58 @@ OMR::BytecodeBuilder::transferVMState(TR::BytecodeBuilder **b)
       // there is already a vm state at the target builder
       // so we need to synchronized the current vm state with that vm state
       // create an intermediate builder object to do that synchronization
-      TR::BytecodeBuilder *intermediateBuilder = new (TR::comp()->trHeapMemory()) TR::BytecodeBuilder((*b)->_methodBuilder, (*b)->_bcIndex, (*b)->_name);
+      TR::BytecodeBuilder *intermediateBuilder = _methodBuilder->OrphanBytecodeBuilder((*b)->_bcIndex, (*b)->_name);
 
       _vmState->MergeInto((*b)->initialVMState(), intermediateBuilder);
+      TraceIL("IlBuilder[ %p ]:: transferVMState merged vm state on way to [ %p ] using [ %p ]\n", this, *b, intermediateBuilder);
 
       TR::IlBuilder *tgtb = *b;
-      intermediateBuilder->Goto(&tgtb);
+      intermediateBuilder->IlBuilder::Goto(&tgtb);
       intermediateBuilder->_fallThroughBuilder = *b;
-      TraceIL("IlBuilder[ %p ]:: transferVMState merged vm state on way to [ %p ] using [ %p ]\n", this, *b, intermediateBuilder);
-      *b = intermediateBuilder; // branches should direct towards syncBuilder not original *b
+      TraceIL("IlBuilder[ %p ]:: fallThrough successor [ %p ]\n", intermediateBuilder, *b);
+      *b = intermediateBuilder; // branches should direct towards intermediateBuilder not original *b
       }
    else
       {
       (*b)->propagateVMState(_vmState);
       }
+   }
+
+void
+OMR::BytecodeBuilder::Goto(TR::BytecodeBuilder *dest)
+   {
+   AddSuccessorBuilder(&dest);
+   OMR::IlBuilder::Goto((TR::IlBuilder **)&dest);
+   }
+
+void
+OMR::BytecodeBuilder::IfCmpEqual(TR::BytecodeBuilder **dest, TR::IlValue *v1, TR::IlValue *v2)
+   {
+   bool added = false;
+
+   if (*dest != NULL)
+      {
+      AddSuccessorBuilder(dest);
+      added = true;
+      }
+   OMR::IlBuilder::IfCmpEqual((TR::IlBuilder **)dest, v1, v2);
+
+   if (!added)
+      AddSuccessorBuilder(dest); // if dest didn't exist previously, it can't be a merge
+   }
+
+void
+OMR::BytecodeBuilder::IfCmpNotEqual(TR::BytecodeBuilder **dest, TR::IlValue *v1, TR::IlValue *v2)
+   {
+   bool added = false;
+
+   if (*dest != NULL)
+      {
+      AddSuccessorBuilder(dest);
+      added = true;
+      }
+   OMR::IlBuilder::IfCmpNotEqual((TR::IlBuilder **)dest, v1, v2);
+
+   if (!added)
+      AddSuccessorBuilder(dest); // if dest didn't exist previously, it can't be a merge
    }

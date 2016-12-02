@@ -109,11 +109,13 @@ MethodBuilder::MethodBuilder(TR::TypeDictionary *types)
       (*_rpCpp) << "#include \"ReplayMethod.hpp\"" << std::endl << std::endl;
       (*_rpCpp) << "ReplayMethod::ReplayMethod(TR::TypeDictionary *types)" << std::endl;
       (*_rpCpp) << "\t: TR::MethodBuilder(types) {" << std::endl;
+      // } to match open one in string in prev line so editors can match properly
 
       _rpILCpp = new std::fstream("ReplayMethodBuildIL.cpp",std::fstream::out);
       (*_rpILCpp) << "#include \"ilgen/TypeDictionary.hpp\"" << std::endl << std::endl;
       (*_rpILCpp) << "#include \"ReplayMethod.hpp\"" << std::endl << std::endl;
       (*_rpILCpp) << "bool ReplayMethod::buildIL() {" << std::endl;
+      // } to match open one in string in prev line so editors can match properly
 
       strcpy(_replayName, "this");
       _haveReplayName = true;
@@ -391,11 +393,11 @@ MethodBuilder::isSymbolAnArray(const char *name)
    }
 
 TR::BytecodeBuilder *
-MethodBuilder::OrphanBytecodeBuilder(int32_t bcIndex, char *name)
+MethodBuilder::OrphanBytecodeBuilder(int32_t bcIndex, char *name, OMR::VirtualMachineState *vmState)
    {
-   MB_REPLAY("OrphanBytecodeBuilder(%d, \"%s\");", bcIndex, name);
+   MB_REPLAY("OrphanBytecodeBuilder(%d, \"%s\", %p);", bcIndex, name, vmState);
 
-   TR::BytecodeBuilder *orphan = new (comp()->trHeapMemory()) TR::BytecodeBuilder(_methodBuilder, bcIndex, name);
+   TR::BytecodeBuilder *orphan = new (comp()->trHeapMemory()) TR::BytecodeBuilder(_methodBuilder, vmState, bcIndex, name);
    orphan->initialize(_details, _methodSymbol, _fe, _symRefTab);
    orphan->setupForBuildIL();
    return orphan;
@@ -406,7 +408,7 @@ MethodBuilder::AppendBuilder(TR::BytecodeBuilder *bb)
    {
    this->OMR::IlBuilder::AppendBuilder(bb);
    if (_vmState)
-      bb->setVMState(_vmState->MakeCopy());
+      bb->propagateVMState(_vmState);
    }
 
 void

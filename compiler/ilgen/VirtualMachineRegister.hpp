@@ -36,7 +36,7 @@ namespace OMR
 // which may be more convenient if the virtual machine value is stored in a
 // structure that the compiled method has easy access to (for example, if the
 // base address of the struct is a parameter of every compiled method).
-// VirtualMachineRegister must implement the same API as VirtualMachineState.
+// VirtualMachineRegister must implement VirtualMachineState.
 // The simulated register value is simply stored in a single local variable, which
 // gives the compiler visibility to all changes to the register (and enables
 // optimization / simplification). Because there is just a single local variable,

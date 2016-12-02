@@ -53,12 +53,13 @@ namespace OMR
 // VirtualMachineOperandStack objects. Possibly, some of the state could be
 // shared to save some memory. For now, simplicity is the goal.
 //
-// VirtualMachineOperandStack implements the VirtualMachineState interface:
+// VirtualMachineOperandStack implements VirtualMachineState:
 // Commit() simply iterates over the simulated operand stack and stores each
 //   value onto the virtual machine's operand stack (more details at definition).
 // Reload() is left empty; assumption is that each BytecodeBuilder handler will
 //   update the state of the operand stack appropriately on return from the
 //   interpreter.
+// MakeCopy() copies the state of the operand stack
 // MergeInto() is slightly subtle. Operations may have been already created
 //   below the merge point, and those operations will have assumed the
 //   expressions are stored in the TR::IlValue's for the state being Merged
@@ -78,12 +79,12 @@ namespace OMR
 // allocates a new VirtualMachineOperandStack and makes it an identical
 // copy of the current operand stack. It is typically used to 
 
-class VirtualMachineOperandStack : public ::OMR::VirtualMachineState
+class VirtualMachineOperandStack : public VirtualMachineState
    {
    public:
    // must be instantiated inside a compilation because uses heap memory
-   VirtualMachineOperandStack(TR::MethodBuilder *mb, int32_t sizeHint, TR::IlType *elementType, OMR::VirtualMachineRegister *stackTop);
-   VirtualMachineOperandStack(OMR::VirtualMachineOperandStack *other);
+   VirtualMachineOperandStack(TR::MethodBuilder *mb, int32_t sizeHint, TR::IlType *elementType, VirtualMachineRegister *stackTop);
+   VirtualMachineOperandStack(VirtualMachineOperandStack *other);
 
    // Commit() writes out the values currently on the simulated
    // operand stack to the actual virtual machine state, typically done in preparation
@@ -94,12 +95,12 @@ class VirtualMachineOperandStack : public ::OMR::VirtualMachineState
    // virtual machine state match another virtual machine state, typically done at a
    // merge point. Routing control to and from the builder "b" is the caller's
    // responsibility.
-   virtual void MergeInto(OMR::VirtualMachineOperandStack *other, TR::IlBuilder *b);
+   virtual void MergeInto(VirtualMachineOperandStack *other, TR::IlBuilder *b);
 
    // MakeCopy() creates an identical copy of the current object, typically
    // used to provide the input state at the destination of a control flow edge
    // Any subclasses *must* implement this function
-   virtual VirtualMachineOperandStack *MakeCopy();
+   virtual VirtualMachineState *MakeCopy();
 
    // the usual stack operation to Push an expression onto the operand stack
    virtual void Push(TR::IlBuilder *b, TR::IlValue *value);
@@ -138,4 +139,4 @@ class VirtualMachineOperandStack : public ::OMR::VirtualMachineState
    };
 }
 
-#endif // !defined(OMR_VIRTUALMACHINEOPERANDSTACK_INCL
+#endif // !defined(OMR_VIRTUALMACHINEOPERANDSTACK_INCL)

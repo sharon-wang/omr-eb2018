@@ -30,8 +30,12 @@ namespace OMR
 
 VirtualMachineOperandStack::VirtualMachineOperandStack(TR::MethodBuilder *mb, int32_t sizeHint,
    TR::IlType *elementType, OMR::VirtualMachineRegister *stackTopRegister)
-   : _mb(mb), _stackTopRegister(stackTopRegister), _stackMax(sizeHint), _stackTop(-1),
-     _elementType(elementType)
+   : VirtualMachineState(),
+   _mb(mb),
+   _stackTopRegister(stackTopRegister),
+   _stackMax(sizeHint),
+   _stackTop(-1),
+   _elementType(elementType)
    {
    int32_t numBytes = _stackMax * sizeof(TR::IlValue *);
    _stack = (TR::IlValue **) TR::comp()->trMemory()->allocateHeapMemory(numBytes);
@@ -45,9 +49,18 @@ VirtualMachineOperandStack::VirtualMachineOperandStack(TR::MethodBuilder *mb, in
    }
 
 VirtualMachineOperandStack::VirtualMachineOperandStack(OMR::VirtualMachineOperandStack *other)
-   : _mb(other->_mb), _stackTopRegister(other->_stackTopRegister), _stackMax(other->_stackMax),
-     _stackTop(other->_stackTop), _elementType(other->_elementType)
-   { }
+   : VirtualMachineState(),
+   _mb(other->_mb),
+   _stackTopRegister(other->_stackTopRegister),
+   _stackMax(other->_stackMax),
+   _stackTop(other->_stackTop),
+   _elementType(other->_elementType),
+   _pushAmount(other->_pushAmount)
+   {
+   int32_t numBytes = _stackMax * sizeof(TR::IlValue *);
+   _stack = (TR::IlValue **) TR::comp()->trMemory()->allocateHeapMemory(numBytes);
+   memcpy(_stack, other->_stack, numBytes);
+   }
 
 
 // commits the simulated operand stack of values to the virtual machine state
@@ -71,7 +84,6 @@ VirtualMachineOperandStack::Commit(TR::IlBuilder *b)
       b->      ConstInt32(i)),
             Pick(i)); // should generalize, maybe delegate element storage ?
       }
-   _stackTopRegister->Commit(b);
    }
 
 void
@@ -96,13 +108,11 @@ VirtualMachineOperandStack::MergeInto(OMR::VirtualMachineOperandStack *other, TR
 
 // Allocate a new operand stack and copy everything in this state
 // If VirtualMachineOperandStack is subclassed, this function *must* also be implemented in the subclass!
-VirtualMachineOperandStack *
+VirtualMachineState *
 VirtualMachineOperandStack::MakeCopy()
    {
    VirtualMachineOperandStack *copy = (VirtualMachineOperandStack *) TR::comp()->trMemory()->allocateHeapMemory(sizeof(VirtualMachineOperandStack));
    new (copy) VirtualMachineOperandStack(this);
-
-   copyTo(copy);
 
    return copy;
    }
@@ -158,11 +168,6 @@ VirtualMachineOperandStack::Dup(TR::IlBuilder *b)
 void
 VirtualMachineOperandStack::copyTo(VirtualMachineOperandStack *copy)
    {
-   int32_t numBytes = _stackMax * sizeof(TR::IlValue *);
-   memcpy(copy->_stack, _stack, numBytes);
-   copy->_stackTop = _stackTop;
-   copy->_stackMax = _stackMax;
-   copy->_stackTopRegister = _stackTopRegister;
    }
 
 void

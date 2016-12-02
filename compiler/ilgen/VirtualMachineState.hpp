@@ -22,25 +22,29 @@
 
 
 namespace TR { class IlBuilder; }
+class TR_Memory;
+
+template <class T> class List;
+template <class T> class ListAppender;
 
 namespace OMR
 {
 
-// VirtualMachineState is really an interface that language compilers will implement
+// VirtualMachineState is an interface that language compilers will implement
 // to define all the aspects of the virtual machine state that the JIT compiler will
 // simulate (operand stacks, virtual registers like "pc", "sp", etc.). The interface
 // has four functions: 1) Commit() to cause the simulated state to be written to the
 // actual virtual machine state, 2) Reload() to set the simulated machine state based
 // on the current virtual machine state, 3) MakeCopy() to make an identical copy of
-// the curent virtual machine state, and 4) MergeInto() to perform the actions needed
-// for the current state to be merged with a second virtual machine state.
+// the curent virtual machine state object, and 4) MergeInto() to perform the actions
+// needed for the current state to be merged with a second virtual machine state.
 //
 // Commit() is typically called when transitioning from compiled code to the interpreter.
 //
 // Reload() is typically called on the transition back from the interpreter to compiled
 // code.
 //
-// MakeCopy is typically called when control flow edges are created: the current vm state
+// MakeCopy() is typically called when control flow edges are created: the current vm state
 // must also become the initial vm state at the target of the control flow edge and be
 // able to evolve independently from the current vm state.
 //
@@ -49,7 +53,9 @@ namespace OMR
 // merge point, the locations of all aspects of the simulated machine state must be
 // identical so that the code below the merge point will compute correct results.
 // Merge() typically causes the current simulated machine state to be written to the
-// locations that were used by an existing simulated machine state.
+// locations that were used by an existing simulated machine state. The "other" object
+// passed to Merge() must have the exact same shape (number of components and each
+// component must also match in its type).
 //
 // Language compilers should extend this base class, add instance variables for all
 // necessary virtual machine state variables (using classes like VirtualMachineRegister
@@ -87,7 +93,9 @@ class VirtualMachineState
    // leading to the target virtual machine state. Empty base implementation does
    // nothing.
    virtual void MergeInto(OMR::VirtualMachineState *other, TR::IlBuilder *b) { }
+
    };
+
 }
 
-#endif // !defined(OMR_VIRTUALMACHINESTATE_INCL
+#endif // !defined(OMR_VIRTUALMACHINESTATE_INCL)
