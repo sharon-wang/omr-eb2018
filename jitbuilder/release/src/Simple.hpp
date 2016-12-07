@@ -18,7 +18,7 @@
 
 
 #ifndef SIMPLE_INCL
-#define SIMPLE_IMPL
+#define SIMPLE_INCL
 
 #include "ilgen/MethodBuilder.hpp"
 
