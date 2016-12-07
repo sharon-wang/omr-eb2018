@@ -41,7 +41,8 @@ ALL_TESTS = \
             simple \
             structarray \
             switch \
-            toiltype
+            toiltype \
+            worklist
 
 goal: $(ALL_TESTS)
 	./atomicoperations
@@ -61,6 +62,7 @@ goal: $(ALL_TESTS)
 	./structarray
 	./switch
 	./toiltype
+	./worklist
 
 all: goal
 
@@ -225,6 +227,12 @@ toiltype : libjitbuilder.a ToIlType.o
 ToIlType.o: src/ToIlType.cpp
 	g++ -o $@ $(CXXFLAGS) $<
 
+
+worklist : libjitbuilder.a Worklist.o
+	g++ -g -fno-rtti -o $@ Worklist.o -L. -ljitbuilder -ldl
+
+Worklist.o: src/Worklist.cpp
+	g++ -o $@ $(CXXFLAGS) $<
 
 
 clean:
