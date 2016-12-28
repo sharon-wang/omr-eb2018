@@ -48,6 +48,11 @@ public:
     */
    int32_t bcIndex() { return _bcIndex; }
 
+   /**
+    * @brief bytecode name for this builder object
+    */
+   char * name() { return _name; }
+
    virtual uint32_t countBlocks();
 
    void AddFallThroughBuilder(TR::BytecodeBuilder *ftb);
