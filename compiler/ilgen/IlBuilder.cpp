@@ -601,6 +601,13 @@ IlBuilder::Store(const char *varName, TR::IlValue *value)
    TraceIL("IlBuilder[ %p ]::Store %s %d gets %d\n", this, varName, sym->getCPIndex(), value->getCPIndex());
    storeNode(sym, loadValue(value));
    }
+  
+void
+IlBuilder::StoreOver(TR::IlValue *dest, TR::IlValue *value)
+   {
+   ILB_REPLAY("%s->StoreOver(%s, %s);", REPLAY_BUILDER(this), REPLAY_VALUE(dest), REPLAY_VALUE(value));
+   Store(dest->getSymbol()->getAutoSymbol()->getName(), value);
+   }
 
 void
 IlBuilder::VectorStore(const char *varName, TR::IlValue *value)
