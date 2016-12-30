@@ -90,12 +90,16 @@ MethodBuilder::MethodBuilder(TR::TypeDictionary *types, OMR::VirtualMachineState
    _symbols(0),
    _newSymbolsAreTemps(false),
    _useBytecodeBuilders(false),
+   _hasBeenSetupForBuildIL(false),
    _countBlocksWorklist(0),
    _connectTreesWorklist(0),
    _allBytecodeBuilders(0),
    _vmState(vmState),
    _bytecodeWorklist(NULL),
-   _bytecodeHasBeenInWorklist(NULL)
+   _bytecodeHasBeenInWorklist(NULL),
+   _callerBuilder(NULL),
+   _callerReturnValue(NULL),
+   _callerReturnBlock(NULL)
    {
    REPLAY({
       std::fstream rpHpp("ReplayMethod.hpp",std::fstream::out);
@@ -126,6 +130,32 @@ MethodBuilder::MethodBuilder(TR::TypeDictionary *types, OMR::VirtualMachineState
    initMaps();
    }
 
+MethodBuilder::MethodBuilder(TR::MethodBuilder *caller, OMR::VirtualMachineState *vmState)
+   : TR::IlBuilder(caller),
+   _methodName(""),
+   _returnType(NoType),
+   _numParameters(0),
+   _cachedParameterTypes(0),
+   _cachedSignature(0),
+   _definingFile(0),
+   _definingLine(0),
+   _symbols(0),
+   _newSymbolsAreTemps(false),
+   _useBytecodeBuilders(false),
+   _hasBeenSetupForBuildIL(false),
+   _countBlocksWorklist(0),
+   _connectTreesWorklist(0),
+   _allBytecodeBuilders(0),
+   _vmState(vmState),
+   _bytecodeWorklist(NULL),
+   _bytecodeHasBeenInWorklist(NULL),
+   _callerBuilder(caller),
+   _callerReturnValue(NULL),
+   _callerReturnBlock(NULL)
+   {
+   initMaps();
+   }
+
 TR::MethodBuilder *
 MethodBuilder::asMethodBuilder()
    {
@@ -147,6 +177,12 @@ MethodBuilder::initMaps()
 void
 MethodBuilder::setupForBuildIL()
    {
+   // will be true if we're a method builder being inlined 
+   if (_hasBeenSetupForBuildIL)
+      return;
+
+   _hasBeenSetupForBuildIL = true;
+
    initSequence();
 
    _entryBlock = cfg()->getStart()->asBlock();
@@ -158,8 +194,11 @@ MethodBuilder::setupForBuildIL()
    // initial "real" block 2 flowing from Entry
    appendBlock(NULL, false);
 
-   // Method's first tree is from Entry block
-   _methodSymbol->setFirstTreeTop(_currentBlock->getEntry());
+   if (!isInlined())
+      {
+      // Method's first tree is from Entry block
+      _methodSymbol->setFirstTreeTop(_currentBlock->getEntry());
+      }
 
    // set up initial CFG
    cfg()->addEdge(_entryBlock, _currentBlock);
@@ -400,7 +439,7 @@ MethodBuilder::OrphanBytecodeBuilder(int32_t bcIndex, char *name)
    {
    MB_REPLAY("OrphanBytecodeBuilder(%d, \"%s\");", bcIndex, name);
 
-   TR::BytecodeBuilder *orphan = new (comp()->trHeapMemory()) TR::BytecodeBuilder(_methodBuilder, bcIndex, name);
+   TR::BytecodeBuilder *orphan = new (comp()->trHeapMemory()) TR::BytecodeBuilder(static_cast<TR::MethodBuilder *>(this), bcIndex, name);
    orphan->initialize(_details, _methodSymbol, _fe, _symRefTab);
    orphan->setupForBuildIL();
    return orphan;

@@ -45,7 +45,20 @@ class MethodBuilder : public TR::IlBuilder
    public:
    TR_ALLOC(TR_Memory::IlGenerator)
 
+   /**
+    * @brief Constructor used for top-level method builder objects to be compiled
+    * @param types type dictionary object to be used by the method builder
+    * @param vmState initial vm state object
+    */
    MethodBuilder(TR::TypeDictionary *types, OMR::VirtualMachineState *vmState = NULL);
+
+   /**
+    * @brief Constructor used for inlined method builder objects
+    * @param caller method builder object that called this method builder
+    * @param vmState initial vm state object
+    */
+   MethodBuilder(TR::MethodBuilder *caller, OMR::VirtualMachineState *vmState = NULL);
+
    virtual void setupForBuildIL();
 
    virtual bool injectIL();
@@ -65,6 +78,18 @@ class MethodBuilder : public TR::IlBuilder
 
    TR::TypeDictionary *typeDictionary()                      { return _types; }
 
+   bool isInlined()                                          { return _callerBuilder != NULL; }
+   TR::IlBuilder *callerBuilder()                            { return _callerBuilder; }
+   TR::Block *callerReturnBlock()                            { return _callerReturnBlock; }
+   TR::IlValue *callerReturnValue()                          { return _callerReturnValue; }
+   void setCaller(TR::IlBuilder *callerBuilder, TR::IlValue *returnValue, TR::Block *returnBlock)
+      {
+      _callerBuilder = callerBuilder;
+      _callerReturnValue = returnValue;
+      _callerReturnBlock = returnBlock;
+      setupForBuildIL();
+      }
+
    const char *getDefiningFile()                             { return _definingFile; }
    const char *getDefiningLine()                             { return _definingLine; }
 
@@ -82,12 +107,12 @@ class MethodBuilder : public TR::IlBuilder
       return getSignature(_numParameters, paramTypeArray);
       }
 
-   TR::IlValue *lookupSymbol(const char *name);
    void defineSymbol(const char *name, TR::IlValue *v);
-   bool symbolDefined(const char *name);
-   bool isSymbolAnArray(const char * name);
+   virtual TR::IlValue *lookupSymbol(const char *name);
+   virtual bool symbolDefined(const char *name);
+   virtual bool isSymbolAnArray(const char * name);
 
-   TR::ResolvedMethod *lookupFunction(const char *name);
+   virtual TR::ResolvedMethod *lookupFunction(const char *name);
 
    TR::BytecodeBuilder *OrphanBytecodeBuilder(int32_t bcIndex=0, char *name=NULL);
 
@@ -170,6 +195,7 @@ class MethodBuilder : public TR::IlBuilder
    // This map should only be accessed inside a compilation via lookupSymbol
    TR_HashTabString          * _symbols;
    bool                        _newSymbolsAreTemps;
+   bool                        _hasBeenSetupForBuildIL;
 
    bool                        _useBytecodeBuilders;
    uint32_t                    _numBlocksBeforeWorklist;
@@ -177,6 +203,10 @@ class MethodBuilder : public TR::IlBuilder
    List<TR::BytecodeBuilder> * _connectTreesWorklist;
    List<TR::BytecodeBuilder> * _allBytecodeBuilders;
    OMR::VirtualMachineState  * _vmState;
+
+   TR::IlBuilder             * _callerBuilder;
+   TR::IlValue               * _callerReturnValue;
+   TR::Block                 * _callerReturnBlock;
 
    TR_BitVector              * _bytecodeWorklist;
    TR_BitVector              * _bytecodeHasBeenInWorklist;
@@ -194,11 +224,11 @@ namespace TR
    class MethodBuilder : public OMR::MethodBuilder
       {
       public:
-         MethodBuilder(TR::TypeDictionary *types)
-            : OMR::MethodBuilder(types)
-            { }
-         MethodBuilder(TR::TypeDictionary *types, OMR::VirtualMachineState *vmState)
+         MethodBuilder(TR::TypeDictionary *types, OMR::VirtualMachineState *vmState=NULL)
             : OMR::MethodBuilder(types, vmState)
+            { }
+         MethodBuilder(TR::MethodBuilder *caller)
+            : OMR::MethodBuilder(caller)
             { }
       };
 

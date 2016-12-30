@@ -1117,10 +1117,19 @@ IlBuilder::Return()
    {
    ILB_REPLAY("%s->Return();", REPLAY_BUILDER(this));
    TraceIL("IlBuilder[ %p ]::Return\n", this);
-   appendBlock();
-   TR::Node *returnNode = TR::Node::create(TR::ILOpCode::returnOpCode(TR::NoType));
-   genTreeTop(returnNode);
-   cfg()->addEdge(_currentBlock, cfg()->getEnd());
+
+   if (_methodBuilder->isInlined())
+      {
+      appendGoto(_methodBuilder->callerReturnBlock());
+      }
+   else
+      {
+      appendBlock();
+      TR::Node *returnNode = TR::Node::create(TR::ILOpCode::returnOpCode(TR::NoType));
+      genTreeTop(returnNode);
+      cfg()->addEdge(_currentBlock, cfg()->getEnd());
+      }
+
    setDoesNotComeBack();
    }
 
@@ -1129,10 +1138,19 @@ IlBuilder::Return(TR::IlValue *value)
    {
    ILB_REPLAY("%s->Return(%s);", REPLAY_BUILDER(this), REPLAY_VALUE(value));
    TraceIL("IlBuilder[ %p ]::Return %d\n", this, value->getCPIndex());
-   appendBlock();
-   TR::Node *returnNode = TR::Node::create(TR::ILOpCode::returnOpCode(value->getSymbol()->getDataType()), 1, loadValue(value));
-   genTreeTop(returnNode);
-   cfg()->addEdge(_currentBlock, cfg()->getEnd());
+
+   if (_methodBuilder->isInlined())
+      {
+      StoreOver(_methodBuilder->callerReturnValue(), value);
+      appendGoto(_methodBuilder->callerReturnBlock());
+      }
+   else
+      {
+      appendBlock();
+      TR::Node *returnNode = TR::Node::create(TR::ILOpCode::returnOpCode(value->getSymbol()->getDataType()), 1, loadValue(value));
+      genTreeTop(returnNode);
+      cfg()->addEdge(_currentBlock, cfg()->getEnd());
+      }
    setDoesNotComeBack();
    }
 
@@ -1581,6 +1599,61 @@ IlBuilder::genCall(TR::SymbolReference *methodSymRef, int32_t numArgs, TR::IlVal
       }
 
    return NULL;
+   }
+
+TR::IlValue *
+IlBuilder::InlineCall(TR::MethodBuilder *inlineMB, int32_t numArgs, ...)
+   {
+   // TODO: figure out Call REPLAY
+   TraceIL("IlBuilder[ %p ]::InlineCall %p\n", this, inlineMB);
+   va_list args;
+   va_start(args, numArgs);
+   TR::IlValue **argValues = processCallArgs(_comp, numArgs, args);
+   va_end(args);
+   return InlineCall(inlineMB, numArgs, argValues);
+   }
+
+TR::IlValue *
+IlBuilder::InlineCall(TR::MethodBuilder *inlineMB, int32_t numArgs, TR::IlValue ** argValues)
+   {
+   // TODO: figure out Call REPLAY
+   TraceIL("IlBuilder[ %p ]::InlineCall %p\n", this, inlineMB);
+   appendBlock();
+
+   // create a value in which to store the return value
+   TR::IlValue *returnValue = NULL;
+   TR::IlType *returnType = inlineMB->getReturnType();
+   if (returnType != NULL)
+      returnValue = NewValue(returnType);
+
+   // create a destination for all return edges
+   TR::Block *returnBlock = emptyBlock();
+
+   // exceptions?
+
+   inlineMB->setCaller(static_cast<TR::IlBuilder *>(this), returnValue, returnBlock);
+
+   // map arguments to parameters
+   // how to handle inlined namespace?
+   // below assumes inlined parameter names do not overlap with caller's names (overwrites)
+
+   // TODO: should really verify argument types here
+   for (int32_t a=0;a < numArgs;a++)
+      {
+      TR::IlValue *arg = argValues[a];
+      Store(inlineMB->getSymbolName(a), arg);
+      }
+
+   AppendBuilder(inlineMB);
+
+   // all inlined code paths will come back to here
+   appendNoFallThroughBlock(returnBlock);
+
+   bool success = inlineMB->buildIL();
+   if (!success)
+      return NULL;
+
+   return returnValue;
    }
 
 /** \brief

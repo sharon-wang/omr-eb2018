@@ -117,6 +117,7 @@ public:
    virtual bool isBytecodeBuilder()             { return false; }
 
    char *getName();
+   TR::MethodBuilder *methodBuilder()           { return _methodBuilder; }
 
    void print(const char *title, bool recurse=false);
    void printBlock(TR::Block *block);
@@ -220,6 +221,8 @@ public:
    TR::IlValue *ComputedCall(const char *name, int32_t numArgs, ...);
    TR::IlValue *ComputedCall(const char *name, int32_t numArgs, TR::IlValue **args);
    TR::IlValue *genCall(TR::SymbolReference *methodSymRef, int32_t numArgs, TR::IlValue ** paramValues, bool isDirectCall = true);
+   TR::IlValue *InlineCall(TR::MethodBuilder *inlineMB, int32_t numArgs, ...);
+   TR::IlValue *InlineCall(TR::MethodBuilder *inlineMB, int32_t numArgs, TR::IlValue **argValues);
    void Goto(TR::IlBuilder **dest);
    void Goto(TR::IlBuilder *dest);
    void Return();
