@@ -1373,11 +1373,9 @@ void TR_OrderBlocks::peepHoleBranchBlock(TR::CFG *cfg, TR::Block *block, char *t
             // transfer frequency between blocks
             cfg->updateBlockFrequency(takenBlock, takenBlock->getFrequency() - oldEdgeFreq);
             cfg->updateBlockFrequencyFromEdges(takenBlock);
-            cfg->updateBlockFrequency(takenGotoDestBlock, takenGotoDestBlock->getFrequency() + oldEdgeFreq);
             if (trace())
                {
                traceMsg(comp(), "\t\t\ttakenBlock (b_%d) new Frequency: %d\n", takenBlock->getNumber(), takenBlock->getFrequency());
-               traceMsg(comp(), "\t\t\ttakenGotoDestBlock (b_%d) new Frequency: %d\n", takenGotoDestBlock->getNumber(), takenGotoDestBlock->getFrequency());
                }
             }
          else
