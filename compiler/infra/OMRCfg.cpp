@@ -2702,41 +2702,52 @@ OMR::CFG::setBlockAndEdgeFrequenciesBasedOnStructure()
    if (setBlockFrequencies)
       {
       if (_compilation->getOption(TR_TraceBFGeneration))
-         dumpOptDetails(comp(),"\nsetBlockAndEdgeFrequenciesBasedOnStructure: Propagating block and edge frequencies within regions...\n");
+         dumpOptDetails(comp(),"\nsetBlockAndEdgeFrequenciesBasedOnStructure: Assigning static predicted block frequencies within regions...\n");
 
+      // goal is to predict block (and eventually edge) frequencies statically
+      // default code (below test for getStructure()) does not work all that well and tends to generate block frequencies
+      //   that make little sense, so that code could be improved upon. In the meantime, a simple static assignment of
+      //   frequency based on loop depth does a reasonable job highlighting the code the compiler should focus most of
+      //   its efforts on. Edge frequencies are not currently dealt with because there's no easy way to just assign them
+      //   to produce a consistent picture to the optimizer.
       if (getStructure())
          {
          TR::CFGNode *node;
+         int32_t maxDepth = 0;
+         if (_compilation->getOption(TR_TraceBFGeneration))
+            dumpOptDetails(comp(),"Calculating block loop depths...\n");
+
          for (node = getFirstNode(); node; node = node->getNext())
             {
-            int32_t frequency = node->getFrequency();
-            if ((frequency < 0) ||
-                (frequency > MAX_COLD_BLOCK_COUNT))
-               node->setFrequency(MAX_COLD_BLOCK_COUNT+1);
+            int32_t nestingDepth = 0;
+            TR::Block *block = toBlock(node);
+            if (block->getStructureOf() != NULL)
+               {
+               block->getStructureOf()->setNestingDepths(&nestingDepth);
+               if (_compilation->getOption(TR_TraceBFGeneration))
+                  dumpOptDetails(comp(), "\tB%d : Loop nesting depth set to %d\n", block->getNumber(), block->getNestingDepth());
+               if (block->getNestingDepth() > maxDepth)
+                  maxDepth = block->getNestingDepth();
+               }
             }
+
+         if (_compilation->getOption(TR_TraceBFGeneration))
+            dumpOptDetails(comp(),"Calculating static block frequencies (maxDepth is %d)...\n", maxDepth);
+         for (node = getFirstNode(); node; node = node->getNext())
+            {
+            TR::Block *block = toBlock(node);
+            int32_t freq = (10000) >> (3*(maxDepth - block->getNestingDepth()));
+            // 10000 is for deepest loop
+            // 10000 >> 3 for next deepest (about 10000 * 1/8 or 1250)
+            // 10000 >> 6 for next deepest (about 10000 * 1/64 or 156)
+            // ...
+
+            node->setFrequency(freq);
+            if (_compilation->getOption(TR_TraceBFGeneration))
+               dumpOptDetails(comp(), "\tB%d: freq %d\n", block->getNumber(), block->getFrequency());
+            }
+
          }
-
-      propagateFrequencyInfoFrom(getStructure());
-
-      {
-      TR::StackMemoryRegion stackMemoryRegion(*trMemory());
-      if (_compilation->getOption(TR_TraceBFGeneration))
-         dumpOptDetails(comp(),"\nsetBlockAndEdgeFrequenciesBasedOnStructure: Computing region weight factors based on CFG structure, num regions=%d...\n",comp()->getFlowGraph()->getNextNodeNumber());
-
-      float maxFactor = 1.0f;
-      computeEntryFactorsFrom(getStructure(), maxFactor);
-      if (maxFactor > MAX_REGION_FACTOR)
-         maxFactor = MAX_REGION_FACTOR;
-
-      if (_compilation->getOption(TR_TraceBFGeneration))
-         dumpOptDetails(comp(),"\nsetBlockAndEdgeFrequenciesBasedOnStructure: Propagating weight factors based on CFG structure...\n");
-
-      _maxFrequency = (int32_t) ((float) maxFactor*INITIAL_BLOCK_FREQUENCY_FACTOR);
-      //dumpOptDetails(comp(),"max factor %f max freq %d\n", maxFactor, _maxFrequency);
-      propagateEntryFactorsFrom(getStructure(), 1.0f);
-      scaleEdgeFrequencies();
-      }
-
       }
    }
 
