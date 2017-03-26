@@ -46,6 +46,8 @@ class MethodBuilder : public TR::IlBuilder
    TR_ALLOC(TR_Memory::IlGenerator)
 
    MethodBuilder(TR::TypeDictionary *types, OMR::VirtualMachineState *vmState = NULL);
+   virtual ~MethodBuilder() { }
+
    virtual void setupForBuildIL();
 
    virtual bool injectIL();
@@ -117,6 +119,13 @@ class MethodBuilder : public TR::IlBuilder
                        TR::IlType     * returnType,
                        int32_t          numParms,
                        TR::IlType     ** parmTypes);
+   /**
+    * @brief will be called if a Call is issued to a function that has not yet been defined, provides a
+    *        mechanism for MethodBuilder subclasses to provide method lookup on demand rather than all up
+    *        front via the constructor.
+    * @returns true if the function was found and DefineFunction has been called for it, otherwise false
+    */
+   virtual bool RequestFunction(const char *name) { return false; }
 
    /**
     * @brief append the first bytecode builder object to this method
