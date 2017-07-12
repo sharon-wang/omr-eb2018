@@ -418,6 +418,7 @@ public:
    int32_t getCompThreadID() const { return _compThreadID; }
 
    const char * signature() { return _signature; }
+   const char * externalName() { return _externalName; }
 
    TR::ResolvedMethodSymbol *getJittedMethodSymbol() { return _methodSymbol;}
    TR::CFG *getFlowGraph();
@@ -1047,6 +1048,7 @@ private:
    TR_RandomGenerator*                 _primaryRandom; // Used to spawn other RandomGenerators to keep nondeterminism contained
    TR_RandomGenerator*                 _adhocRandom;   // Used by callers who can't be bothered to maintain their own TR_RandomGenerator
 
+   const char *                        _externalName;
    TR_Array<TR::ResolvedMethodSymbol*> _methodSymbols;
    TR_Array<TR::SymbolReference*>      _resolvedMethodSymbolReferences;
    TR_Array<TR_InlinedCallSiteInfo>   _inlinedCallSites;

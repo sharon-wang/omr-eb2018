@@ -68,6 +68,7 @@ class ResolvedMethodBase : public TR_ResolvedMethod
    virtual uint16_t              classNameLength()                              { return signatureLength(); }
    virtual uint16_t              signatureLength()                              { return strlen(signatureChars()); }
 
+
    // This group of functions only make sense for Java - we ought to provide answers from that definition
    virtual bool                  isConstructor()                                { return false; }
    virtual bool                  isNonEmptyObjectConstructor()                  { return false; }
@@ -127,6 +128,7 @@ class ResolvedMethod : public ResolvedMethodBase, public Method
    virtual TR_Method           * convertToMethod()                          { return this; }
 
    virtual const char          * signature(TR_Memory *, TR_AllocationKind);
+   virtual const char          * externalName(TR_Memory *, TR_AllocationKind);
    char                        * localName (uint32_t slot, uint32_t bcIndex, int32_t &nameLength, TR_Memory *trMemory);
 
    virtual char                * classNameChars()                           { return (char *)_fileName; }
@@ -171,7 +173,8 @@ class ResolvedMethod : public ResolvedMethodBase, public Method
 
    char *_name;
    char *_signature;
-   char _signatureChars[64];
+   char  _signatureChars[64];
+   char *_externalName;
 
    int32_t          _numParms;
    TR::IlType    ** _parmTypes;

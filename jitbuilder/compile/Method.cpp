@@ -40,6 +40,7 @@ JitBuilder::ResolvedMethod::ResolvedMethod(TR_OpaqueMethodBlock *method)
    _lineNumber = resolvedMethod->getLineNumber();
    _returnType = resolvedMethod->returnIlType();
    _signature = resolvedMethod->getSignature();
+   _externalName = 0;
    _entryPoint = resolvedMethod->getEntryPoint();
    strncpy(_signatureChars, resolvedMethod->signatureChars(), 62); // TODO: introduce concept of robustness
    }
@@ -53,6 +54,7 @@ JitBuilder::ResolvedMethod::ResolvedMethod(TR::MethodBuilder *m)
      _returnType(m->getReturnType()),
      _entryPoint(0),
      _signature(0),
+     _externalName(0),
      _ilInjector(static_cast<TR::IlInjector *>(m))
    {
    computeSignatureChars();
@@ -73,6 +75,26 @@ JitBuilder::ResolvedMethod::signature(TR_Memory * trMemory, TR_AllocationKind al
       }
    else
       return _signature;
+   }
+
+const char *
+JitBuilder::ResolvedMethod::externalName(TR_Memory *trMemory, TR_AllocationKind allocKind)
+   {
+   if( !_externalName)
+      {
+      // For C++, need to mangle name
+      //char * s = (char *)trMemory->allocateMemory(1 + strlen(_name) + 1, allocKind);
+      //sprintf(s, "_Z%d%si", (int32_t)strlen(_name), _name);
+
+
+      // functions must be defined as extern "C"
+      _externalName = _name;
+
+      //if ( allocKind == heapAlloc)
+      //  _externalName = s;
+      }
+
+   return _externalName;
    }
 
 TR::DataType

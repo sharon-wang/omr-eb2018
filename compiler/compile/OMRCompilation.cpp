@@ -251,6 +251,7 @@ OMR::Compilation::Compilation(
    _optimizationPlan(optimizationPlan),
    _primaryRandom(NULL),
    _adhocRandom(NULL),
+   _externalName(compilee->externalName(m)),
    _methodSymbols(m, 10),
    _resolvedMethodSymbolReferences(m),
    _inlinedCallSites(m),
