@@ -249,6 +249,13 @@ Simple.o: src/Simple.cpp src/Simple.hpp
 	$(CXX) -o $@ $(CXXFLAGS) $<
 
 
+simple2 : libjitbuilder.a Simple2.o
+	$(CXX) -g -fno-rtti -o $@ Simple2.o -L. -ljitbuilder -ldl
+
+Simple2.o: src/Simple2.cpp src/Simple2.hpp
+	$(CXX) -o $@ $(CXXFLAGS) $<
+
+
 structarray : libjitbuilder.a StructArray.o
 	$(CXX) -g -fno-rtti -o $@ StructArray.o -L. -ljitbuilder -ldl
 
