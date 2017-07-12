@@ -51,6 +51,8 @@ typedef Elf64_Shdr ELFSectionHeader;
 typedef Elf64_Phdr ELFProgramHeader;
 typedef Elf64_Addr ELFAddress;
 typedef Elf64_Sym ELFSymbol;
+typedef Elf64_Rela ELFRela;
+typedef Elf64_Off ELFOffset;
 #define ELF_ST_INFO(bind, type) ELF64_ST_INFO(bind, type)
 #define ELFClass ELFCLASS64;
 #else
@@ -59,6 +61,8 @@ typedef Elf32_Shdr ELFSectionHeader;
 typedef Elf32_Phdr ELFProgramHeader;
 typedef Elf32_Addr ELFAddress;
 typedef Elf32_Sym ELFSymbol;
+typedef Elf32_Rela ELFRela;
+typedef Elf32_Off ELFOffset;
 #define ELF_ST_INFO(bind, type) ELF32_ST_INFO(bind, type)
 #define ELFClass ELFCLASS32;
 #endif
@@ -74,6 +78,7 @@ struct ELFCodeCacheTrailer
    {
    ELFSectionHeader zeroSection;
    ELFSectionHeader textSection;
+   ELFSectionHeader relaSection;
    ELFSectionHeader dynsymSection;
    ELFSectionHeader shstrtabSection;
    ELFSectionHeader dynstrSection;
@@ -81,11 +86,16 @@ struct ELFCodeCacheTrailer
    char zeroSectionName[1];
    char shstrtabSectionName[10];
    char textSectionName[6];
+   char relaSectionName[11];
    char dynsymSectionName[8];
    char dynstrSectionName[8];
 
    // start of a variable sized region: an ELFSymbol structure per symbol + total size of elf symbol names
    ELFSymbol symbols[1];
+
+   // followed by variable sized symbol names located only by computed offset
+
+   // followed by rela entries located only by computed offset
    };
 
 // structure used to track regions of code cache that will become symbols
@@ -97,6 +107,15 @@ typedef struct CodeCacheSymbol
    uint32_t _size;
    struct CodeCacheSymbol *_next;
    } CodeCacheSymbol;
+
+typedef struct CodeCacheRelocation
+   {
+   uint8_t *_offset;
+   uint32_t _type;
+   uint32_t _symbol;
+   struct CodeCacheRelocation *_next;
+   } CodeCacheRelocation;
+
 } // namespace OMR
 
 #endif // HOST_OS == OMR_LINUX
@@ -260,6 +279,7 @@ protected:
 #if (HOST_OS == OMR_LINUX)
    public:
    void initializeELFHeader();
+   void initializeELFProgramHeader();
    void initializeELFTrailer();
    void initializeELFHeaderForPlatform(ELFCodeCacheHeader *hdr);
 
@@ -272,6 +292,9 @@ protected:
    static CodeCacheSymbol        *_symbols;
    static uint32_t                _numELFSymbols;
    static uint32_t                _totalELFSymbolNamesLength;
+
+   static CodeCacheRelocation    *_relocations;
+   static uint32_t                _numELFRelocations;
 #endif // HOST_OS == OMR_LINUX
    };
 
