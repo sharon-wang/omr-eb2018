@@ -74,7 +74,7 @@ namespace OMR
 {
 
 MethodBuilder::MethodBuilder(TR::TypeDictionary *types, OMR::VirtualMachineState *vmState)
-   : TR::IlBuilder(asMethodBuilder(), types),
+   : TR::MethodBuilderAPI(types, vmState),
    // Note: _memoryRegion and the corresponding TR::SegmentProvider and TR::Memory instances are stored as pointers within MethodBuilder
    // in order to avoid increasing the number of header files needed to compile against the JitBuilder library. Because we are storing
    // them as pointers, we cannot rely on the default C++ destruction semantic to destruct and deallocate the memory region, but rather

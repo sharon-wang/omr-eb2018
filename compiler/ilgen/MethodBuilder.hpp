@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2016, 2016 IBM Corp. and others
+ * Copyright (c) 2016, 2017 IBM Corp. and others
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which accompanies this
@@ -32,7 +32,7 @@
 #include <map>
 #include <set>
 #include <fstream>
-#include "ilgen/IlBuilder.hpp"
+#include "ilgen/MethodBuilderAPI.hpp"
 #include "env/TypedAllocator.hpp"
 
 // Maximum length of _definingLine string (including null terminator)
@@ -51,13 +51,12 @@ class TR_Memory;
 namespace OMR
 {
 
-class MethodBuilder : public TR::IlBuilder
+class MethodBuilder : public TR::MethodBuilderAPI
    {
    public:
    TR_ALLOC(TR_Memory::IlGenerator)
 
    MethodBuilder(TR::TypeDictionary *types, OMR::VirtualMachineState *vmState = NULL);
-   MethodBuilder(const MethodBuilder &src);
    virtual ~MethodBuilder();
 
    virtual void setupForBuildIL();
@@ -251,10 +250,7 @@ namespace TR
    class MethodBuilder : public OMR::MethodBuilder
       {
       public:
-         MethodBuilder(TR::TypeDictionary *types)
-            : OMR::MethodBuilder(types)
-            { }
-         MethodBuilder(TR::TypeDictionary *types, OMR::VirtualMachineState *vmState)
+         MethodBuilder(TR::TypeDictionary *types, OMR::VirtualMachineState *vmState=NULL)
             : OMR::MethodBuilder(types, vmState)
             { }
       };

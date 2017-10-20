@@ -24,6 +24,7 @@ compiler_library(ilgen
 	${CMAKE_CURRENT_SOURCE_DIR}/IlBuilder.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/IlValue.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/IlInjector.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/MethodBuilderAPI.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/MethodBuilder.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/BytecodeBuilder.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/TypeDictionary.cpp
