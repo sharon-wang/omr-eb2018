@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2016, 2016 IBM Corp. and others
+ * Copyright (c) 2016, 2018 IBM Corp. and others
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which accompanies this
@@ -70,10 +70,7 @@
 // into the builder.
 //
 
-namespace OMR
-{
-
-MethodBuilder::MethodBuilder(TR::TypeDictionary *types, OMR::VirtualMachineState *vmState)
+OMR::MethodBuilder::MethodBuilder(TR::TypeDictionary *types, OMR::VirtualMachineState *vmState)
    : TR::IlBuilder(asMethodBuilder(), types),
    // Note: _memoryRegion and the corresponding TR::SegmentProvider and TR::Memory instances are stored as pointers within MethodBuilder
    // in order to avoid increasing the number of header files needed to compile against the JitBuilder library. Because we are storing
@@ -110,7 +107,7 @@ MethodBuilder::MethodBuilder(TR::TypeDictionary *types, OMR::VirtualMachineState
    _definingLine[0] = '\0';
    }
 
-MethodBuilder::~MethodBuilder()
+OMR::MethodBuilder::~MethodBuilder()
    {
    // Cleanup allocations in _memoryRegion *before* its destroyed below (see note in constructor)
    _symbols.clear();
@@ -130,13 +127,13 @@ MethodBuilder::~MethodBuilder()
    }
 
 TR::MethodBuilder *
-MethodBuilder::asMethodBuilder()
+OMR::MethodBuilder::asMethodBuilder()
    {
    return static_cast<TR::MethodBuilder *>(this);
    }
 
 void
-MethodBuilder::setupForBuildIL()
+OMR::MethodBuilder::setupForBuildIL()
    {
    initSequence();
 
@@ -157,7 +154,7 @@ MethodBuilder::setupForBuildIL()
    }
 
 bool
-MethodBuilder::injectIL()
+OMR::MethodBuilder::injectIL()
    {
    bool rc = IlBuilder::injectIL();
    return rc;
@@ -165,7 +162,7 @@ MethodBuilder::injectIL()
 
 
 uint32_t
-MethodBuilder::countBlocks()
+OMR::MethodBuilder::countBlocks()
    {
    if (_count > -1)
       return _count;
@@ -218,7 +215,7 @@ MethodBuilder::countBlocks()
    }
 
 bool
-MethodBuilder::connectTrees()
+OMR::MethodBuilder::connectTrees()
    {
    TraceIL("[ %p ] TR::MethodBuilder::connectTrees entry\n", this);
    if (_useBytecodeBuilders)
@@ -300,7 +297,7 @@ MethodBuilder::connectTrees()
    }
 
 bool
-MethodBuilder::symbolDefined(const char *name)
+OMR::MethodBuilder::symbolDefined(const char *name)
    {
    // _symbols not good enough because symbol can be defined even if it has
    // never been stored to, but _symbolTypes will contain all symbols, even
@@ -312,7 +309,7 @@ MethodBuilder::symbolDefined(const char *name)
    }
 
 void
-MethodBuilder::defineSymbol(const char *name, TR::SymbolReference *symRef)
+OMR::MethodBuilder::defineSymbol(const char *name, TR::SymbolReference *symRef)
    {
    TR_ASSERT_FATAL(_symbols.find(name) == _symbols.end(), "Symbol '%s' already defined", name);
 
@@ -327,7 +324,7 @@ MethodBuilder::defineSymbol(const char *name, TR::SymbolReference *symRef)
    }
 
 TR::SymbolReference *
-MethodBuilder::lookupSymbol(const char *name)
+OMR::MethodBuilder::lookupSymbol(const char *name)
    {
    TR::SymbolReference *symRef;
 
@@ -368,7 +365,7 @@ MethodBuilder::lookupSymbol(const char *name)
    }
 
 TR::ResolvedMethod *
-MethodBuilder::lookupFunction(const char *name)
+OMR::MethodBuilder::lookupFunction(const char *name)
    {
    FunctionMap::iterator it = _functions.find(name);
 
@@ -385,13 +382,13 @@ MethodBuilder::lookupFunction(const char *name)
    }
 
 bool
-MethodBuilder::isSymbolAnArray(const char *name)
+OMR::MethodBuilder::isSymbolAnArray(const char *name)
    {
    return _symbolIsArray.find(name) != _symbolIsArray.end();
    }
 
 TR::BytecodeBuilder *
-MethodBuilder::OrphanBytecodeBuilder(int32_t bcIndex, char *name)
+OMR::MethodBuilder::OrphanBytecodeBuilder(int32_t bcIndex, char *name)
    {
    TR::BytecodeBuilder *orphan = new (comp()->trHeapMemory()) TR::BytecodeBuilder(_methodBuilder, bcIndex, name);
    orphan->initialize(_details, _methodSymbol, _fe, _symRefTab);
@@ -400,7 +397,7 @@ MethodBuilder::OrphanBytecodeBuilder(int32_t bcIndex, char *name)
    }
 
 void
-MethodBuilder::AppendBuilder(TR::BytecodeBuilder *bb)
+OMR::MethodBuilder::AppendBuilder(TR::BytecodeBuilder *bb)
    {
    this->OMR::IlBuilder::AppendBuilder(bb);
    if (_vmState)
@@ -409,20 +406,20 @@ MethodBuilder::AppendBuilder(TR::BytecodeBuilder *bb)
    }
 
 void
-MethodBuilder::DefineName(const char *name)
+OMR::MethodBuilder::DefineName(const char *name)
    {
    _methodName = name;
    }
 
 void
-MethodBuilder::DefineLocal(const char *name, TR::IlType *dt)
+OMR::MethodBuilder::DefineLocal(const char *name, TR::IlType *dt)
    {
    TR_ASSERT_FATAL(_symbolTypes.find(name) == _symbolTypes.end(), "Symbol '%s' already defined", name);
    _symbolTypes.insert(std::make_pair(name, dt));
    }
 
 void
-MethodBuilder::DefineMemory(const char *name, TR::IlType *dt, void *location)
+OMR::MethodBuilder::DefineMemory(const char *name, TR::IlType *dt, void *location)
    {
    TR_ASSERT_FATAL(_memoryLocations.find(name) == _memoryLocations.end(), "Memory '%s' already defined", name);
 
@@ -431,7 +428,7 @@ MethodBuilder::DefineMemory(const char *name, TR::IlType *dt, void *location)
    }
 
 void
-MethodBuilder::DefineParameter(const char *name, TR::IlType *dt)
+OMR::MethodBuilder::DefineParameter(const char *name, TR::IlType *dt)
    {
    TR_ASSERT_FATAL(_parameterSlot.find(name) == _parameterSlot.end(), "Parameter '%s' already defined", name);
 
@@ -443,7 +440,7 @@ MethodBuilder::DefineParameter(const char *name, TR::IlType *dt)
    }
 
 void
-MethodBuilder::DefineArrayParameter(const char *name, TR::IlType *elementType)
+OMR::MethodBuilder::DefineArrayParameter(const char *name, TR::IlType *elementType)
    {
    DefineParameter(name, elementType);
 
@@ -451,13 +448,13 @@ MethodBuilder::DefineArrayParameter(const char *name, TR::IlType *elementType)
    }
 
 void
-MethodBuilder::DefineReturnType(TR::IlType *dt)
+OMR::MethodBuilder::DefineReturnType(TR::IlType *dt)
    {
    _returnType = dt;
    }
 
 void
-MethodBuilder::DefineFunction(const char* const name,
+OMR::MethodBuilder::DefineFunction(const char* const name,
                               const char* const fileName,
                               const char* const lineNumber,
                               void           * entryPoint,
@@ -478,7 +475,7 @@ MethodBuilder::DefineFunction(const char* const name,
    }
 
 void
-MethodBuilder::DefineFunction(const char* const name,
+OMR::MethodBuilder::DefineFunction(const char* const name,
                               const char* const fileName,
                               const char* const lineNumber,
                               void           * entryPoint,
@@ -500,7 +497,7 @@ MethodBuilder::DefineFunction(const char* const name,
    }
 
 const char *
-MethodBuilder::getSymbolName(int32_t slot)
+OMR::MethodBuilder::getSymbolName(int32_t slot)
    {
    // Sometimes the code generators will manufacture a symbol reference themselves with no way
    // to properly assign a cpIndex, that these symbol references show up here with slot == -1
@@ -522,7 +519,7 @@ MethodBuilder::getSymbolName(int32_t slot)
    }
 
 TR::IlType **
-MethodBuilder::getParameterTypes()
+OMR::MethodBuilder::getParameterTypes()
    {
    if (_cachedParameterTypes)
       return _cachedParameterTypes;
@@ -545,14 +542,14 @@ MethodBuilder::getParameterTypes()
    }
 
 void
-MethodBuilder::addToBlockCountingWorklist(TR::BytecodeBuilder *builder)
+OMR::MethodBuilder::addToBlockCountingWorklist(TR::BytecodeBuilder *builder)
    {
    TraceIL("[ %p ] TR::MethodBuilder::addToBlockCountingWorklist %p\n", this, builder);
    _countBlocksWorklist->add(builder);
    }
 
 void
-MethodBuilder::addToTreeConnectingWorklist(TR::BytecodeBuilder *builder)
+OMR::MethodBuilder::addToTreeConnectingWorklist(TR::BytecodeBuilder *builder)
    {
    if (!builder->_connectedTrees)
       {
@@ -562,7 +559,7 @@ MethodBuilder::addToTreeConnectingWorklist(TR::BytecodeBuilder *builder)
    }
 
 void
-MethodBuilder::addToAllBytecodeBuildersList(TR::BytecodeBuilder* bcBuilder)
+OMR::MethodBuilder::addToAllBytecodeBuildersList(TR::BytecodeBuilder* bcBuilder)
    {
    if (NULL == _allBytecodeBuilders)
       {
@@ -574,14 +571,14 @@ MethodBuilder::addToAllBytecodeBuildersList(TR::BytecodeBuilder* bcBuilder)
    }
 
 void
-MethodBuilder::AppendBytecodeBuilder(TR::BytecodeBuilder *builder)
+OMR::MethodBuilder::AppendBytecodeBuilder(TR::BytecodeBuilder *builder)
    {
    IlBuilder::AppendBuilder(builder);
    
    }
 
 void
-MethodBuilder::addBytecodeBuilderToWorklist(TR::BytecodeBuilder *builder)
+OMR::MethodBuilder::addBytecodeBuilderToWorklist(TR::BytecodeBuilder *builder)
    {
    if (_bytecodeWorklist == NULL)
       {
@@ -598,7 +595,7 @@ MethodBuilder::addBytecodeBuilderToWorklist(TR::BytecodeBuilder *builder)
    }
 
 int32_t
-MethodBuilder::GetNextBytecodeFromWorklist()
+OMR::MethodBuilder::GetNextBytecodeFromWorklist()
    {
    if (_bytecodeWorklist == NULL || _bytecodeWorklist->isEmpty())
       return -1;
@@ -609,5 +606,3 @@ MethodBuilder::GetNextBytecodeFromWorklist()
       _bytecodeWorklist->reset(bci);
    return bci;
    }
-
-} // namespace OMR
