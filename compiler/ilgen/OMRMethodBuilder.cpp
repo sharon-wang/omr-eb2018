@@ -70,7 +70,7 @@
 // into the builder.
 //
 
-OMR::MethodBuilder::MethodBuilder(TR::TypeDictionary *types, OMR::VirtualMachineState *vmState)
+OMR::MethodBuilder::MethodBuilder(TR::TypeDictionary *types, TR::VirtualMachineState *vmState)
    : TR::IlBuilder(asMethodBuilder(), types),
    // Note: _memoryRegion and the corresponding TR::SegmentProvider and TR::Memory instances are stored as pointers within MethodBuilder
    // in order to avoid increasing the number of header files needed to compile against the JitBuilder library. Because we are storing
