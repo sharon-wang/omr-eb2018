@@ -47,7 +47,7 @@ namespace OMR
  * holds the actual virtual machine state.
  */
 
-class VirtualMachineRegisterInStruct : public ::OMR::VirtualMachineRegister
+class VirtualMachineRegisterInStruct : public TR::VirtualMachineRegister
    {
    public:
    /**
@@ -63,7 +63,7 @@ class VirtualMachineRegisterInStruct : public ::OMR::VirtualMachineRegister
                           const char * const localNameHoldingStructAddress,
                           const char * const fieldName,
                           const char * const localName) :
-      ::OMR::VirtualMachineRegister(localName),
+      TR::VirtualMachineRegister(localName),
       _structName(structName),
       _fieldName(fieldName),
       _localNameHoldingStructAddress(localNameHoldingStructAddress)

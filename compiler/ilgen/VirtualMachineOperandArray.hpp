@@ -132,7 +132,7 @@ class VirtualMachineOperandArray : public VirtualMachineState
    private:
    TR::MethodBuilder *_mb;
    int32_t _numberOfElements;
-   OMR::VirtualMachineRegister *_arrayBaseRegister;
+   TR::VirtualMachineRegister *_arrayBaseRegister;
    TR::IlType *_elementType;
    TR::IlValue **_values;
    };
