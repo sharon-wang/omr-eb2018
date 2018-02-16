@@ -119,6 +119,28 @@ class VirtualMachineState
     */
    virtual void MergeInto(TR::VirtualMachineState *other, TR::IlBuilder *b) { }
 
+   /**
+    * @brief associates this object with a particular client object
+    */
+   void setClient(void *client)
+      {
+      _client = client;
+      }
+
+   /**
+    * @brief returns the client object associated with this object
+    */
+   void *client()
+      {
+      return _client;
+      }
+
+protected:
+
+   /**
+    * @brief pointer to a client object that corresponds to this object
+    */
+   void                        * _client;
    };
 
 }

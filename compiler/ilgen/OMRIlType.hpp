@@ -55,10 +55,32 @@ public:
 
    virtual size_t getSize();
 
+   /**
+    * @brief associates this object with a particular client object
+    */
+   void setClient(void *client)
+      {
+      _client = client;
+      }
+
+   /**
+    * @brief returns the client object associated with this object
+    */
+   void *client()
+      {
+      return _client;
+      }
+
 protected:
-   const char *_name;
-   static const char * signatureNameForType[TR::NumOMRTypes];
-   static const uint8_t primitiveTypeAlignment[TR::NumOMRTypes];
+   /**
+    * @brief pointer to a client object that corresponds to this object
+    */
+   void                 * _client;
+
+   const char           * _name;
+
+   static const char    * signatureNameForType[TR::NumOMRTypes];
+   static const uint8_t   primitiveTypeAlignment[TR::NumOMRTypes];
    };
 
 } // namespace OMR

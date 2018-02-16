@@ -375,7 +375,28 @@ public:
     */
    void NotifyCompilationDone();
 
+   /**
+    * @brief associates this object with a particular client object
+    */
+   void setClient(void *client)
+      {
+      _client = client;
+      }
+
+   /**
+    * @brief returns the client object associated with this object
+    */
+   void *client()
+      {
+      return _client;
+      }
+
 protected:
+   /**
+    * @brief pointer to a client object that corresponds to this object
+    */
+   void                        * _client;
+
    TR::SegmentProvider *_segmentProvider;
    TR::Region *_memoryRegion;
    TR_Memory *_trMemory;

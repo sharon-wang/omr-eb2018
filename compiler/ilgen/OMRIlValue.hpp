@@ -82,11 +82,32 @@ public:
       return _id;
       }
 
+   /**
+    * @brief associates this object with a particular client object
+    */
+   void setClient(void *client)
+      {
+      _client = client;
+      }
+
+   /**
+    * @brief returns the client object associated with this object
+    */
+   void *client()
+      {
+      return _client;
+      }
+
 protected:
    /**
     * @brief ensures this value is accessible via an auto symbol, but only generates store if hasn't already been stored
     */
    void storeToAuto();
+
+   /**
+    * @brief pointer to a client object that corresponds to this object
+    */
+   void                * _client;
 
    /**
     * @brief identifying number for values guaranteed to be unique per MethodBuilder
