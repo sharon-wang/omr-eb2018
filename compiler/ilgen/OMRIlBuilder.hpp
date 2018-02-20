@@ -45,11 +45,15 @@ namespace TR { class TypeDictionary; }
 template <class T> class List;
 template <class T> class ListAppender;
 
+extern "C"
+{
+typedef bool (*ClientBuildILCallback)(void *clientObject);
+}
+
 namespace OMR
 {
 
 typedef TR::ILOpCodes (*OpCodeMapper)(TR::DataType);
-
 
 class IlBuilder : public TR::IlInjector
    {
@@ -88,6 +92,8 @@ public:
 
    IlBuilder(TR::MethodBuilder *methodBuilder, TR::TypeDictionary *types)
       : TR::IlInjector(types),
+      _client(0),
+      _clientCallbackBuildIL(0),
       _methodBuilder(methodBuilder),
       _sequence(0),
       _sequenceAppender(0),
@@ -370,12 +376,24 @@ public:
       return _client;
       }
 
+   void setClientCallback_buildIL(void *callback)
+      {
+      _clientCallbackBuildIL = (ClientBuildILCallback)callback;
+      }
+
 protected:
 
    /**
     * @brief pointer to a client object that corresponds to this object
     */
    void                        * _client;
+ 
+   /**
+    * @brief pointer to buildIL callback function for this object
+    * usually NULL, but client objects can set this via setBuildILCallback() to be called
+    * when buildIL is called on this object
+    */
+   ClientBuildILCallback         _clientCallbackBuildIL;
 
    /**
     * @brief MethodBuilder parent for this IlBuilder object
@@ -427,7 +445,12 @@ protected:
     */
    bool                          _isHandler;
 
-   virtual bool buildIL() { return true; }
+   virtual bool buildIL()
+      {
+      if (_clientCallbackBuildIL)
+         return (*_clientCallbackBuildIL)(_client);
+      return true;
+      }
 
    TR::SymbolReference *lookupSymbol(const char *name);
    void defineSymbol(const char *name, TR::SymbolReference *v);
