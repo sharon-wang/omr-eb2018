@@ -41,6 +41,11 @@ namespace TR { class SegmentProvider; }
 namespace TR { class Region; }
 class TR_Memory;
 
+extern "C"
+{
+typedef bool (*RequestFunctionCallback)(void *client, const char *name);
+}
+
 namespace OMR
 {
 
@@ -139,7 +144,13 @@ class MethodBuilder : public TR::IlBuilder
     *        front via the constructor.
     * @returns true if the function was found and DefineFunction has been called for it, otherwise false
     */
-   virtual bool RequestFunction(const char *name) { return false; }
+   virtual bool RequestFunction(const char *name)
+      {
+      if (_clientCallbackRequestFunction)
+         return _clientCallbackRequestFunction(_client, name);
+
+      return false;
+      }
 
    /**
     * @brief append the first bytecode builder object to this method
@@ -165,6 +176,14 @@ class MethodBuilder : public TR::IlBuilder
     */
    int32_t GetNextBytecodeFromWorklist();
    
+   /**
+    * @brief Store callback function to be called on client when RequestFunction is called
+    */
+   void setClientCallback_RequestFunction(void *callback)
+      {
+      _clientCallbackRequestFunction = (RequestFunctionCallback) callback;
+      }
+
    protected:
    virtual uint32_t countBlocks();
    virtual bool connectTrees();
@@ -173,6 +192,11 @@ class MethodBuilder : public TR::IlBuilder
    TR::SegmentProvider *_segmentProvider;
    TR::Region *_memoryRegion;
    TR_Memory *_trMemory;
+
+   /**
+    * @brief client callback function to call when RequestFunction is called
+    */
+   RequestFunctionCallback     _clientCallbackRequestFunction;
 
    // These values are typically defined outside of a compilation
    const char                * _methodName;
