@@ -27,8 +27,33 @@ class TR_Memory;
 template <class T> class List;
 template <class T> class ListAppender;
 
+
+void
+OMR::VirtualMachineState::Commit(TR::IlBuilder *b)
+   {
+   if (_clientCallbackCommit)
+      (*_clientCallbackCommit)(this, b->client());
+   }
+
+void
+OMR::VirtualMachineState::Reload(TR::IlBuilder *b)
+   {
+   if (_clientCallbackReload)
+      (*_clientCallbackReload)(this, b->client());
+   }
+
 TR::VirtualMachineState *
 OMR::VirtualMachineState::MakeCopy()
    {
+   if (_clientCallbackMakeCopy)
+      return (TR::VirtualMachineState *) (*_clientCallbackMakeCopy)(this);
+
    return static_cast<TR::VirtualMachineState *>(this);
+   }
+
+void
+OMR::VirtualMachineState::MergeInto(TR::VirtualMachineState *other, TR::IlBuilder *b)
+   {
+   if (_clientCallbackMergeInto)
+      (*_clientCallbackMergeInto)(this, other->client(), b->client());
    }

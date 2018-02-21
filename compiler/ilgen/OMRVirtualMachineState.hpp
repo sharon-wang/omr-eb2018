@@ -22,13 +22,20 @@
 #ifndef OMR_VIRTUALMACHINESTATE_INCL
 #define OMR_VIRTUALMACHINESTATE_INCL
 
-
 namespace TR { class IlBuilder; }
 namespace TR { class VirtualMachineState; }
 class TR_Memory;
 
 template <class T> class List;
 template <class T> class ListAppender;
+
+extern "C"
+{
+typedef void (*CommitCallback)(void *client, void *b);
+typedef void (*ReloadCallback)(void *client, void *b);
+typedef void * (*MakeCopyCallback)(void *client);
+typedef void (*MergeIntoCallback)(void *client, void *other, void *b_other);
+}
 
 namespace OMR
 {
@@ -77,6 +84,15 @@ namespace OMR
 
 class VirtualMachineState
    {
+   protected:
+   VirtualMachineState()
+      : _client(0),
+        _clientCallbackCommit(0),
+        _clientCallbackReload(0),
+        _clientCallbackMakeCopy(0),
+        _clientCallbackMergeInto(0)
+   { }
+
    public:
 
    /**
@@ -84,18 +100,20 @@ class VirtualMachineState
     * @param b builder object where the operations will be added to change the virtual machine state.
     *
     * The builder object b is assumed to be along a control flow path transitioning
-    * from compiled code to the interpreter. Base implementation does nothing.
+    * from compiled code to the interpreter. Base implementation does nothing other than to call
+    * any client callback.
     */
-   virtual void Commit(TR::IlBuilder *b) { }
+   virtual void Commit(TR::IlBuilder *b);
 
    /**
     * @brief Load the current virtual machine state into the simulated variables used by compiled code.
     * @param b builder object where the operations will be added to reload the virtual machine state.
     *
     * The builder object b is assumed to be along a control flow path transitioning
-    * from the interpreter to compiled code. Base implementation does nothing.
+    * from the interpreter to compiled code. Base implementation does nothing other than to call
+    * any client callback.
     */
-   virtual void Reload(TR::IlBuilder *b) { }
+   virtual void Reload(TR::IlBuilder *b);
 
    /**
     * @brief create an identical copy of the current object.
@@ -103,7 +121,7 @@ class VirtualMachineState
     *
     * Typically used when propagating the current state along a flow edge to another builder to
     * capture the input state for that other builder.
-    * Default implementation simply returns the current object.
+    * Default implementation simply returns the current object unless there is a client callback.
     */
    virtual TR::VirtualMachineState *MakeCopy();
 
@@ -115,9 +133,9 @@ class VirtualMachineState
     * The builder object is assumed to be along the control flow edge from one builder object S to
     * another builder object T. "this" vm state is assumed to be the vm state for S. "other"  is
     * assumed to be the vm state for T. Control from S should be to "b", and "b" should eventually
-    * transfer to T. Base implementation does nothing.
+    * transfer to T. Base implementation does nothing other than to call any client callback.
     */
-   virtual void MergeInto(TR::VirtualMachineState *other, TR::IlBuilder *b) { }
+   virtual void MergeInto(TR::VirtualMachineState *other, TR::IlBuilder *b);
 
    /**
     * @brief associates this object with a particular client object
@@ -135,12 +153,36 @@ class VirtualMachineState
       return _client;
       }
 
+   void setClientCallback_Commit(void *callback)
+      {
+      _clientCallbackCommit = (CommitCallback)callback;
+      }
+
+   void setClientCallback_Reload(void *callback)
+      {
+      _clientCallbackReload = (ReloadCallback)callback;
+      }
+
+   void setClientCallback_MakeCopy(void *callback)
+      {
+      _clientCallbackMakeCopy = (MakeCopyCallback)callback;
+      }
+
+   void setClientCallback_MergeInto(void *callback)
+      {
+      _clientCallbackMergeInto = (MergeIntoCallback)callback;
+      }
 protected:
 
    /**
     * @brief pointer to a client object that corresponds to this object
     */
-   void                        * _client;
+   void              * _client;
+
+   CommitCallback      _clientCallbackCommit;
+   ReloadCallback      _clientCallbackReload;
+   MakeCopyCallback    _clientCallbackMakeCopy;
+   MergeIntoCallback   _clientCallbackMergeInto;
    };
 
 }
