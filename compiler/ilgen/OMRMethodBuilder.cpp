@@ -153,14 +153,6 @@ OMR::MethodBuilder::setupForBuildIL()
    cfg()->addEdge(_entryBlock, _currentBlock);
    }
 
-bool
-OMR::MethodBuilder::injectIL()
-   {
-   bool rc = IlBuilder::injectIL();
-   return rc;
-   }
-
-
 uint32_t
 OMR::MethodBuilder::countBlocks()
    {

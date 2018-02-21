@@ -55,8 +55,6 @@ class MethodBuilder : public TR::IlBuilder
 
    virtual void setupForBuildIL();
 
-   virtual bool injectIL();
-
    int32_t getNextValueID()                                  { return _nextValueID++; }
 
    bool usesBytecodeBuilders()                               { return _useBytecodeBuilders; }
