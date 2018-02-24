@@ -481,6 +481,15 @@ OMR::IlBuilder::OrphanBuilder()
    return orphan;
    }
 
+TR::BytecodeBuilder *
+OMR::IlBuilder::OrphanBytecodeBuilder(int32_t bcIndex, char *name)
+   {
+   TR::BytecodeBuilder *orphan = new (comp()->trHeapMemory()) TR::BytecodeBuilder(_methodBuilder, bcIndex, name);
+   orphan->initialize(_details, _methodSymbol, _fe, _symRefTab);
+   orphan->setupForBuildIL();
+   return orphan;
+   }
+
 TR::Block *
 OMR::IlBuilder::emptyBlock()
    {

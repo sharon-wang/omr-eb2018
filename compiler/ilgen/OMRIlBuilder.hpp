@@ -33,6 +33,7 @@
 namespace OMR { class MethodBuilder; }
 
 namespace TR { class Block; }
+namespace TR { class BytecodeBuilder; }
 namespace TR { class IlGeneratorMethodDetails; }
 namespace TR { class IlBuilder; }
 namespace TR { class ResolvedMethodSymbol; } 
@@ -137,6 +138,8 @@ public:
 
    TR::IlBuilder *createBuilderIfNeeded(TR::IlBuilder *builder);
    TR::IlBuilder *OrphanBuilder();
+   TR::BytecodeBuilder *OrphanBytecodeBuilder(int32_t bcIndex=0, char *name=NULL);
+
    bool TraceEnabled_log();
    void TraceIL_log(const char *s, ...);
 
