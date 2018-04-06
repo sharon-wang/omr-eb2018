@@ -86,6 +86,8 @@
 
 OMR::IlBuilder::IlBuilder(TR::IlBuilder *source)
    : TR::IlInjector(source),
+   _client(0),
+   _clientCallbackBuildIL(0),
    _methodBuilder(source->_methodBuilder),
    _sequence(0),
    _sequenceAppender(0),
