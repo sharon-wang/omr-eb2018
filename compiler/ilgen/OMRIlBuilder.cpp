@@ -1494,9 +1494,10 @@ OMR::IlBuilder::UnsignedShiftR(TR::IlValue *v, TR::IlValue *amount)
  * @param allTrueBuilder builder containing operations to execute if all conditional tests evaluate to true
  * @param anyFalseBuilder builder containing operations to execute if any conditional test is false
  * @param numTerms the number of conditional terms
- * @param ... for each term, provide a TR::IlBuilder object and a TR::IlValue object that evaluates a condition (builder is where all the operations to evaluate the condition go, the value is the final result of the condition)
+ * @param termBuilders TR::IlBuilder object per term where each condition is evaluated
+ * @param termValues TR::IlValue object per term that evaluates the condition
  *
- * Example:
+ * Example (should be moved to client API):
  * TR::IlBuilder *cond1Builder = OrphanBuilder();
  * TR::IlValue *cond1 = cond1Builder->GreaterOrEqual(
  *                      cond1Builder->   Load("x"),
@@ -1509,23 +1510,20 @@ OMR::IlBuilder::UnsignedShiftR(TR::IlValue *v, TR::IlValue *amount)
  * IfAnd(&inRange, &outOfRange, 2, cond1Builder, cond1, cond2Builder, cond2);
  */
 void
-OMR::IlBuilder::IfAnd(TR::IlBuilder **allTrueBuilder, TR::IlBuilder **anyFalseBuilder, int32_t numTerms, ...)
+OMR::IlBuilder::IfAnd(TR::IlBuilder **allTrueBuilder, TR::IlBuilder **anyFalseBuilder, int32_t numTerms, TR::IlBuilder **termBuilders, TR::IlValue **termValues)
    {
    TR::IlBuilder *mergePoint = OrphanBuilder();
    *allTrueBuilder = createBuilderIfNeeded(*allTrueBuilder);
    *anyFalseBuilder = createBuilderIfNeeded(*anyFalseBuilder);
 
-   va_list terms;
-   va_start(terms, numTerms);
    for (int32_t t=0;t < numTerms;t++)
       {
-      TR::IlBuilder *condBuilder = va_arg(terms, TR::IlBuilder*);
-      TR::IlValue *condValue = va_arg(terms, TR::IlValue*);
+      TR::IlBuilder *condBuilder = termBuilders[t];
+      TR::IlValue *condValue = termValues[t];
       AppendBuilder(condBuilder);
       condBuilder->IfCmpEqualZero(anyFalseBuilder, condValue);
       // otherwise fall through to test next term
       }
-   va_end(terms);
 
    // if control gets here, all the provided terms were true
    AppendBuilder(*allTrueBuilder);
@@ -1546,9 +1544,10 @@ OMR::IlBuilder::IfAnd(TR::IlBuilder **allTrueBuilder, TR::IlBuilder **anyFalseBu
  * @param anyTrueBuilder builder containing operations to execute if any conditional test evaluates to true
  * @param allFalseBuilder builder containing operations to execute if all conditional tests are false
  * @param numTerms the number of conditional terms
- * @param ... for each term, provide a TR::IlBuilder object and a TR::IlValue object that evaluates a condition (builder is where all the operations to evaluate the condition go, the value is the final result of the condition)
+ * @param termBuilders TR::IlBuilder object per term where each condition is evaluated
+ * @param termValues TR::IlValue object per term that evaluates the condition
  *
- * Example:
+ * Example (should be moved to client API):
  * TR::IlBuilder *cond1Builder = OrphanBuilder();
  * TR::IlValue *cond1 = cond1Builder->LessThan(
  *                      cond1Builder->   Load("x"),
@@ -1561,29 +1560,26 @@ OMR::IlBuilder::IfAnd(TR::IlBuilder **allTrueBuilder, TR::IlBuilder **anyFalseBu
  * IfOr(&outOfRange, &inRange, 2, cond1Builder, cond1, cond2Builder, cond2);
  */
 void
-OMR::IlBuilder::IfOr(TR::IlBuilder **anyTrueBuilder, TR::IlBuilder **allFalseBuilder, int32_t numTerms, ...)
+OMR::IlBuilder::IfOr(TR::IlBuilder **anyTrueBuilder, TR::IlBuilder **allFalseBuilder, int32_t numTerms, TR::IlBuilder **termBuilders, TR::IlValue **termValues)
    {
    TR::IlBuilder *mergePoint = OrphanBuilder();
    *anyTrueBuilder = createBuilderIfNeeded(*anyTrueBuilder);
    *allFalseBuilder = createBuilderIfNeeded(*allFalseBuilder);
 
-   va_list terms;
-   va_start(terms, numTerms);
    for (int32_t t=0;t < numTerms-1;t++)
       {
-      TR::IlBuilder *condBuilder = va_arg(terms, TR::IlBuilder*);
-      TR::IlValue *condValue = va_arg(terms, TR::IlValue*);
+      TR::IlBuilder *condBuilder = termBuilders[t];
+      TR::IlValue *condValue = termValues[t];
       AppendBuilder(condBuilder);
       condBuilder->IfCmpNotEqualZero(anyTrueBuilder, condValue);
       // otherwise fall through to test next term
       }
 
    // reverse condition on last term so that it can fall through to anyTrueBuilder
-   TR::IlBuilder *condBuilder = va_arg(terms, TR::IlBuilder*);
-   TR::IlValue *condValue = va_arg(terms, TR::IlValue*);
+   TR::IlBuilder *condBuilder = termBuilders[numTerms-1];
+   TR::IlValue *condValue = termValues[numTerms-1];
    AppendBuilder(condBuilder);
    condBuilder->IfCmpEqualZero(allFalseBuilder, condValue);
-   va_end(terms);
 
    // any true term will end up here
    AppendBuilder(*anyTrueBuilder);

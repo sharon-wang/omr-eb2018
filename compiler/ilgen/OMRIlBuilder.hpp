@@ -316,9 +316,9 @@ public:
       }
 
    /* @brief creates an AND nest of short-circuited conditions, for each term pass an IlBuilder containing the condition and the IlValue that computes the condition */
-   void IfAnd(TR::IlBuilder **allTrueBuilder, TR::IlBuilder **anyFalseBuilder, int32_t numTerms, ... );
+   void IfAnd(TR::IlBuilder **allTrueBuilder, TR::IlBuilder **anyFalseBuilder, int32_t numTerms, TR::IlBuilder **termBuilders, TR::IlValue **termValues);
    /* @brief creates an OR nest of short-circuited conditions, for each term pass an IlBuilder containing the condition and the IlValue that computes the condition */
-   void IfOr(TR::IlBuilder **anyTrueBuilder, TR::IlBuilder **allFalseBuilder, int32_t numTerms, ... );
+   void IfOr(TR::IlBuilder **anyTrueBuilder, TR::IlBuilder **allFalseBuilder, int32_t numTerms, TR::IlBuilder **termBuilders, TR::IlValue **termValues );
 
    void IfCmpNotEqualZero(TR::IlBuilder **target, TR::IlValue *condition);
    void IfCmpNotEqualZero(TR::IlBuilder *target, TR::IlValue *condition);
