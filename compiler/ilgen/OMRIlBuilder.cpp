@@ -2274,7 +2274,7 @@ OMR::IlBuilder::Switch(const char *selectionVar,
                   uint32_t numCases,
                   int32_t *caseValues,
                   TR::IlBuilder **caseBuilders,
-                  bool *caseFallsThrough)
+                  int32_t *caseFallsThrough)
    {
    TR::IlValue *selectorValue = Load(selectionVar);
    TR_ASSERT(selectorValue->getDataType() == TR::Int32, "Switch only supports selector having type Int32");
@@ -2330,44 +2330,6 @@ OMR::IlBuilder::Switch(const char *selectionVar,
    AppendBuilder(breakBuilder);
    }
 
-void
-OMR::IlBuilder::Switch(const char *selectionVar,
-                  TR::IlBuilder **defaultBuilder,
-                  uint32_t numCases,
-                  ...)
-   {
-   int32_t *caseValues = (int32_t *) _comp->trMemory()->allocateHeapMemory(numCases * sizeof(int32_t));
-   TR_ASSERT(0 != caseValues, "out of memory");
-
-   TR::IlBuilder **caseBuilders = (TR::IlBuilder **) _comp->trMemory()->allocateHeapMemory(numCases * sizeof(TR::IlBuilder *));
-   TR_ASSERT(0 != caseBuilders, "out of memory");
-
-   bool *caseFallsThrough = (bool *) _comp->trMemory()->allocateHeapMemory(numCases * sizeof(bool));
-   TR_ASSERT(0 != caseFallsThrough, "out of memory");
-
-   va_list cases;
-   va_start(cases, numCases);
-   for (int32_t c=0;c < numCases;c++)
-      {
-      caseValues[c] = (int32_t) va_arg(cases, int);
-      caseBuilders[c] = *(TR::IlBuilder **) va_arg(cases, TR::IlBuilder **);
-      caseFallsThrough[c] = (bool) va_arg(cases, int);
-      }
-   va_end(cases);
-
-   Switch(selectionVar, defaultBuilder, numCases, caseValues, caseBuilders, caseFallsThrough);
-
-   // if Switch created any new builders, we need to put those back into the arguments passed into this Switch call
-   va_start(cases, numCases);
-   for (int32_t c=0;c < numCases;c++)
-      {
-      int throwawayValue = va_arg(cases, int);
-      TR::IlBuilder **caseBuilder = va_arg(cases, TR::IlBuilder **);
-      (*caseBuilder) = caseBuilders[c];
-      int throwAwayFallsThrough = va_arg(cases, int);
-      }
-   va_end(cases);
-   }
 
 void
 OMR::IlBuilder::ForLoop(bool countsUp,
