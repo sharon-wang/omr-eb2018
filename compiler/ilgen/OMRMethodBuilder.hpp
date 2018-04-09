@@ -41,6 +41,11 @@ namespace TR { class SegmentProvider; }
 namespace TR { class Region; }
 class TR_Memory;
 
+#ifndef TR_ALLOC
+#define TR_ALLOC(x)
+#endif
+
+
 extern "C"
 {
 typedef bool (*RequestFunctionCallback)(void *client, const char *name);
@@ -135,6 +140,8 @@ class MethodBuilder : public TR::IlBuilder
                        TR::IlType     * returnType,
                        int32_t          numParms,
                        TR::IlType     ** parmTypes);
+
+   int32_t Compile(void **entry);
 
    /**
     * @brief will be called if a Call is issued to a function that has not yet been defined, provides a
