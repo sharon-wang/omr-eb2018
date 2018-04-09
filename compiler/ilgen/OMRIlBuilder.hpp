@@ -357,11 +357,7 @@ public:
                uint32_t numCases,
                int32_t *caseValues,
                TR::IlBuilder **caseBuilders,
-               bool *caseFallsThrough);
-   void Switch(const char *selectionVar,
-               TR::IlBuilder **defaultBuilder,
-               uint32_t numCases,
-               ...);
+               int32_t *caseFallsThrough);
 
    /**
     * @brief associates this object with a particular client object
