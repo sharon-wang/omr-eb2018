@@ -20,8 +20,8 @@
  *******************************************************************************/
 
 #include "ilgen/VirtualMachineState.hpp"
+#include "ilgen/IlBuilder.hpp"
 
-namespace TR { class IlBuilder; }
 class TR_Memory;
 
 template <class T> class List;
@@ -46,7 +46,7 @@ TR::VirtualMachineState *
 OMR::VirtualMachineState::MakeCopy()
    {
    if (_clientCallbackMakeCopy)
-      return (TR::VirtualMachineState *) (*_clientCallbackMakeCopy)(this);
+      return (TR::VirtualMachineState *) (*_clientCallbackMakeCopy)(client());
 
    return static_cast<TR::VirtualMachineState *>(this);
    }
