@@ -33,9 +33,11 @@ public:
    TR_ALLOC(TR_Memory::IlGenerator)
 
    IlType(const char *name) :
+      _client(0),
       _name(name)
       { }
    IlType() :
+      _client(0),
       _name(0)
       { }
    virtual ~IlType()
@@ -43,6 +45,8 @@ public:
 
    const char *getName() { return _name; }
    virtual char *getSignatureName();
+
+   virtual TR::IlType *primitiveType(TR::TypeDictionary * d);
 
    virtual TR::DataType getPrimitiveType() { return TR::NoType; }
 
