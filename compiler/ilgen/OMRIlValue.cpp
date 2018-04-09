@@ -31,7 +31,8 @@
 
 
 OMR::IlValue::IlValue(TR::Node *node, TR::TreeTop *treeTop, TR::Block *block, TR::MethodBuilder *methodBuilder)
-   : _id(methodBuilder->getNextValueID()),
+   : _client(0),
+     _id(methodBuilder->getNextValueID()),
      _nodeThatComputesValue(node),
      _treeTopThatAnchorsValue(treeTop),
      _blockThatComputesValue(block),
