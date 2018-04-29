@@ -99,7 +99,7 @@ int main(int argc, char *argv[])
 
    std::cout << "Step 3: test primitive thunk returning void\n";
 
-   IlType *NoType = d.PrimitiveType(NoType);
+   IlType *NoType = d.NoType;
 
    IlType *parmTypes_1b[] = { d.toIlType<int8_t>() };
    ThunkBuilder thunk1b(&d, "1b", NoType, 1, parmTypes_1b);

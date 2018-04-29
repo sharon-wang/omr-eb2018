@@ -28,13 +28,6 @@
 #include <errno.h>
 #include <stdarg.h>
 
-#include "Jit.hpp"
-#include "ilgen/TypeDictionary.hpp"
-#include "ilgen/MethodBuilder.hpp"
-#include "ilgen/BytecodeBuilder.hpp"
-#include "ilgen/VirtualMachineOperandStack.hpp"
-#include "ilgen/VirtualMachineRegister.hpp"
-#include "ilgen/VirtualMachineRegisterInStruct.hpp"
 #include "OperandStackTests.hpp"
 
 using std::cout;
@@ -46,29 +39,29 @@ typedef struct Thread
    STACKVALUETYPE *sp;
    } Thread;
 
-class TestState : public OMR::VirtualMachineState
+class TestState : public VirtualMachineState
    {
    public:
    TestState()
-      : OMR::VirtualMachineState(),
+      : VirtualMachineState(),
       _stack(NULL),
       _stackTop(NULL)
       { }
 
-   TestState(OMR::VirtualMachineOperandStack *stack, OMR::VirtualMachineRegister *stackTop)
-      : OMR::VirtualMachineState(),
+   TestState(VirtualMachineOperandStack *stack, VirtualMachineRegister *stackTop)
+      : VirtualMachineState(),
       _stack(stack),
       _stackTop(stackTop)
       {
       }
 
-   virtual void Commit(TR::IlBuilder *b)
+   virtual void Commit(IlBuilder *b)
       {
       _stack->Commit(b);
       _stackTop->Commit(b);
       }
 
-   virtual void Reload(TR::IlBuilder *b)
+   virtual void Reload(IlBuilder *b)
       {
       _stack->Reload(b);
       _stackTop->Reload(b);
@@ -77,20 +70,20 @@ class TestState : public OMR::VirtualMachineState
    virtual VirtualMachineState *MakeCopy()
       {
       TestState *newState = new TestState();
-      newState->_stack = (OMR::VirtualMachineOperandStack *)_stack->MakeCopy();
-      newState->_stackTop = (OMR::VirtualMachineRegister *) _stackTop->MakeCopy();
+      newState->_stack = (VirtualMachineOperandStack *)_stack->MakeCopy();
+      newState->_stackTop = (VirtualMachineRegister *) _stackTop->MakeCopy();
       return newState;
       }
 
-   virtual void MergeInto(VirtualMachineState *other, TR::IlBuilder *b)
+   virtual void MergeInto(VirtualMachineState *other, IlBuilder *b)
       {
       TestState *otherState = (TestState *)other;
       _stack->MergeInto(((TestState *)other)->_stack, b);
       _stackTop->MergeInto(((TestState *)other)->_stackTop, b);
       }
 
-   OMR::VirtualMachineOperandStack * _stack;
-   OMR::VirtualMachineRegister     * _stackTop;
+   VirtualMachineOperandStack * _stack;
+   VirtualMachineRegister     * _stackTop;
    };
 
 static bool verbose = false;
@@ -131,9 +124,9 @@ main(int argc, char *argv[])
       }
 
    cout << "Step 2: compile operand stack tests using a straight pointer\n";
-   TR::TypeDictionary types2;
+   TypeDictionary types2;
    OperandStackTestMethod pointerMethod(&types2);
-   uint8_t *entry2 = 0;
+   void *entry2 = 0;
    int32_t rc2 = compileMethodBuilder(&pointerMethod, &entry2);
    if (rc2 != 0)
       {
@@ -149,9 +142,9 @@ main(int argc, char *argv[])
    ptrTest();
 
    cout << "Step 4: compile operand stack tests using a Thread structure\n";
-   TR::TypeDictionary types4;
+   TypeDictionary types4;
    OperandStackTestUsingStructMethod threadMethod(&types4);
-   uint8_t *entry4 = 0;
+   void *entry4 = 0;
    int32_t rc4 = compileMethodBuilder(&threadMethod, &entry4);
    if (rc4 != 0)
       {
@@ -413,7 +406,7 @@ OperandStackTestMethod::verifyStack(const char *step, int32_t max, int32_t num, 
    }
 
 
-OperandStackTestMethod::OperandStackTestMethod(TR::TypeDictionary *d)
+OperandStackTestMethod::OperandStackTestMethod(TypeDictionary *d)
    : MethodBuilder(d)
    {
    DefineLine(LINETOSTR(__LINE__));
@@ -424,7 +417,7 @@ OperandStackTestMethod::OperandStackTestMethod(TR::TypeDictionary *d)
 
    _realStackSize = 32;
    _valueType = STACKVALUEILTYPE;
-   TR::IlType *pValueType = d->PointerTo(_valueType);
+   IlType *pValueType = d->PointerTo(_valueType);
 
    DefineFunction("createStack", "0", "0", (void *)&OperandStackTestMethod::createStack, NoType, 0);
    DefineFunction("moveStack", "0", "0", (void *)&OperandStackTestMethod::moveStack, pValueType, 0);
@@ -460,7 +453,7 @@ OperandStackTestMethod::OperandStackTestMethod(TR::TypeDictionary *d)
 #define PICK(b,d)          (STACK(b)->Pick(d))
 
 bool
-OperandStackTestMethod::testStack(TR::BytecodeBuilder *b, bool useEqual)
+OperandStackTestMethod::testStack(BytecodeBuilder *b, bool useEqual)
    {
    PUSH(b, b->ConstInteger(_valueType, 1));
    b->Call("verifyResult0", 0);
@@ -473,17 +466,17 @@ OperandStackTestMethod::testStack(TR::BytecodeBuilder *b, bool useEqual)
    b->Call("verifyResult2", 1, TOP(b));
 
    COMMIT(b);
-   TR::IlValue *newStack = b->Call("moveStack", 0);
+   IlValue *newStack = b->Call("moveStack", 0);
    UPDATESTACK(b, newStack);
    b->Call("verifyResult3", 1, TOP(b));
 
-   TR::IlValue *val1 = POP(b);
+   IlValue *val1 = POP(b);
    b->Call("verifyResult4", 1, val1);
 
-   TR::IlValue *val2 = POP(b);
+   IlValue *val2 = POP(b);
    b->Call("verifyResult5", 1, val2);
 
-   TR::IlValue *sum = b->Add(val1, val2);
+   IlValue *sum = b->Add(val1, val2);
    PUSH(b, sum);
    COMMIT(b);
    newStack = b->Call("moveStack", 0);
@@ -512,12 +505,12 @@ OperandStackTestMethod::testStack(TR::BytecodeBuilder *b, bool useEqual)
    UPDATESTACK(b, newStack);
    b->Call("verifyResult11", 0);
 
-   TR::BytecodeBuilder *thenBB = OrphanBytecodeBuilder(0, (char*)"BCI_then");
-   TR::BytecodeBuilder *elseBB = OrphanBytecodeBuilder(1, (char*)"BCI_else");
-   TR::BytecodeBuilder *mergeBB = OrphanBytecodeBuilder(2, (char*)"BCI_merge");
+   BytecodeBuilder *thenBB = OrphanBytecodeBuilder(0, (char*)"BCI_then");
+   BytecodeBuilder *elseBB = OrphanBytecodeBuilder(1, (char*)"BCI_else");
+   BytecodeBuilder *mergeBB = OrphanBytecodeBuilder(2, (char*)"BCI_merge");
 
-   TR::IlValue *v1 = POP(b);
-   TR::IlValue *v2 = POP(b);
+   IlValue *v1 = POP(b);
+   IlValue *v2 = POP(b);
    if (useEqual)
       b->IfCmpEqual(thenBB, v1, v2);
    else
@@ -544,8 +537,8 @@ OperandStackTestMethod::testStack(TR::BytecodeBuilder *b, bool useEqual)
    COMMIT(mergeBB); 
    mergeBB->Call("modifyTop3Elements",1, mergeBB->ConstInteger(_valueType, amountToAdd));  
    RELOAD(mergeBB);
-   TR::IlValue *modifiedStackElement = POP(mergeBB);
-   TR::IlValue *expected =  mergeBB->ConstInteger(_valueType, 3+amountToAdd); 
+   IlValue *modifiedStackElement = POP(mergeBB);
+   IlValue *expected =  mergeBB->ConstInteger(_valueType, 3+amountToAdd); 
    mergeBB->Call("verifyValuesEqual", 2, modifiedStackElement, expected);  
    modifiedStackElement = POP(mergeBB);
    expected =  mergeBB->ConstInteger(_valueType, 2+amountToAdd);
@@ -562,19 +555,20 @@ OperandStackTestMethod::testStack(TR::BytecodeBuilder *b, bool useEqual)
 bool
 OperandStackTestMethod::buildIL()
    {
-   TR::IlType *pElementType = _types->PointerTo(_types->PointerTo(STACKVALUEILTYPE));
+   TypeDictionary *dict = typeDictionary();
+   IlType *pElementType = dict->PointerTo(dict->PointerTo(STACKVALUEILTYPE));
 
    Call("createStack", 0);
 
-   TR::IlValue *realStackTopAddress = ConstAddress(&_realStackTop);
-   OMR::VirtualMachineRegister *stackTop = new OMR::VirtualMachineRegister(this, "SP", pElementType, sizeof(STACKVALUETYPE), realStackTopAddress);
-   OMR::VirtualMachineOperandStack *stack = new OMR::VirtualMachineOperandStack(this, 1, _valueType, stackTop);
+   IlValue *realStackTopAddress = ConstAddress(&_realStackTop);
+   VirtualMachineRegister *stackTop = new VirtualMachineRegister(this, "SP", pElementType, sizeof(STACKVALUETYPE), realStackTopAddress);
+   VirtualMachineOperandStack *stack = new VirtualMachineOperandStack(this, 1, _valueType, stackTop);
 
    TestState *vmState = new TestState(stack, stackTop);
    setVMState(vmState);
 
-   TR::BytecodeBuilder *bb = OrphanBytecodeBuilder(0, (char *) "entry");
-   AppendBuilder(bb);
+   BytecodeBuilder *bb = OrphanBytecodeBuilder(0, (char *) "entry");
+   AppendBytecodeBuilder(bb);
 
    testStack(bb, true);
 
@@ -586,7 +580,7 @@ OperandStackTestMethod::buildIL()
 
 
 
-OperandStackTestUsingStructMethod::OperandStackTestUsingStructMethod(TR::TypeDictionary *d)
+OperandStackTestUsingStructMethod::OperandStackTestUsingStructMethod(TypeDictionary *d)
    : OperandStackTestMethod(d)
    {
    d->DefineStruct("Thread");
@@ -601,14 +595,14 @@ OperandStackTestUsingStructMethod::buildIL()
    {
    Call("createStack", 0);
 
-   OMR::VirtualMachineRegisterInStruct *stackTop = new OMR::VirtualMachineRegisterInStruct(this, "Thread", "thread", "sp", "SP");
-   OMR::VirtualMachineOperandStack *stack = new OMR::VirtualMachineOperandStack(this, 1, _valueType, stackTop);
+   VirtualMachineRegisterInStruct *stackTop = new VirtualMachineRegisterInStruct(this, "Thread", "thread", "sp", "SP");
+   VirtualMachineOperandStack *stack = new VirtualMachineOperandStack(this, 1, _valueType, stackTop);
 
    TestState *vmState = new TestState(stack, stackTop);
    setVMState(vmState);
 
-   TR::BytecodeBuilder *bb = OrphanBytecodeBuilder(0, (char *) "entry");
-   AppendBuilder(bb);
+   BytecodeBuilder *bb = OrphanBytecodeBuilder(0, (char *) "entry");
+   AppendBytecodeBuilder(bb);
 
    testStack(bb, false);
 

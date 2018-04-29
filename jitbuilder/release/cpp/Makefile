@@ -41,6 +41,8 @@ ALL_TESTS = \
             iterfib \
             linkedlist \
             localarray \
+            mandelbrot \
+            matmult \
             nestedloop \
             operandarraytests \
             operandstacktests \
@@ -55,8 +57,6 @@ ALL_TESTS = \
             transactionaloperations \
             union \
             worklist \
-
-working: atomicoperations call conditionals conststring dotproduct fieldaddress issupportedtype iterfib linkedlist localarray nestedloop pointer pow2 recfib simple structarray switch toiltype transactionaloperations union worklist
 
 # Compile all the tests by default
 all: $(ALL_TESTS)
@@ -82,6 +82,8 @@ all_goal: common_goal
 	./fieldaddress
 	./linkedlist
 	./localarray
+	./mandelbrot 10000 out
+	./matmult
 	./operandarraytests
 	./operandstacktests
 	./pointer
@@ -95,7 +97,7 @@ all_goal: common_goal
 # Tests that are still on the experimental side
 # If you add to this list and want them to be built under "make", please
 # also add to ALL_TESTS
-experimental_goal: common_goal useIncrement useCall
+experimental_goal: useIncrement useCall
 	./atomicoperations
 	./transactionaloperations
 	./useIncrement

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2016, 2017 IBM Corp. and others
+ * Copyright (c) 2016, 2018 IBM Corp. and others
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which accompanies this
@@ -24,17 +24,17 @@
 #ifndef OPERANDARRAYTESTS_INCL
 #define OPERANDARRAYTESTS_INCL
 
-#include "ilgen/MethodBuilder.hpp"
+#include "JitBuilder.hpp"
 
 #define ARRAYVALUEILTYPE Int32
 #define ARRAYVALUETYPE   int32_t
 
-namespace TR { class BytecodeBuilder; }
+using namespace OMR::JitBuilder;
 
-class OperandArrayTestMethod : public TR::MethodBuilder
+class OperandArrayTestMethod : public MethodBuilder
    {
    public:
-   OperandArrayTestMethod(TR::TypeDictionary *);
+   OperandArrayTestMethod(TypeDictionary *);
    virtual bool buildIL();
 
    static void verify(const char *step, int32_t max, int32_t num, ...);
@@ -43,9 +43,9 @@ class OperandArrayTestMethod : public TR::MethodBuilder
    ARRAYVALUETYPE **getArrayPtr() { return &_realArray; }
 
    protected:
-   bool testArray(TR::BytecodeBuilder *b, bool useEqual);
+   bool testArray(BytecodeBuilder *b, bool useEqual);
 
-   TR::IlType                      *_valueType;
+   IlType                          *_valueType;
 
    static ARRAYVALUETYPE           *_realArray;
    static int32_t                   _realArrayLength;
@@ -58,7 +58,7 @@ class OperandArrayTestMethod : public TR::MethodBuilder
 class OperandArrayTestUsingFalseMethod : public OperandArrayTestMethod
    {
    public:
-   OperandArrayTestUsingFalseMethod(TR::TypeDictionary *);
+   OperandArrayTestUsingFalseMethod(TypeDictionary *);
    virtual bool buildIL();
    };
 

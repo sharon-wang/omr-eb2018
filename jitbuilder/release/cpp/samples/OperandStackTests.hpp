@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2016, 2016 IBM Corp. and others
+ * Copyright (c) 2016, 2018 IBM Corp. and others
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which accompanies this
@@ -24,7 +24,9 @@
 #ifndef OPERANDSTACKTESTS_INCL
 #define OPERANDSTACKTESTS_INCL
 
-#include "ilgen/MethodBuilder.hpp"
+#include "JitBuilder.hpp"
+
+using namespace OMR::JitBuilder;
 
 #define STACKVALUEILTYPE	Int32
 #define	STACKVALUETYPE		int32_t
@@ -32,12 +34,10 @@
 //#define STACKVALUEILTYPE	Int64
 //#define STACKVALUETYPE	int64_t
 
-namespace TR { class BytecodeBuilder; }
-
-class OperandStackTestMethod : public TR::MethodBuilder
+class OperandStackTestMethod : public MethodBuilder
    {
    public:
-   OperandStackTestMethod(TR::TypeDictionary *);
+   OperandStackTestMethod(TypeDictionary *);
    virtual bool buildIL();
 
    static void verifyStack(const char *step, int32_t max, int32_t num, ...);
@@ -46,9 +46,9 @@ class OperandStackTestMethod : public TR::MethodBuilder
    STACKVALUETYPE **getSPPtr() { return &_realStackTop; }
 
    protected:
-   bool testStack(TR::BytecodeBuilder *b, bool useEqual);
+   bool testStack(BytecodeBuilder *b, bool useEqual);
 
-   TR::IlType                      * _valueType;
+   IlType                          * _valueType;
 
    static STACKVALUETYPE           * _realStack;
    static STACKVALUETYPE           * _realStackTop;
@@ -62,7 +62,7 @@ class OperandStackTestMethod : public TR::MethodBuilder
 class OperandStackTestUsingStructMethod : public OperandStackTestMethod
    {
    public:
-   OperandStackTestUsingStructMethod(TR::TypeDictionary *);
+   OperandStackTestUsingStructMethod(TypeDictionary *);
    virtual bool buildIL();
    };
 

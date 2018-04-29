@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2016, 2017 IBM Corp. and others
+ * Copyright (c) 2016, 2018 IBM Corp. and others
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which accompanies this
@@ -28,13 +28,6 @@
 #include <errno.h>
 #include <stdarg.h>
 
-#include "Jit.hpp"
-#include "ilgen/TypeDictionary.hpp"
-#include "ilgen/MethodBuilder.hpp"
-#include "ilgen/BytecodeBuilder.hpp"
-#include "ilgen/VirtualMachineOperandArray.hpp"
-#include "ilgen/VirtualMachineRegister.hpp"
-#include "ilgen/VirtualMachineRegisterInStruct.hpp"
 #include "OperandArrayTests.hpp"
 
 using std::cout;
@@ -76,9 +69,9 @@ main(int argc, char *argv[])
       }
 
    cout << "Step 2: compile operand array tests set up for equals\n";
-   TR::TypeDictionary types2;
+   TypeDictionary types2;
    OperandArrayTestMethod pointerMethod(&types2);
-   uint8_t *entry2 = 0;
+   void *entry2 = 0;
    int32_t rc2 = compileMethodBuilder(&pointerMethod, &entry2);
    if (rc2 != 0)
       {
@@ -93,10 +86,13 @@ main(int argc, char *argv[])
    setupResult8Equals();
    ptrTest();
 
+   cout << "Number passing tests: " << numPassingTests << "\n";
+   cout << "Number failing tests: " << numFailingTests << "\n";
+
    cout << "Step 4: compile operand array tests set up for notequals\n";
-   TR::TypeDictionary types4;
+   TypeDictionary types4;
    OperandArrayTestUsingFalseMethod pointerMethodFalse(&types4);
-   uint8_t *entry4 = 0;
+   void *entry4 = 0;
    int32_t rc4 = compileMethodBuilder(&pointerMethodFalse, &entry4);
    if (rc4 != 0)
       {
@@ -337,7 +333,7 @@ OperandArrayTestMethod::verify(const char *step, int32_t max, int32_t num, ...)
    }
 
 
-OperandArrayTestMethod::OperandArrayTestMethod(TR::TypeDictionary *d)
+OperandArrayTestMethod::OperandArrayTestMethod(TypeDictionary *d)
    : MethodBuilder(d)
    {
    DefineLine(LINETOSTR(__LINE__));
@@ -351,7 +347,7 @@ OperandArrayTestMethod::OperandArrayTestMethod(TR::TypeDictionary *d)
    memset(_realArray, 0, _realArrayLength*sizeof(ARRAYVALUETYPE));
 
    _valueType = ARRAYVALUEILTYPE;
-   TR::IlType *pValueType = d->PointerTo(_valueType);
+   IlType *pValueType = d->PointerTo(_valueType);
 
    DefineFunction("createArray", "0", "0", (void *)&OperandArrayTestMethod::createArray, NoType, 0);
    DefineFunction("moveArray", "0", "0", (void *)&OperandArrayTestMethod::moveArray, pValueType, 0);
@@ -371,7 +367,7 @@ OperandArrayTestMethod::OperandArrayTestMethod(TR::TypeDictionary *d)
    }
 
 // convenience macros
-#define STACK(b)         ((OMR::VirtualMachineOperandArray *)(b)->vmState())
+#define STACK(b)         ((VirtualMachineOperandArray *)(b)->vmState())
 #define UPDATEARRAY(b,s) (STACK(b)->UpdateArray(b, s))
 #define COMMIT(b)        (STACK(b)->Commit(b))
 #define RELOAD(b)        (STACK(b)->Reload(b))
@@ -380,7 +376,7 @@ OperandArrayTestMethod::OperandArrayTestMethod(TR::TypeDictionary *d)
 #define MOVE(b, d, s)    (STACK(b)->Move(b, d, s))
 
 bool
-OperandArrayTestMethod::testArray(TR::BytecodeBuilder *builder, bool useEqual)
+OperandArrayTestMethod::testArray(BytecodeBuilder *builder, bool useEqual)
    {
    //VMOA      [null,null,null,...,null]
    //_realArray[null,null,null,...,null]
@@ -402,7 +398,7 @@ OperandArrayTestMethod::testArray(TR::BytecodeBuilder *builder, bool useEqual)
    builder->Call("verifyResult2", 1, GET(builder, 2));
 
    COMMIT(builder);
-   TR::IlValue *newArray = builder->Call("moveArray", 0);
+   IlValue *newArray = builder->Call("moveArray", 0);
    UPDATEARRAY(builder, newArray);
    //VMOA      [0,1,2,null,...,null]
    //_realArray[0,1,2,null,...,null]
@@ -418,7 +414,7 @@ OperandArrayTestMethod::testArray(TR::BytecodeBuilder *builder, bool useEqual)
    //_realArray[0,1,2,2,null,...,null]
    builder->Call("verifyResult5", 1, GET(builder, 3));
 
-   TR::IlValue *sum = builder->Add(GET(builder, 2), GET(builder, 3));
+   IlValue *sum = builder->Add(GET(builder, 2), GET(builder, 3));
    SET(builder, 4, sum);
    COMMIT(builder);
    //VMOA      [0,1,2,2,4,null,...,null]
@@ -432,13 +428,12 @@ OperandArrayTestMethod::testArray(TR::BytecodeBuilder *builder, bool useEqual)
    //_realArray[0,1,2,2,4,5,5,null]
    builder->Call("verifyResult7", 0);
 
-   TR::BytecodeBuilder *thenBB = OrphanBytecodeBuilder(0, (char*)"BCI_then");
-   TR::BytecodeBuilder *elseBB = OrphanBytecodeBuilder(1, (char*)"BCI_else");
-   TR::BytecodeBuilder *mergeBB = OrphanBytecodeBuilder(2, (char*)"BCI_merge");
+   BytecodeBuilder *thenBB = OrphanBytecodeBuilder(0, (char*)"BCI_then");
+   BytecodeBuilder *elseBB = OrphanBytecodeBuilder(1, (char*)"BCI_else");
+   BytecodeBuilder *mergeBB = OrphanBytecodeBuilder(2, (char*)"BCI_merge");
 
-   TR::IlValue *v1 = GET(builder, 5);
-   TR::IlValue *v2 = GET(builder, 6);
-
+   IlValue *v1 = GET(builder, 5);
+   IlValue *v2 = GET(builder, 6);
    if (useEqual)
       builder->IfCmpEqual(thenBB, v1, v2);
    else
@@ -467,38 +462,42 @@ OperandArrayTestMethod::testArray(TR::BytecodeBuilder *builder, bool useEqual)
    //VMOA      [0,1,2,{9,11},4,5,5,5]
    //_realArray[0,1,2,{9,11},4,5,5,5]
 
-   TR::BytecodeBuilder *change7 = OrphanBytecodeBuilder(3, (char*)"BCI_change7");
-   TR::BytecodeBuilder *nextMerge = OrphanBytecodeBuilder(4, (char*)"nextMerge");
-   TR::BytecodeBuilder *view6and7 = OrphanBytecodeBuilder(5, (char*)"BCI_view6and7");
+   BytecodeBuilder *change7 = OrphanBytecodeBuilder(3, (char*)"BCI_change7");
+   BytecodeBuilder *nextMerge = OrphanBytecodeBuilder(4, (char*)"nextMerge");
 
-   mergeBB->IfCmpEqual(change7, GET(mergeBB, 5), GET(mergeBB, 6));
+   IlValue *left = GET(mergeBB, 5);
+   IlValue *right = GET(mergeBB, 6);
+   mergeBB->IfCmpEqual(change7, left, right);
+
    mergeBB->AddFallThroughBuilder(nextMerge);
-
-   nextMerge->AddFallThroughBuilder(view6and7);
 
    SET(change7, 7, change7->ConstInteger(_valueType, 22));
    //VMOA      [0,1,2,{9,11},4,5,5,22]
    //_realArray[0,1,2,{9,11},4,5,5,5]
-   change7->Goto(view6and7);
-   //Since the TR::IlValue at index 6 and 7 was the same value the merge will cause both to be updated
+
+   change7->Goto(nextMerge);
+
+   //Since the IlValue at index 6 and 7 was the same value the merge will cause both to be updated
    //VMOA      [0,1,2,{9,11},4,5,22,22]
    //_realArray[0,1,2,{9,11},4,5,5 ,5]
-   COMMIT(view6and7);
+   COMMIT(nextMerge);
    //VMOA      [0,1,2,{9,11},4,5,22,22]
    //_realArray[0,1,2,{9,11},4,5,22,22]
-   view6and7->Call("verifyResult9", 2, GET(view6and7, 6), GET(view6and7, 7));
+   nextMerge->Call("verifyResult9", 2, GET(nextMerge, 6), GET(nextMerge, 7));
 
-   TR::IlValue *one = view6and7->ConstInteger(_valueType, 7);
-   TR::IlValue *two = view6and7->ConstInteger(_valueType, 19);
-   view6and7->Call("modifyIndex1And2", 2, one, two);
+   IlValue *one = nextMerge->ConstInteger(_valueType, 7);
+   IlValue *two = nextMerge->ConstInteger(_valueType, 19);
+   nextMerge->Call("modifyIndex1And2", 2, one, two);
    //VMOA      [0,1,2 ,{9,11},4,5,22,22]
    //_realArray[0,7,19,{9,11},4,5,22,22]
-   RELOAD(view6and7);
+   RELOAD(nextMerge);
    //VMOA      [0,7,19,{9,11},4,5,22,22]
    //_realArray[0,7,19,{9,11},4,5,22,22]
-   view6and7->Call("verifyResult10", 2, GET(view6and7, 1), GET(view6and7, 2));
+   nextMerge->Call("verifyResult10", 2, GET(nextMerge, 1), GET(nextMerge, 2));
 
-   view6and7->Return();
+   nextMerge->Call("freeArray", 0);
+
+   nextMerge->Return();
 
    return true;
    }
@@ -506,27 +505,24 @@ OperandArrayTestMethod::testArray(TR::BytecodeBuilder *builder, bool useEqual)
 bool
 OperandArrayTestMethod::buildIL()
    {
-   TR::IlType *pElementType = _types->PointerTo(_types->PointerTo(Word));
+   TypeDictionary *dict = typeDictionary();
+   IlType *pElementType = dict->PointerTo(dict->PointerTo(Word));
 
    Call("createArray", 0);
 
-   TR::IlValue *arrayBaseAddress = ConstAddress(&_realArray);
-   OMR::VirtualMachineRegister *arrayBase = new OMR::VirtualMachineRegister(this, "ARRAY", pElementType, sizeof(ARRAYVALUETYPE), arrayBaseAddress);
-   OMR::VirtualMachineOperandArray *array = new OMR::VirtualMachineOperandArray(this, _realArrayLength, _valueType, arrayBase);
+   IlValue *arrayBaseAddress = ConstAddress(&_realArray);
+   VirtualMachineRegister *arrayBase = new VirtualMachineRegister(this, "ARRAY", pElementType, sizeof(ARRAYVALUETYPE), arrayBaseAddress);
+   VirtualMachineOperandArray *array = new VirtualMachineOperandArray(this, _realArrayLength, _valueType, arrayBase);
 
    setVMState(array);
 
-   TR::BytecodeBuilder *bb = OrphanBytecodeBuilder(0, (char *) "entry");
-   AppendBuilder(bb);
+   BytecodeBuilder *bb = OrphanBytecodeBuilder(0, (char *) "entry");
+   AppendBytecodeBuilder(bb);
 
-   testArray(bb, true);
-
-   Call("freeArray", 0);
-
-   return true;
+   return testArray(bb, true);
    }
 
-OperandArrayTestUsingFalseMethod::OperandArrayTestUsingFalseMethod(TR::TypeDictionary *d)
+OperandArrayTestUsingFalseMethod::OperandArrayTestUsingFalseMethod(TypeDictionary *d)
    : OperandArrayTestMethod(d)
    {
    }
@@ -534,22 +530,21 @@ OperandArrayTestUsingFalseMethod::OperandArrayTestUsingFalseMethod(TR::TypeDicti
 bool
 OperandArrayTestUsingFalseMethod::buildIL()
    {
-   TR::IlType *pElementType = _types->PointerTo(_types->PointerTo(Word));
+   TypeDictionary *dict = typeDictionary();
+   IlType *pElementType = dict->PointerTo(dict->PointerTo(Word));
 
    Call("createArray", 0);
 
-   TR::IlValue *arrayBaseAddress = ConstAddress(&_realArray);
-   OMR::VirtualMachineRegister *arrayBase = new OMR::VirtualMachineRegister(this, "ARRAY", pElementType, sizeof(ARRAYVALUETYPE), arrayBaseAddress);
-   OMR::VirtualMachineOperandArray *array = new OMR::VirtualMachineOperandArray(this, _realArrayLength, _valueType, arrayBase);
+   IlValue *arrayBaseAddress = ConstAddress(&_realArray);
+   VirtualMachineRegister *arrayBase = new VirtualMachineRegister(this, "ARRAY", pElementType, sizeof(ARRAYVALUETYPE), arrayBaseAddress);
+   VirtualMachineOperandArray *array = new VirtualMachineOperandArray(this, _realArrayLength, _valueType, arrayBase);
 
    setVMState(array);
 
-   TR::BytecodeBuilder *bb = OrphanBytecodeBuilder(0, (char *) "entry");
-   AppendBuilder(bb);
+   BytecodeBuilder *bb = OrphanBytecodeBuilder(0, (char *) "entry");
+   AppendBytecodeBuilder(bb);
 
    testArray(bb, false);
-
-   Call("freeArray", 0);
 
    return true;
    }
