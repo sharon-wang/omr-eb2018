@@ -368,12 +368,9 @@ public:
       }
 
    /**
-    * @brief returns the client object associated with this object
+    * @brief returns the client object associated with this object, allocating it if necessary
     */
-   void *client()
-      {
-      return _client;
-      }
+   void *client();
 
    void setClientCallback_buildIL(void *callback)
       {
@@ -447,7 +444,7 @@ protected:
    virtual bool buildIL()
       {
       if (_clientCallbackBuildIL)
-         return (*_clientCallbackBuildIL)(_client);
+         return (*_clientCallbackBuildIL)(client());
       return true;
       }
 
@@ -514,6 +511,9 @@ protected:
    TR::IlValue *genOperationWithOverflowCHK(TR::ILOpCodes op, TR::Node *leftNode, TR::Node *rightNode, TR::IlBuilder **handler, TR::ILOpCodes overflow);
    virtual void setHandlerInfo(uint32_t catchType);
    TR::IlValue **processCallArgs(TR::Compilation *comp, int numArgs, va_list args);
+
+private:
+   static void * allocateClientObject(TR::IlBuilder *);
    };
 
 } // namespace OMR

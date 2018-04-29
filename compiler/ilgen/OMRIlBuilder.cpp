@@ -635,6 +635,7 @@ OMR::IlBuilder::Store(const char *varName, TR::IlValue *value)
 void
 OMR::IlBuilder::StoreOver(TR::IlValue *dest, TR::IlValue *value)
    {
+   TraceIL("IlBuilder[ %p ]::StoreOver %d gets %d\n", this, dest->getID(), value->getID());
    dest->storeOver(value, _currentBlock);
    }
 
@@ -2465,4 +2466,12 @@ OMR::IlBuilder::WhileDoLoop(const char *whileCondition, TR::IlBuilder **body, TR
    setComesBack(); // this goto is on one particular flow path, doesn't mean every path does a goto
 
    AppendBuilder(done);
+   }
+
+void *
+OMR::IlBuilder::client()
+   {
+   if (_client == NULL)
+      _client = allocateClientObject(static_cast<TR::IlBuilder *>(this));
+   return _client;
    }
