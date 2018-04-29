@@ -21,6 +21,7 @@
 
 #include "ilgen/VirtualMachineState.hpp"
 #include "ilgen/IlBuilder.hpp"
+#include "compile/Compilation.hpp"
 
 class TR_Memory;
 
@@ -29,31 +30,50 @@ template <class T> class ListAppender;
 
 
 void
-OMR::VirtualMachineState::Commit(TR::IlBuilder *b)
+OMR::VirtualMachineState::commit(TR::IlBuilder *b)
    {
    if (_clientCallbackCommit)
-      (*_clientCallbackCommit)(this, b->client());
+      (*_clientCallbackCommit)(client(), b->client());
    }
 
 void
-OMR::VirtualMachineState::Reload(TR::IlBuilder *b)
+OMR::VirtualMachineState::reload(TR::IlBuilder *b)
    {
    if (_clientCallbackReload)
-      (*_clientCallbackReload)(this, b->client());
+      (*_clientCallbackReload)(client(), b->client());
    }
 
 TR::VirtualMachineState *
 OMR::VirtualMachineState::MakeCopy()
    {
-   if (_clientCallbackMakeCopy)
-      return (TR::VirtualMachineState *) (*_clientCallbackMakeCopy)(client());
+   return new (TR::comp()->trMemory()->trHeapMemory()) TR::VirtualMachineState();
+   }
 
-   return static_cast<TR::VirtualMachineState *>(this);
+extern void *getImpl_VirtualMachineState(void *clientObj);
+
+TR::VirtualMachineState *
+OMR::VirtualMachineState::makeCopy()
+   {
+   if (_clientCallbackMakeCopy)
+      {
+      void *copyClient = (*_clientCallbackMakeCopy)(client());
+      return (TR::VirtualMachineState *)getImpl_VirtualMachineState(copyClient);
+      }
+
+   return MakeCopy();
    }
 
 void
-OMR::VirtualMachineState::MergeInto(TR::VirtualMachineState *other, TR::IlBuilder *b)
+OMR::VirtualMachineState::mergeInto(TR::VirtualMachineState *other, TR::IlBuilder *b)
    {
    if (_clientCallbackMergeInto)
-      (*_clientCallbackMergeInto)(this, other->client(), b->client());
+      (*_clientCallbackMergeInto)(client(), other->client(), b->client());
+   }
+
+void *
+OMR::VirtualMachineState::client()
+   {
+   if (_client == NULL)
+      _client = allocateClientObject(static_cast<TR::VirtualMachineState *>(this));
+   return _client;
    }

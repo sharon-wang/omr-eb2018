@@ -100,20 +100,22 @@ class VirtualMachineState
     * @param b builder object where the operations will be added to change the virtual machine state.
     *
     * The builder object b is assumed to be along a control flow path transitioning
-    * from compiled code to the interpreter. Base implementation does nothing other than to call
-    * any client callback.
+    * from compiled code to the interpreter. Base implementation does nothing.
     */
-   virtual void Commit(TR::IlBuilder *b);
+   virtual void Commit(TR::IlBuilder *b) { }
+
+   void commit(TR::IlBuilder *b);
 
    /**
     * @brief Load the current virtual machine state into the simulated variables used by compiled code.
     * @param b builder object where the operations will be added to reload the virtual machine state.
     *
     * The builder object b is assumed to be along a control flow path transitioning
-    * from the interpreter to compiled code. Base implementation does nothing other than to call
-    * any client callback.
+    * from the interpreter to compiled code. Base implementation does nothing.
     */
-   virtual void Reload(TR::IlBuilder *b);
+   virtual void Reload(TR::IlBuilder *b) { }
+
+   void reload(TR::IlBuilder *b);
 
    /**
     * @brief create an identical copy of the current object.
@@ -121,9 +123,10 @@ class VirtualMachineState
     *
     * Typically used when propagating the current state along a flow edge to another builder to
     * capture the input state for that other builder.
-    * Default implementation simply returns the current object unless there is a client callback.
     */
    virtual TR::VirtualMachineState *MakeCopy();
+
+   TR::VirtualMachineState *makeCopy();
 
    /**
     * @brief cause the current state variables to match those used by another vm state
@@ -133,9 +136,11 @@ class VirtualMachineState
     * The builder object is assumed to be along the control flow edge from one builder object S to
     * another builder object T. "this" vm state is assumed to be the vm state for S. "other"  is
     * assumed to be the vm state for T. Control from S should be to "b", and "b" should eventually
-    * transfer to T. Base implementation does nothing other than to call any client callback.
+    * transfer to T. Base implementation does nothing.
     */
-   virtual void MergeInto(TR::VirtualMachineState *other, TR::IlBuilder *b);
+   virtual void MergeInto(TR::VirtualMachineState *other, TR::IlBuilder *b) { }
+
+   void mergeInto(TR::VirtualMachineState *other, TR::IlBuilder *b);
 
    /**
     * @brief associates this object with a particular client object
@@ -148,10 +153,7 @@ class VirtualMachineState
    /**
     * @brief returns the client object associated with this object
     */
-   void *client()
-      {
-      return _client;
-      }
+   virtual void *client();
 
    void setClientCallback_Commit(void *callback)
       {
@@ -183,6 +185,9 @@ protected:
    ReloadCallback      _clientCallbackReload;
    MakeCopyCallback    _clientCallbackMakeCopy;
    MergeIntoCallback   _clientCallbackMergeInto;
+
+private:
+   static void * allocateClientObject(TR::VirtualMachineState *);
    };
 
 }
