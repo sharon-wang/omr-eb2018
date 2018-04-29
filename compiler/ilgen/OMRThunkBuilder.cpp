@@ -94,3 +94,11 @@ OMR::ThunkBuilder::buildIL()
 
    return true;
    }
+
+void *
+OMR::ThunkBuilder::client()
+   {
+   if (_client == NULL)
+      _client = allocateClientObject(static_cast<TR::ThunkBuilder *>(this));
+   return _client;
+   }

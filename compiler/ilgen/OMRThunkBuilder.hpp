@@ -23,8 +23,9 @@
 #define OMR_THUNKBUILDER_INCL
 
 
-#include "ilgen/ThunkBuilder.hpp"
 #include "ilgen/MethodBuilder.hpp"
+
+namespace TR { class ThunkBuilder; }
 
 namespace OMR
 {
@@ -68,9 +69,16 @@ class ThunkBuilder : public TR::MethodBuilder
 
    virtual bool buildIL();
 
+   /**
+    * @brief returns the client object associated with this object, allocating it if necessary
+    */
+   void *client();
+
    private:
    uint32_t      _numCalleeParams;
    TR::IlType ** _calleeParamTypes;
+
+   static void * allocateClientObject(TR::ThunkBuilder *);
    };
 
 } // namespace OMR
