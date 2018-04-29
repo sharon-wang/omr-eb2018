@@ -97,6 +97,11 @@ public:
    void IfCmpUnsignedGreaterOrEqual(TR::BytecodeBuilder **dest, TR::IlValue *v1, TR::IlValue *v2);
    void IfCmpUnsignedGreaterOrEqual(TR::BytecodeBuilder *dest, TR::IlValue *v1, TR::IlValue *v2);
 
+   /**
+    * @brief returns the client object associated with this object, allocating it if necessary
+    */
+   void *client();
+
 protected:
    TR::BytecodeBuilder       * _fallThroughBuilder;
    List<TR::BytecodeBuilder> * _successorBuilders;
@@ -110,6 +115,9 @@ protected:
    bool connectTrees();
    virtual void setHandlerInfo(uint32_t catchType);
    void transferVMState(TR::BytecodeBuilder **b);
+
+private:
+   static void * allocateClientObject(TR::BytecodeBuilder *);
    };
 
 } // namespace OMR
