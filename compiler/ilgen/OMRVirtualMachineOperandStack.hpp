@@ -183,7 +183,10 @@ class VirtualMachineOperandStack : public TR::VirtualMachineState
     */
    virtual void Dup(TR::IlBuilder *b);
 
- 
+   /**
+    * @brief returns the client object associated with this object
+    */
+   virtual void *client();
 
    protected:
    void copyTo(TR::VirtualMachineOperandStack *copy);
@@ -199,6 +202,8 @@ class VirtualMachineOperandStack : public TR::VirtualMachineState
    TR::IlType *_elementType;
    int32_t _pushAmount;
    int32_t _stackOffset;
+
+   static void * allocateClientObject(TR::VirtualMachineOperandStack *);
    };
 }
 

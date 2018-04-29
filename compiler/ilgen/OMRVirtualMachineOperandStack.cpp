@@ -227,3 +227,11 @@ OMR::VirtualMachineOperandStack::grow(int32_t growAmount)
    _stack = newStack;
    _stackMax = newMax;
    }
+
+void *
+OMR::VirtualMachineOperandStack::client()
+   {
+   if (_client == NULL)
+      _client = allocateClientObject(static_cast<TR::VirtualMachineOperandStack *>(this));
+   return _client;
+   }
