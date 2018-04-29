@@ -158,9 +158,10 @@ SourceCPPFile::constructorCall(JBFunction *func, JBClass *clazz)
       return string("");
 
    if (func->isCreator())
-      return string(" : ") + clazz->super->name + string("(impl)");
+      return string(" : ") + clazz->super->name + string("((void*)0)");
+
    if (func->isConstructor())
-      return string("\n  : ") + clazz->super->name + string("((void *)(new ") + callFunctionString(func, clazz, false) + string("))");
+      return string("\n  : ") + clazz->super->name + string("((void*)0)");
 
    return string("");
    }
@@ -216,27 +217,36 @@ SourceCPPFile::argumentNForCall(JBParameter & parm)
    }
 
 void
-SourceCPPFile::returnValue(JBType type, string implObject)
+SourceCPPFile::returnValue(JBFunction *func, JBClass *clazz, string implObject)
    {
-   string func;
-   switch (type)
+   switch (func->returnType)
       {
       case T_BytecodeBuilder:
       case T_IlBuilder:
       case T_IlReference:
       case T_IlValue:
       case T_IlType:
+      case T_ThunkBuilder:
       case T_TypeDictionary:
+      case T_VirtualMachineOperandArray:
+      case T_VirtualMachineOperandStack:
+      case T_VirtualMachineRegister:
+      case T_VirtualMachineRegisterInStruct:
       case T_VirtualMachineState:
-         indent() << "GET_CLIENT_OBJECT(clientObj, " << bareTypeName(type) + ", " + implObject + ");\n";
+         {
+         JBType clientType = func->returnType;
+         if (func->allocatesThisClass())
+            clientType = clazz->type; // assumes clazz is an instance of returnType (or one of its subclasses)
+
+         indent() << "GET_CLIENT_OBJECT(clientObj, " << bareTypeName(clientType) + ", " + implObject + ");\n";
          indent() << "return clientObj;\n";
          break;
+         }
 
       default:
          indent() << "return " << implObject << ";\n";
          break;
       }
-
    }
 
 void
@@ -348,20 +358,20 @@ SourceCPPFile::findSizeParameter(JBParameter *parms, int32_t p)
    }
 
 void
-SourceCPPFile::callFunction(JBFunction *func, JBClass *clazz)
+SourceCPPFile::callFunction(JBFunction *func, JBClass *implClazz, JBClass *clazz)
    {
-   _s << callFunctionString(func, clazz);
+   _s << callFunctionString(func, implClazz, clazz);
    }
 
 string
-SourceCPPFile::callFunctionString(JBFunction *func, JBClass *clazz, bool isStatement)
+SourceCPPFile::callFunctionString(JBFunction *func, JBClass *implClazz, JBClass *clazz, bool isStatement)
    {
    string s("");
 
    if (func->isConstructor())
       s += string("TR::") + bareTypeName(clazz->type) + "(";
    else
-      s += string("(") + implTypeCast(clazz->type) + "_impl)->" + implFunctionName(func) + "(";
+      s += string("((") + implTypeCast(implClazz->type) + "_impl)->" + implFunctionName(func) + "(";
 
    if (func->numParameters > 0)
       {
@@ -369,6 +379,7 @@ SourceCPPFile::callFunctionString(JBFunction *func, JBClass *clazz, bool isState
       for (int p=1;p < func->numParameters;p++)
          {
          JBParameter &parm = func->parms[p];
+
          if (parm.type == T_vararg)
             {
             s += varArgsForCall(func->numParameters, func->parms, p);
@@ -381,9 +392,11 @@ SourceCPPFile::callFunctionString(JBFunction *func, JBClass *clazz, bool isState
          }
       }
 
-   // close off the arguments
+   // close off the arguments and wrapping parentheses
    s += ")";
 
+   if (!func->isConstructor())
+      s += ")";
    // finally end function call
    if (isStatement)
       s += ";\n";
@@ -408,9 +421,9 @@ SourceCPPFile::initializeFields(JBClass *implClazz, JBClass *clazz)
    for (int f=0;f < clazz->numFields;f++)
       {
       JBField *field = clazz->fields+f;;
-      if ((field->flags & ASSIGN_AT_CREATE) != 0)
+      if ((field->flags & ASSIGN_AT_INIT) != 0)
          {
-         indent() << "GET_CLIENT_OBJECT(clientObj_" << field->name << ", " << bareTypeName(field->type) << ", (" << implTypeCast(implClazz->type) << "impl)->" << field->name << ");\n";
+         indent() << "GET_CLIENT_OBJECT(clientObj_" << field->name << ", " << bareTypeName(field->type) << ", (" << implTypeCast(implClazz->type) << "_impl)->" << field->name << ");\n";
          indent() << field->name << " = clientObj_" << field->name << ";\n";
          }
       }
@@ -427,7 +440,7 @@ SourceCPPFile::initializeFieldsRecursive(JBClass *implClazz, JBClass *clazz)
    }
 
 void
-SourceCPPFile::functionBody(JBFunction *func, JBClass *clazz)
+SourceCPPFile::functionBody(JBFunction *func, JBClass *implClazz, JBClass *clazz)
    {
    startFunctionDeclaration(func, clazz);
 
@@ -437,6 +450,9 @@ SourceCPPFile::functionBody(JBFunction *func, JBClass *clazz)
    for (int p=0;p < func->numParameters;p++)
       {
       JBParameter &parm=func->parms[p];
+      //if (func->isConstructor() && !parm.passedToSuper)
+      //   continue;
+
       if (parm.type == T_vararg)
          {
          hasByRefVarArgs = true;
@@ -459,22 +475,29 @@ SourceCPPFile::functionBody(JBFunction *func, JBClass *clazz)
       }
 
    // save return value if there is one
-   if (!func->isConstructor() || clazz->super == NULL)
       {
       if (func->returnType != T_none)
-         indent() << implName(func->returnType) << " implReturnValue = " << implTypeCast(func->returnType) << " ";
+         {
+         JBType returnType = func->returnType;
+         if (func->allocatesThisClass())
+            returnType = clazz->type;
+         indent() << implName(returnType) << " implReturnValue = " << implTypeCast(returnType) << " ";
+         }
       else if (func->isConstructor())
          indent() << "_impl = new ";
       else
          indent();
 
-      callFunction(func, clazz);
+      callFunction(func, implClazz, clazz);
       }
 
    // recover any "special" parameters
    for (int p=0;p < func->numParameters; p++)
       {
       JBParameter &parm=func->parms[p];
+      //if (func->isConstructor() && !parm.passedToSuper)
+      //   continue;
+
       if (parm.type == T_vararg)
          {
          recoverVarArgs(func->numParameters, func->parms, p);
@@ -497,18 +520,16 @@ SourceCPPFile::functionBody(JBFunction *func, JBClass *clazz)
 
    if (func->isConstructor())
       {
+      //startScope("if (impl != 0)");
       indent() << "(" << implTypeCast(clazz->type) << "_impl)->setClient(this);\n";
-      handleCallbacks(clazz);
-
-      // initialize all client fields
-      indent() << "void * impl = _impl;\n";
-      initializeFieldsRecursive(clazz, clazz);
+      indent() << INITIALIZER_STR << "(_impl);\n";
+      //endScope();
       }
 
    // return any return value
    if (func->returnType != T_none)
       {
-      returnValue(func->returnType, "implReturnValue");
+      returnValue(func, clazz, "implReturnValue");
       }
 
    endFunctionDeclaration();
@@ -518,28 +539,32 @@ void
 SourceCPPFile::creatorBody(JBFunction *func, JBClass *clazz)
    {
    startFunctionDeclaration(func, clazz);
-
-   // initialize all client fields
-   initializeFields(clazz, clazz);
-  
-   if (!clazz->hasSuper())
-      indent() << "_impl = impl;\n";
-
-   // superclasses handle client assignment, so if this class has no super, assign the client object
-   if (clazz->super == NULL)
+   if (func->numParameters > 0)
       {
-      // set the client object
+      startScope("if (impl != 0)");
       indent() << "(" << implTypeCast(clazz->type) << "impl)->setClient(this);\n";
+      indent() << INITIALIZER_STR << "(impl);\n";
+      endScope();
       }
-
-   handleCallbacks(clazz);
-
    endFunctionDeclaration();
    }
 
 void
-SourceCPPFile::constructorBody(JBFunction *func, JBClass *clazz)
+SourceCPPFile::initializerBody(JBFunction *func, JBClass *clazz)
    {
+   startFunctionDeclaration(func, clazz);
+
+   if (clazz->super)
+      indent() << "this->" << clazz->super->name << "::" << INITIALIZER_STR << "(impl);\n";
+   else
+      indent() << "_impl = impl;\n";
+
+   // initialize all client fields
+   initializeFields(clazz, clazz);
+  
+   handleCallbacks(clazz);
+
+   endFunctionDeclaration();
    }
 
 void

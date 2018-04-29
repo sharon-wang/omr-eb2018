@@ -41,42 +41,49 @@ Class(	/* .doc          = */   "",
 
 	Fields(TypeDictionary,
 		Field("_impl",         T_pointer,            IS_PUBLIC )
-		Field("NoType",        T_IlType,             IS_PUBLIC | ASSIGN_AT_CREATE)
-		Field("Int8",          T_IlType,             IS_PUBLIC | ASSIGN_AT_CREATE)
-		Field("Int16",         T_IlType,             IS_PUBLIC | ASSIGN_AT_CREATE)
-		Field("Int32",         T_IlType,             IS_PUBLIC | ASSIGN_AT_CREATE)
-		Field("Int64",         T_IlType,             IS_PUBLIC | ASSIGN_AT_CREATE)
-		Field("Float",         T_IlType,             IS_PUBLIC | ASSIGN_AT_CREATE)
-		Field("Double",        T_IlType,             IS_PUBLIC | ASSIGN_AT_CREATE)
-		Field("Address",       T_IlType,             IS_PUBLIC | ASSIGN_AT_CREATE)
-		Field("VectorInt8",    T_IlType,             IS_PUBLIC | ASSIGN_AT_CREATE)
-		Field("VectorInt16",   T_IlType,             IS_PUBLIC | ASSIGN_AT_CREATE)
-		Field("VectorInt32",   T_IlType,             IS_PUBLIC | ASSIGN_AT_CREATE)
-		Field("VectorInt64",   T_IlType,             IS_PUBLIC | ASSIGN_AT_CREATE)
-		Field("VectorFloat",   T_IlType,             IS_PUBLIC | ASSIGN_AT_CREATE)
-		Field("VectorDouble",  T_IlType,             IS_PUBLIC | ASSIGN_AT_CREATE)
-		Field("Word",          T_IlType,             IS_PUBLIC | ASSIGN_AT_CREATE)
-		Field("pNoType",       T_IlType,             IS_PUBLIC | ASSIGN_AT_CREATE)
-		Field("pInt8",         T_IlType,             IS_PUBLIC | ASSIGN_AT_CREATE)
-		Field("pInt16",        T_IlType,             IS_PUBLIC | ASSIGN_AT_CREATE)
-		Field("pInt32",        T_IlType,             IS_PUBLIC | ASSIGN_AT_CREATE)
-		Field("pInt64",        T_IlType,             IS_PUBLIC | ASSIGN_AT_CREATE)
-		Field("pFloat",        T_IlType,             IS_PUBLIC | ASSIGN_AT_CREATE)
-		Field("pDouble",       T_IlType,             IS_PUBLIC | ASSIGN_AT_CREATE)
-		Field("pAddress",      T_IlType,             IS_PUBLIC | ASSIGN_AT_CREATE)
-		Field("pVectorInt8",   T_IlType,             IS_PUBLIC | ASSIGN_AT_CREATE)
-		Field("pVectorInt16",  T_IlType,             IS_PUBLIC | ASSIGN_AT_CREATE)
-		Field("pVectorInt32",  T_IlType,             IS_PUBLIC | ASSIGN_AT_CREATE)
-		Field("pVectorInt64",  T_IlType,             IS_PUBLIC | ASSIGN_AT_CREATE)
-		Field("pVectorFloat",  T_IlType,             IS_PUBLIC | ASSIGN_AT_CREATE)
-		Field("pVectorDouble", T_IlType,             IS_PUBLIC | ASSIGN_AT_CREATE)
-		Field("pWord",         T_IlType,             IS_PUBLIC | ASSIGN_AT_CREATE)
+		Field("NoType",        T_IlType,             IS_PUBLIC | ASSIGN_AT_INIT)
+		Field("Int8",          T_IlType,             IS_PUBLIC | ASSIGN_AT_INIT)
+		Field("Int16",         T_IlType,             IS_PUBLIC | ASSIGN_AT_INIT)
+		Field("Int32",         T_IlType,             IS_PUBLIC | ASSIGN_AT_INIT)
+		Field("Int64",         T_IlType,             IS_PUBLIC | ASSIGN_AT_INIT)
+		Field("Float",         T_IlType,             IS_PUBLIC | ASSIGN_AT_INIT)
+		Field("Double",        T_IlType,             IS_PUBLIC | ASSIGN_AT_INIT)
+		Field("Address",       T_IlType,             IS_PUBLIC | ASSIGN_AT_INIT)
+		Field("VectorInt8",    T_IlType,             IS_PUBLIC | ASSIGN_AT_INIT)
+		Field("VectorInt16",   T_IlType,             IS_PUBLIC | ASSIGN_AT_INIT)
+		Field("VectorInt32",   T_IlType,             IS_PUBLIC | ASSIGN_AT_INIT)
+		Field("VectorInt64",   T_IlType,             IS_PUBLIC | ASSIGN_AT_INIT)
+		Field("VectorFloat",   T_IlType,             IS_PUBLIC | ASSIGN_AT_INIT)
+		Field("VectorDouble",  T_IlType,             IS_PUBLIC | ASSIGN_AT_INIT)
+		Field("Word",          T_IlType,             IS_PUBLIC | ASSIGN_AT_INIT)
+		Field("pNoType",       T_IlType,             IS_PUBLIC | ASSIGN_AT_INIT)
+		Field("pInt8",         T_IlType,             IS_PUBLIC | ASSIGN_AT_INIT)
+		Field("pInt16",        T_IlType,             IS_PUBLIC | ASSIGN_AT_INIT)
+		Field("pInt32",        T_IlType,             IS_PUBLIC | ASSIGN_AT_INIT)
+		Field("pInt64",        T_IlType,             IS_PUBLIC | ASSIGN_AT_INIT)
+		Field("pFloat",        T_IlType,             IS_PUBLIC | ASSIGN_AT_INIT)
+		Field("pDouble",       T_IlType,             IS_PUBLIC | ASSIGN_AT_INIT)
+		Field("pAddress",      T_IlType,             IS_PUBLIC | ASSIGN_AT_INIT)
+		Field("pVectorInt8",   T_IlType,             IS_PUBLIC | ASSIGN_AT_INIT)
+		Field("pVectorInt16",  T_IlType,             IS_PUBLIC | ASSIGN_AT_INIT)
+		Field("pVectorInt32",  T_IlType,             IS_PUBLIC | ASSIGN_AT_INIT)
+		Field("pVectorInt64",  T_IlType,             IS_PUBLIC | ASSIGN_AT_INIT)
+		Field("pVectorFloat",  T_IlType,             IS_PUBLIC | ASSIGN_AT_INIT)
+		Field("pVectorDouble", T_IlType,             IS_PUBLIC | ASSIGN_AT_INIT)
+		Field("pWord",         T_IlType,             IS_PUBLIC | ASSIGN_AT_INIT)
 	)
 
 	Functions(TypeDictionary,
 		Function(/* .doc            = */"",
 			/* .name           = */	CREATOR,
 			/* .flags          = */	IS_PUBLIC | IS_STATIC,
+			/* .overloadSuffix = */	"",
+			/* .returnType     = */	T_none,
+			/* .numParameters  = */	1,
+			/* .parms          = */	Parms(	Parm("impl", T_pointer ) ) )
+		Function(/* .doc            = */"",
+			/* .name           = */	INITIALIZER,
+			/* .flags          = */	IS_PROTECTED,
 			/* .overloadSuffix = */	"",
 			/* .returnType     = */	T_none,
 			/* .numParameters  = */	1,
@@ -221,25 +228,32 @@ Class(	/* .doc          = */   "",
 	/* .super        = */   NO_SUPER,
 
 	Fields(IlBuilder,
-		Field("NoType",		T_IlType,        IS_PUBLIC | ASSIGN_AT_CREATE)
-		Field("Int8",		T_IlType,        IS_PUBLIC | ASSIGN_AT_CREATE)
-		Field("Int16",		T_IlType,        IS_PUBLIC | ASSIGN_AT_CREATE)
-		Field("Int32",		T_IlType,        IS_PUBLIC | ASSIGN_AT_CREATE)
-		Field("Int64",		T_IlType,        IS_PUBLIC | ASSIGN_AT_CREATE)
-		Field("Float",		T_IlType,        IS_PUBLIC | ASSIGN_AT_CREATE)
-		Field("Double",		T_IlType,        IS_PUBLIC | ASSIGN_AT_CREATE)
-		Field("Address",	T_IlType,        IS_PUBLIC | ASSIGN_AT_CREATE)
-		Field("VectorInt8",	T_IlType,        IS_PUBLIC | ASSIGN_AT_CREATE)
-		Field("VectorInt16",	T_IlType,        IS_PUBLIC | ASSIGN_AT_CREATE)
-		Field("VectorInt32",	T_IlType,        IS_PUBLIC | ASSIGN_AT_CREATE)
-		Field("VectorInt64",	T_IlType,        IS_PUBLIC | ASSIGN_AT_CREATE)
-		Field("VectorFloat",	T_IlType,        IS_PUBLIC | ASSIGN_AT_CREATE)
-		Field("VectorDouble",	T_IlType,        IS_PUBLIC | ASSIGN_AT_CREATE)
-		Field("Word",		T_IlType,        IS_PUBLIC | ASSIGN_AT_CREATE)
+		Field("NoType",		T_IlType,        IS_PUBLIC | ASSIGN_AT_INIT)
+		Field("Int8",		T_IlType,        IS_PUBLIC | ASSIGN_AT_INIT)
+		Field("Int16",		T_IlType,        IS_PUBLIC | ASSIGN_AT_INIT)
+		Field("Int32",		T_IlType,        IS_PUBLIC | ASSIGN_AT_INIT)
+		Field("Int64",		T_IlType,        IS_PUBLIC | ASSIGN_AT_INIT)
+		Field("Float",		T_IlType,        IS_PUBLIC | ASSIGN_AT_INIT)
+		Field("Double",		T_IlType,        IS_PUBLIC | ASSIGN_AT_INIT)
+		Field("Address",	T_IlType,        IS_PUBLIC | ASSIGN_AT_INIT)
+		Field("VectorInt8",	T_IlType,        IS_PUBLIC | ASSIGN_AT_INIT)
+		Field("VectorInt16",	T_IlType,        IS_PUBLIC | ASSIGN_AT_INIT)
+		Field("VectorInt32",	T_IlType,        IS_PUBLIC | ASSIGN_AT_INIT)
+		Field("VectorInt64",	T_IlType,        IS_PUBLIC | ASSIGN_AT_INIT)
+		Field("VectorFloat",	T_IlType,        IS_PUBLIC | ASSIGN_AT_INIT)
+		Field("VectorDouble",	T_IlType,        IS_PUBLIC | ASSIGN_AT_INIT)
+		Field("Word",		T_IlType,        IS_PUBLIC | ASSIGN_AT_INIT)
 		Field("_impl",		T_pointer,       IS_PUBLIC                   )
 	)
 
 	Functions(IlBuilder,
+		Function(/* .doc            = */"",
+			/* .name           = */	CREATOR,
+			/* .flags          = */	IS_PROTECTED,
+			/* .overloadSuffix = */	"",
+			/* .returnType     = */	T_none,
+			/* .numParameters  = */	0,
+			/* .parms          = */	Parms( ) )
 		Function(/* .doc            = */"",
 			/* .name           = */	CREATOR,
 			/* .flags          = */	IS_PROTECTED | IS_STATIC,
@@ -247,6 +261,13 @@ Class(	/* .doc          = */   "",
 			/* .returnType     = */	T_none,
 			/* .numParameters  = */	1,
 			/* .parms          = */	Parms(	Parm("impl", T_pointer  ) ) )
+		Function(/* .doc            = */"",
+			/* .name           = */	INITIALIZER,
+			/* .flags          = */	IS_PROTECTED,
+			/* .overloadSuffix = */	"",
+			/* .returnType     = */	T_none,
+			/* .numParameters  = */	1,
+			/* .parms          = */	Parms(	Parm("impl", T_pointer ) ) )
 		Function(/* .doc            = */"",
 			/* .name           = */	DESTRUCTOR,
 			/* .flags          = */	IS_PUBLIC,
@@ -554,7 +575,7 @@ Class(	/* .doc          = */   "",
 		/* Control flow services */
 		Function(/* .doc           = */	"",
 			/* .name           = */ AppendBuilder,
-			/* .flags          = */	IS_PUBLIC,
+			/* .flags          = */	IS_PUBLIC | IS_OVERIDDEN,
 			/* .overloadSuffix = */	"",
 			/* .returnType     = */	T_none,
 			/* .numParameters  = */	1,
@@ -906,11 +927,25 @@ Class(	/* .doc          = */   "",
 	Functions(BytecodeBuilder,
 		Function(/* .doc            = */"",
 			/* .name           = */	CREATOR,
+			/* .flags          = */	IS_PROTECTED,
+			/* .overloadSuffix = */	"",
+			/* .returnType     = */	T_none,
+			/* .numParameters  = */	0,
+			/* .parms          = */	Parms( ) )
+		Function(/* .doc            = */"",
+			/* .name           = */	CREATOR,
 			/* .flags          = */	IS_PROTECTED | IS_STATIC,
 			/* .overloadSuffix = */	"",
 			/* .returnType     = */	T_none,
 			/* .numParameters  = */	1,
 			/* .parms          = */	Parms(	Parm("impl", T_pointer       ) ) )
+		Function(/* .doc            = */"",
+			/* .name           = */	INITIALIZER,
+			/* .flags          = */	IS_PROTECTED,
+			/* .overloadSuffix = */	"",
+			/* .returnType     = */	T_none,
+			/* .numParameters  = */	1,
+			/* .parms          = */	Parms(	Parm("impl", T_pointer ) ) )
 		Function(/* .doc            = */"",
 			/* .name           = */	DESTRUCTOR,
 			/* .flags          = */	IS_PUBLIC,
@@ -1057,11 +1092,25 @@ Class(	/* .doc          = */   "",
 	Functions(IlReference,
 		Function(/* .doc            = */"",
 			/* .name           = */	CREATOR,
-			/* .flags          = */	IS_PROTECTED | IS_STATIC,
+			/* .flags          = */	IS_PROTECTED,
+			/* .overloadSuffix = */	"",
+			/* .returnType     = */	T_none,
+			/* .numParameters  = */	0,
+			/* .parms          = */	Parms( ) )
+		Function(/* .doc            = */"",
+			/* .name           = */	CREATOR,
+			/* .flags          = */	IS_PROTECTED,
 			/* .overloadSuffix = */	"",
 			/* .returnType     = */	T_none,
 			/* .numParameters  = */	1,
 			/* .parms          = */	Parms( Parm("impl", T_pointer) ) )
+		Function(/* .doc            = */"",
+			/* .name           = */	INITIALIZER,
+			/* .flags          = */	IS_PROTECTED,
+			/* .overloadSuffix = */	"",
+			/* .returnType     = */	T_none,
+			/* .numParameters  = */	1,
+			/* .parms          = */	Parms(	Parm("impl", T_pointer ) ) )
 		Function(/* .doc            = */"",
 			/* .name           = */	DESTRUCTOR,
 			/* .flags          = */	IS_PUBLIC,
@@ -1085,11 +1134,25 @@ Class(	/* .doc          = */   "",
 	Functions(IlType,
 		Function(/* .doc            = */"",
 			/* .name           = */	CREATOR,
+			/* .flags          = */	IS_PROTECTED,
+			/* .overloadSuffix = */	"",
+			/* .returnType     = */	T_none,
+			/* .numParameters  = */	0,
+			/* .parms          = */	Parms( ) )
+		Function(/* .doc            = */"",
+			/* .name           = */	CREATOR,
 			/* .flags          = */	IS_PROTECTED | IS_STATIC,
 			/* .overloadSuffix = */	"",
 			/* .returnType     = */	T_none,
 			/* .numParameters  = */	1,
 			/* .parms          = */	Parms( Parm("impl", T_pointer ) ) )
+		Function(/* .doc            = */"",
+			/* .name           = */	INITIALIZER,
+			/* .flags          = */	IS_PROTECTED,
+			/* .overloadSuffix = */	"",
+			/* .returnType     = */	T_none,
+			/* .numParameters  = */	1,
+			/* .parms          = */	Parms(	Parm("impl", T_pointer ) ) )
 		Function(/* .doc            = */"",
 			/* .name           = */	DESTRUCTOR,
 			/* .flags          = */	IS_PUBLIC,
@@ -1148,11 +1211,25 @@ Class(	/* .doc          = */   "",
 	Functions(IlValue,
 		Function(/* .doc            = */"",
 			/* .name           = */	CREATOR,
+			/* .flags          = */	IS_PROTECTED,
+			/* .overloadSuffix = */	"",
+			/* .returnType     = */	T_none,
+			/* .numParameters  = */	0,
+			/* .parms          = */	Parms( ) )
+		Function(/* .doc            = */"",
+			/* .name           = */	CREATOR,
 			/* .flags          = */	IS_PROTECTED | IS_STATIC,
 			/* .overloadSuffix = */	"",
 			/* .returnType     = */	T_none,
 			/* .numParameters  = */	1,
 			/* .parms          = */	Parms( Parm("impl", T_pointer) ) )
+		Function(/* .doc            = */"",
+			/* .name           = */	INITIALIZER,
+			/* .flags          = */	IS_PROTECTED,
+			/* .overloadSuffix = */	"",
+			/* .returnType     = */	T_none,
+			/* .numParameters  = */	1,
+			/* .parms          = */	Parms(	Parm("impl", T_pointer ) ) )
 		Function(/* .doc            = */"",
 			/* .name           = */	DESTRUCTOR,
 			/* .flags          = */	IS_PUBLIC,
@@ -1181,11 +1258,25 @@ Class(	/* .doc          = */   "",
 	Functions(MethodBuilder,
 		Function(/* .doc            = */"",
 			/* .name           = */	CREATOR,
+			/* .flags          = */	IS_PROTECTED,
+			/* .overloadSuffix = */	"",
+			/* .returnType     = */	T_none,
+			/* .numParameters  = */	0,
+			/* .parms          = */	Parms( ) )
+		Function(/* .doc            = */"",
+			/* .name           = */	CREATOR,
 			/* .flags          = */	IS_PUBLIC | IS_STATIC,
 			/* .overloadSuffix = */	"",
 			/* .returnType     = */	T_none,
 			/* .numParameters  = */	1,
 			/* .parms          = */	Parms(	Parm("impl",    T_pointer) ) )
+		Function(/* .doc            = */"",
+			/* .name           = */	INITIALIZER,
+			/* .flags          = */	IS_PROTECTED,
+			/* .overloadSuffix = */	"",
+			/* .returnType     = */	T_none,
+			/* .numParameters  = */	1,
+			/* .parms          = */	Parms(	Parm("impl", T_pointer ) ) )
 		Function(/* .doc            = */"",
 			/* .name           = */	CONSTRUCTOR,
 			/* .flags          = */	IS_PUBLIC | CREATE_IMPL,
@@ -1351,6 +1442,59 @@ Class(	/* .doc          = */   "",
 ) // Class(...MethodBuilder...)
 
 Class(	/* .doc          = */   "",
+	/* .name         = */   ThunkBuilder,
+	/* .shortName    = */   "TB",
+	/* .flags        = */   IS_CREATABLE,
+	/* .super        = */   pClassName(MethodBuilder),
+
+	Fields(ThunkBuilder,
+		Field("_impl", T_pointer, IS_PUBLIC )
+	)
+
+	Functions(ThunkBuilder,
+		Function(/* .doc            = */"",
+			/* .name           = */	CREATOR,
+			/* .flags          = */	IS_PROTECTED,
+			/* .overloadSuffix = */	"",
+			/* .returnType     = */	T_none,
+			/* .numParameters  = */	0,
+			/* .parms          = */	Parms( ) )
+		Function(/* .doc            = */"",
+			/* .name           = */	CREATOR,
+			/* .flags          = */	IS_PROTECTED | IS_STATIC,
+			/* .overloadSuffix = */	"",
+			/* .returnType     = */	T_none,
+			/* .numParameters  = */	1,
+			/* .parms          = */	Parms(	Parm("impl", T_pointer) ) )
+		Function(/* .doc            = */"",
+			/* .name           = */	INITIALIZER,
+			/* .flags          = */	IS_PROTECTED,
+			/* .overloadSuffix = */	"",
+			/* .returnType     = */	T_none,
+			/* .numParameters  = */	1,
+			/* .parms          = */	Parms(	Parm("impl", T_pointer ) ) )
+		Function(/* .doc            = */"",
+			/* .name           = */	CONSTRUCTOR,
+			/* .flags          = */	IS_PUBLIC | CREATE_IMPL,
+			/* .overloadSuffix = */	"",
+			/* .returnType     = */	T_none,
+			/* .numParameters  = */	5,
+			/* .parms          = */	Parms(	Parm("dict", T_TypeDictionary),
+							Parm("name", T_constString),
+							Parm("returnType", T_IlType),
+							Parm("numCalleeParms", T_uint32),
+							Parm("calleeParms", T_IlTypeArray) ) )
+		Function(/* .doc            = */"",
+			/* .name           = */	DESTRUCTOR,
+			/* .flags          = */	IS_PUBLIC,
+			/* .overloadSuffix = */	"",
+			/* .returnType     = */	T_none,
+			/* .numParameters  = */	0,
+			/* .parms          = */	Parms( ) )
+	)
+)
+
+Class(	/* .doc          = */   "",
 	/* .name         = */   VirtualMachineState,
 	/* .shortName    = */   "VMS",
 	/* .flags        = */   IS_CREATABLE,
@@ -1369,6 +1513,13 @@ Class(	/* .doc          = */   "",
 			/* .numParameters  = */	1,
 			/* .parms          = */	Parms(	Parm("impl", T_pointer) ) )
 		Function(/* .doc            = */"",
+			/* .name           = */	INITIALIZER,
+			/* .flags          = */	IS_PROTECTED,
+			/* .overloadSuffix = */	"",
+			/* .returnType     = */	T_none,
+			/* .numParameters  = */	1,
+			/* .parms          = */	Parms(	Parm("impl", T_pointer ) ) )
+		Function(/* .doc            = */"",
 			/* .name           = */	CONSTRUCTOR,
 			/* .flags          = */	IS_PUBLIC | CREATE_IMPL,
 			/* .overloadSuffix = */	"",
@@ -1384,28 +1535,28 @@ Class(	/* .doc          = */   "",
 			/* .parms          = */	Parms( ) )
 		Function(/* .doc            = */"",
 			/* .name           = */	Commit,
-			/* .flags          = */	IS_PUBLIC | IS_CALLBACK,
+			/* .flags          = */	IS_PUBLIC | IS_CALLBACK | IS_VIRTUAL | IS_OVERIDDEN,
 			/* .overloadSuffix = */	"",
 			/* .returnType     = */	T_none,
 			/* .numParameters  = */	1,
 			/* .parms          = */	Parms(	Parm("b", T_IlBuilder ) ) )
 		Function(/* .doc            = */"",
 			/* .name           = */	Reload,
-			/* .flags          = */	IS_PUBLIC | IS_CALLBACK,
+			/* .flags          = */	IS_PUBLIC | IS_CALLBACK | IS_VIRTUAL | IS_OVERIDDEN,
 			/* .overloadSuffix = */	"",
 			/* .returnType     = */	T_none,
 			/* .numParameters  = */	1,
 			/* .parms          = */	Parms(	Parm("b", T_IlBuilder ) ) )
 		Function(/* .doc            = */"",
 			/* .name           = */	MakeCopy,
-			/* .flags          = */	IS_PUBLIC | IS_CALLBACK,
+			/* .flags          = */	IS_PUBLIC | IS_CALLBACK | IS_VIRTUAL | IS_OVERIDDEN,
 			/* .overloadSuffix = */	"",
 			/* .returnType     = */	T_VirtualMachineState,
 			/* .numParameters  = */	0,
 			/* .parms          = */	Parms( ) ) 
 		Function(/* .doc            = */"",
 			/* .name           = */	MergeInto,
-			/* .flags          = */	IS_PUBLIC | IS_CALLBACK,
+			/* .flags          = */	IS_PUBLIC | IS_CALLBACK | IS_VIRTUAL | IS_OVERIDDEN,
 			/* .overloadSuffix = */	"",
 			/* .returnType     = */	T_none,
 			/* .numParameters  = */	2,
@@ -1414,14 +1565,438 @@ Class(	/* .doc          = */   "",
 	)
 ) // Class(...VirtualMachineState...)
 
+Class(	/* .doc          = */   "",
+	/* .name         = */   VirtualMachineRegister,
+	/* .shortName    = */   "VMR",
+	/* .flags        = */   IS_CREATABLE,
+	/* .super        = */   pClassName(VirtualMachineState),
+
+	Fields(VirtualMachineRegister, /* No fields to declare */ )
+
+	Functions(VirtualMachineRegister,
+		Function(/* .doc            = */"",
+			/* .name           = */	CREATOR,
+			/* .flags          = */	IS_PROTECTED,
+			/* .overloadSuffix = */	"",
+			/* .returnType     = */	T_none,
+			/* .numParameters  = */	0,
+			/* .parms          = */	Parms( ) )
+		Function(/* .doc            = */"",
+			/* .name           = */	CREATOR,
+			/* .flags          = */	IS_PROTECTED | IS_STATIC,
+			/* .overloadSuffix = */	"",
+			/* .returnType     = */	T_none,
+			/* .numParameters  = */	1,
+			/* .parms          = */	Parms(	Parm("impl", T_pointer) ) )
+		Function(/* .doc            = */"",
+			/* .name           = */	INITIALIZER,
+			/* .flags          = */	IS_PROTECTED,
+			/* .overloadSuffix = */	"",
+			/* .returnType     = */	T_none,
+			/* .numParameters  = */	1,
+			/* .parms          = */	Parms(	Parm("impl", T_pointer ) ) )
+		Function(/* .doc            = */"",
+			/* .name           = */	CONSTRUCTOR,
+			/* .flags          = */	IS_PUBLIC | CREATE_IMPL,
+			/* .overloadSuffix = */	"",
+			/* .returnType     = */	T_none,
+			/* .numParameters  = */	5,
+			/* .parms          = */	Parms(	Parm("b",                     T_IlBuilder  ),
+							Parm("localName",             T_constString),
+							Parm("pointerToRegisterType", T_IlType     ),
+							Parm("adjustByStep",          T_uint32     ),
+							Parm("addressOfRegister",     T_IlValue    ) ) )
+		Function(/* .doc            = */"",
+			/* .name           = */	DESTRUCTOR,
+			/* .flags          = */	IS_PUBLIC,
+			/* .overloadSuffix = */	"",
+			/* .returnType     = */	T_none,
+			/* .numParameters  = */	0,
+			/* .parms          = */	Parms( ) )
+		Function(/* .doc            = */"",
+			/* .name           = */	Adjust,
+			/* .flags          = */	IS_PUBLIC,
+			/* .overloadSuffix = */	"",
+			/* .returnType     = */	T_none,
+			/* .numParameters  = */	2,
+			/* .parms          = */	Parms(	Parm("b",      T_IlBuilder),
+							Parm("amount", T_IlValue  ) ) )
+		Function(/* .doc            = */"",
+			/* .name           = */	AdjustByConst,
+			/* .flags          = */	IS_PUBLIC,
+			/* .overloadSuffix = */	"ByConst",
+			/* .returnType     = */	T_none,
+			/* .numParameters  = */	2,
+			/* .parms          = */	Parms(	Parm("b",      T_IlBuilder),
+							Parm("amount", T_int64    ) ) )
+		Function(/* .doc            = */"",
+			/* .name           = */	Commit,
+			/* .flags          = */	IS_PUBLIC | IS_VIRTUAL | IS_OVERIDDEN,
+			/* .overloadSuffix = */	"",
+			/* .returnType     = */	T_none,
+			/* .numParameters  = */	1,
+			/* .parms          = */	Parms(	Parm("b", T_IlBuilder ) ) )
+		Function(/* .doc            = */"",
+			/* .name           = */	Load,
+			/* .flags          = */	IS_PUBLIC,
+			/* .overloadSuffix = */	"",
+			/* .returnType     = */	T_IlValue,
+			/* .numParameters  = */	1,
+			/* .parms          = */	Parms(	Parm("b", T_IlBuilder ) ) )
+		Function(/* .doc            = */"",
+			/* .name           = */	MakeCopy,
+			/* .flags          = */	IS_PUBLIC | IS_VIRTUAL | ALLOCATES_CLASS | IS_OVERIDDEN,
+			/* .overloadSuffix = */	"",
+			/* .returnType     = */	T_VirtualMachineState,
+			/* .numParameters  = */	0,
+			/* .parms          = */	Parms( ) ) 
+		Function(/* .doc            = */"",
+			/* .name           = */	MergeInto,
+			/* .flags          = */	IS_PUBLIC | IS_VIRTUAL | IS_OVERIDDEN,
+			/* .overloadSuffix = */	"",
+			/* .returnType     = */	T_none,
+			/* .numParameters  = */	2,
+			/* .parms          = */	Parms(	Parm("vmState", T_VirtualMachineState ),
+							Parm("b", T_IlBuilder                 ) ) )
+		Function(/* .doc            = */"",
+			/* .name           = */	Reload,
+			/* .flags          = */	IS_PUBLIC | IS_VIRTUAL | IS_OVERIDDEN,
+			/* .overloadSuffix = */	"",
+			/* .returnType     = */	T_none,
+			/* .numParameters  = */	1,
+			/* .parms          = */	Parms(	Parm("b", T_IlBuilder ) ) )
+		Function(/* .doc            = */"",
+			/* .name           = */	Store,
+			/* .flags          = */	IS_PUBLIC,
+			/* .overloadSuffix = */	"",
+			/* .returnType     = */	T_none,
+			/* .numParameters  = */	2,
+			/* .parms          = */	Parms(	Parm("b",     T_IlBuilder),
+							Parm("value", T_IlValue  ) ) )
+	)
+) // Class(...VirtualMachineRegister...)
+
+Class(	/* .doc          = */   "",
+	/* .name         = */   VirtualMachineRegisterInStruct,
+	/* .shortName    = */   "VMRIS",
+	/* .flags        = */   IS_CREATABLE,
+	/* .super        = */   pClassName(VirtualMachineRegister),
+
+	Fields(VirtualMachineRegisterInStruct, /* No fields to declare */ )
+
+	Functions(VirtualMachineRegisterInStruct,
+		Function(/* .doc            = */"",
+			/* .name           = */	CREATOR,
+			/* .flags          = */	IS_PROTECTED,
+			/* .overloadSuffix = */	"",
+			/* .returnType     = */	T_none,
+			/* .numParameters  = */	0,
+			/* .parms          = */	Parms( ) )
+		Function(/* .doc            = */"",
+			/* .name           = */	CREATOR,
+			/* .flags          = */	IS_PROTECTED | IS_STATIC,
+			/* .overloadSuffix = */	"",
+			/* .returnType     = */	T_none,
+			/* .numParameters  = */	1,
+			/* .parms          = */	Parms(	Parm("impl", T_pointer) ) )
+		Function(/* .doc            = */"",
+			/* .name           = */	INITIALIZER,
+			/* .flags          = */	IS_PROTECTED,
+			/* .overloadSuffix = */	"",
+			/* .returnType     = */	T_none,
+			/* .numParameters  = */	1,
+			/* .parms          = */	Parms(	Parm("impl", T_pointer ) ) )
+		Function(/* .doc            = */"",
+			/* .name           = */	CONSTRUCTOR,
+			/* .flags          = */	IS_PUBLIC | CREATE_IMPL,
+			/* .overloadSuffix = */	"",
+			/* .returnType     = */	T_none,
+			/* .numParameters  = */	5,
+			/* .parms          = */	Parms(	Parm("b",                             T_IlBuilder  ),
+							Parm("structName",                    T_constString),
+							Parm("localNameHoldingStructAddress", T_constString),
+							Parm("fieldName",                     T_constString),
+							Parm("localName",                     T_constString) ) )
+		Function(/* .doc            = */"",
+			/* .name           = */	Commit,
+			/* .flags          = */	IS_PUBLIC | IS_VIRTUAL,
+			/* .overloadSuffix = */	"",
+			/* .returnType     = */	T_none,
+			/* .numParameters  = */	1,
+			/* .parms          = */	Parms(	Parm("b", T_IlBuilder ) ) )
+		Function(/* .doc            = */"",
+			/* .name           = */	Reload,
+			/* .flags          = */	IS_PUBLIC | IS_VIRTUAL,
+			/* .overloadSuffix = */	"",
+			/* .returnType     = */	T_none,
+			/* .numParameters  = */	1,
+			/* .parms          = */	Parms(	Parm("b", T_IlBuilder ) ) )
+		Function(/* .doc            = */"",
+			/* .name           = */	MakeCopy,
+			/* .flags          = */	IS_PUBLIC | IS_VIRTUAL | ALLOCATES_CLASS,
+			/* .overloadSuffix = */	"",
+			/* .returnType     = */	T_VirtualMachineState,
+			/* .numParameters  = */	0,
+			/* .parms          = */	Parms( ) ) 
+		Function(/* .doc            = */"",
+			/* .name           = */	MergeInto,
+			/* .flags          = */	IS_PUBLIC | IS_VIRTUAL,
+			/* .overloadSuffix = */	"",
+			/* .returnType     = */	T_none,
+			/* .numParameters  = */	2,
+			/* .parms          = */	Parms(	Parm("vmState", T_VirtualMachineState ),
+							Parm("b", T_IlBuilder                 ) ) )
+	)
+) // Class(...VirtualMachineRegisterInStruct...)
+
+Class(	/* .doc          = */   "",
+	/* .name         = */   VirtualMachineOperandArray,
+	/* .shortName    = */   "VMOA",
+	/* .flags        = */   IS_CREATABLE,
+	/* .super        = */   pClassName(VirtualMachineState),
+
+	Fields(VirtualMachineOperandArray, /* No fields to declare */ )
+
+	Functions(VirtualMachineOperandArray,
+		Function(/* .doc            = */"",
+			/* .name           = */	CREATOR,
+			/* .flags          = */	IS_PROTECTED,
+			/* .overloadSuffix = */	"",
+			/* .returnType     = */	T_none,
+			/* .numParameters  = */	0,
+			/* .parms          = */	Parms( ) )
+		Function(/* .doc            = */"",
+			/* .name           = */	CREATOR,
+			/* .flags          = */	IS_PROTECTED | IS_STATIC,
+			/* .overloadSuffix = */	"",
+			/* .returnType     = */	T_none,
+			/* .numParameters  = */	1,
+			/* .parms          = */	Parms(	Parm("impl", T_pointer) ) )
+		Function(/* .doc            = */"",
+			/* .name           = */	INITIALIZER,
+			/* .flags          = */	IS_PROTECTED,
+			/* .overloadSuffix = */	"",
+			/* .returnType     = */	T_none,
+			/* .numParameters  = */	1,
+			/* .parms          = */	Parms(	Parm("impl", T_pointer ) ) )
+		Function(/* .doc            = */"",
+			/* .name           = */	CONSTRUCTOR,
+			/* .flags          = */	IS_PUBLIC | CREATE_IMPL,
+			/* .overloadSuffix = */	"",
+			/* .returnType     = */	T_none,
+			/* .numParameters  = */	4,
+			/* .parms          = */	Parms(	Parm("mb",            T_MethodBuilder  ),
+							Parm("numOfElements", T_int32),
+							Parm("elementType",   T_IlType),
+							Parm("arrayBase",     T_VirtualMachineRegister) ) )
+		Function(/* .doc            = */"",
+			/* .name           = */	CONSTRUCTOR,
+			/* .flags          = */	IS_PUBLIC | CREATE_IMPL,
+			/* .overloadSuffix = */	"",
+			/* .returnType     = */	T_none,
+			/* .numParameters  = */	1,
+			/* .parms          = */	Parms(	Parm("other", T_VirtualMachineOperandArray ) ) )
+		Function(/* .doc            = */"",
+			/* .name           = */	Commit,
+			/* .flags          = */	IS_PUBLIC | IS_VIRTUAL,
+			/* .overloadSuffix = */	"",
+			/* .returnType     = */	T_none,
+			/* .numParameters  = */	1,
+			/* .parms          = */	Parms(	Parm("b", T_IlBuilder ) ) )
+		Function(/* .doc            = */"",
+			/* .name           = */	Get,
+			/* .flags          = */	IS_PUBLIC | IS_VIRTUAL,
+			/* .overloadSuffix = */	"",
+			/* .returnType     = */	T_IlValue,
+			/* .numParameters  = */	1,
+			/* .parms          = */	Parms(	Parm("index", T_int32) ) ) 
+		Function(/* .doc            = */"",
+			/* .name           = */	MakeCopy,
+			/* .flags          = */	IS_PUBLIC | IS_VIRTUAL | ALLOCATES_CLASS,
+			/* .overloadSuffix = */	"",
+			/* .returnType     = */	T_VirtualMachineState,
+			/* .numParameters  = */	0,
+			/* .parms          = */	Parms( ) ) 
+		Function(/* .doc            = */"",
+			/* .name           = */	MergeInto,
+			/* .flags          = */	IS_PUBLIC | IS_VIRTUAL,
+			/* .overloadSuffix = */	"",
+			/* .returnType     = */	T_none,
+			/* .numParameters  = */	2,
+			/* .parms          = */	Parms(	Parm("other", T_VirtualMachineState ),
+							Parm("b",     T_IlBuilder                  ) ) )
+		Function(/* .doc            = */"",
+			/* .name           = */	Move,
+			/* .flags          = */	IS_PUBLIC | IS_VIRTUAL,
+			/* .overloadSuffix = */	"",
+			/* .returnType     = */	T_none,
+			/* .numParameters  = */	3,
+			/* .parms          = */	Parms(	Parm("b", T_IlBuilder),
+							Parm("dstIndex", T_int32),
+							Parm("srcIndex", T_int32) ) ) 
+		Function(/* .doc            = */"",
+			/* .name           = */	Reload,
+			/* .flags          = */	IS_PUBLIC | IS_VIRTUAL,
+			/* .overloadSuffix = */	"",
+			/* .returnType     = */	T_none,
+			/* .numParameters  = */	1,
+			/* .parms          = */	Parms(	Parm("b", T_IlBuilder ) ) )
+		Function(/* .doc            = */"",
+			/* .name           = */	Set,
+			/* .flags          = */	IS_PUBLIC | IS_VIRTUAL,
+			/* .overloadSuffix = */	"",
+			/* .returnType     = */	T_none,
+			/* .numParameters  = */	2,
+			/* .parms          = */	Parms(	Parm("index", T_int32),
+							Parm("value", T_IlValue) ) ) 
+		Function(/* .doc            = */"",
+			/* .name           = */	UpdateArray,
+			/* .flags          = */	IS_PUBLIC | IS_VIRTUAL,
+			/* .overloadSuffix = */	"",
+			/* .returnType     = */	T_none,
+			/* .numParameters  = */	2,
+			/* .parms          = */	Parms(	Parm("b",     T_IlBuilder ),
+							Parm("array", T_IlValue   ) ) )
+	)
+) // Class(...VirtualMachineOperandArray...)
+
+Class(	/* .doc          = */   "",
+	/* .name         = */   VirtualMachineOperandStack,
+	/* .shortName    = */   "VMOA",
+	/* .flags        = */   IS_CREATABLE,
+	/* .super        = */   pClassName(VirtualMachineState),
+
+	Fields(VirtualMachineOperandStack, /* No fields to declare */ )
+
+	Functions(VirtualMachineOperandStack,
+		Function(/* .doc            = */"",
+			/* .name           = */	CREATOR,
+			/* .flags          = */	IS_PROTECTED,
+			/* .overloadSuffix = */	"",
+			/* .returnType     = */	T_none,
+			/* .numParameters  = */	0,
+			/* .parms          = */	Parms( ) )
+		Function(/* .doc            = */"",
+			/* .name           = */	CREATOR,
+			/* .flags          = */	IS_PROTECTED | IS_STATIC,
+			/* .overloadSuffix = */	"",
+			/* .returnType     = */	T_none,
+			/* .numParameters  = */	1,
+			/* .parms          = */	Parms(	Parm("impl", T_pointer) ) )
+		Function(/* .doc            = */"",
+			/* .name           = */	INITIALIZER,
+			/* .flags          = */	IS_PROTECTED,
+			/* .overloadSuffix = */	"",
+			/* .returnType     = */	T_none,
+			/* .numParameters  = */	1,
+			/* .parms          = */	Parms(	Parm("impl", T_pointer ) ) )
+		Function(/* .doc            = */"",
+			/* .name           = */	CONSTRUCTOR,
+			/* .flags          = */	IS_PUBLIC | CREATE_IMPL,
+			/* .overloadSuffix = */	"",
+			/* .returnType     = */	T_none,
+			/* .numParameters  = */	4,
+			/* .parms          = */	Parms(	Parm("mb",          T_MethodBuilder  ),
+							Parm("sizeHint",    T_int32),
+							Parm("elementType", T_IlType),
+							Parm("stackTop",    T_VirtualMachineRegister) ) )
+		Function(/* .doc            = */"",
+			/* .name           = */	Commit,
+			/* .flags          = */	IS_PUBLIC | IS_VIRTUAL,
+			/* .overloadSuffix = */	"",
+			/* .returnType     = */	T_none,
+			/* .numParameters  = */	1,
+			/* .parms          = */	Parms(	Parm("b", T_IlBuilder ) ) )
+		Function(/* .doc            = */"",
+			/* .name           = */	Drop,
+			/* .flags          = */	IS_PUBLIC | IS_VIRTUAL,
+			/* .overloadSuffix = */	"",
+			/* .returnType     = */	T_none,
+			/* .numParameters  = */	2,
+			/* .parms          = */	Parms(	Parm("b",     T_IlBuilder ),
+							Parm("depth", T_int32   ) ) )
+		Function(/* .doc            = */"",
+			/* .name           = */	Dup,
+			/* .flags          = */	IS_PUBLIC | IS_VIRTUAL,
+			/* .overloadSuffix = */	"",
+			/* .returnType     = */	T_none,
+			/* .numParameters  = */	1,
+			/* .parms          = */	Parms(	Parm("b",     T_IlBuilder ) ) )
+		Function(/* .doc            = */"",
+			/* .name           = */	MakeCopy,
+			/* .flags          = */	IS_PUBLIC | IS_VIRTUAL | ALLOCATES_CLASS,
+			/* .overloadSuffix = */	"",
+			/* .returnType     = */	T_VirtualMachineState,
+			/* .numParameters  = */	0,
+			/* .parms          = */	Parms( ) ) 
+		Function(/* .doc            = */"",
+			/* .name           = */	MergeInto,
+			/* .flags          = */	IS_PUBLIC | IS_VIRTUAL,
+			/* .overloadSuffix = */	"",
+			/* .returnType     = */	T_none,
+			/* .numParameters  = */	2,
+			/* .parms          = */	Parms(	Parm("other", T_VirtualMachineOperandStack ),
+							Parm("b",     T_IlBuilder                  ) ) )
+		Function(/* .doc            = */"",
+			/* .name           = */	Pick,
+			/* .flags          = */	IS_PUBLIC | IS_VIRTUAL,
+			/* .overloadSuffix = */	"",
+			/* .returnType     = */	T_IlValue,
+			/* .numParameters  = */	1,
+			/* .parms          = */	Parms(	Parm("depth", T_int32 ) ) )
+		Function(/* .doc            = */"",
+			/* .name           = */	Pop,
+			/* .flags          = */	IS_PUBLIC | IS_VIRTUAL,
+			/* .overloadSuffix = */	"",
+			/* .returnType     = */	T_IlValue,
+			/* .numParameters  = */	1,
+			/* .parms          = */	Parms(	Parm("b", T_IlBuilder ) ) )
+		Function(/* .doc            = */"",
+			/* .name           = */	Push,
+			/* .flags          = */	IS_PUBLIC | IS_VIRTUAL,
+			/* .overloadSuffix = */	"",
+			/* .returnType     = */	T_none,
+			/* .numParameters  = */	2,
+			/* .parms          = */	Parms(	Parm("b",     T_IlBuilder ),
+							Parm("value", T_IlValue   ) ) )
+		Function(/* .doc            = */"",
+			/* .name           = */	Reload,
+			/* .flags          = */	IS_PUBLIC | IS_VIRTUAL,
+			/* .overloadSuffix = */	"",
+			/* .returnType     = */	T_none,
+			/* .numParameters  = */	1,
+			/* .parms          = */	Parms(	Parm("b", T_IlBuilder ) ) )
+		Function(/* .doc            = */"",
+			/* .name           = */	Top,
+			/* .flags          = */	IS_PUBLIC | IS_VIRTUAL,
+			/* .overloadSuffix = */	"",
+			/* .returnType     = */	T_IlValue,
+			/* .numParameters  = */	0,
+			/* .parms          = */	Parms( ) )
+		Function(/* .doc            = */"",
+			/* .name           = */	UpdateStack,
+			/* .flags          = */	IS_PUBLIC | IS_VIRTUAL,
+			/* .overloadSuffix = */	"",
+			/* .returnType     = */	T_none,
+			/* .numParameters  = */	2,
+			/* .parms          = */	Parms(	Parm("b",     T_IlBuilder ),
+							Parm("array", T_IlValue   ) ) )
+	)
+)
+
 Classes(
    pClassName(BytecodeBuilder),
    pClassName(IlBuilder),
-   pClassName(MethodBuilder),
    pClassName(IlReference),
    pClassName(IlType),
    pClassName(IlValue),
+   pClassName(MethodBuilder),
+   pClassName(ThunkBuilder),
    pClassName(TypeDictionary),
+   pClassName(VirtualMachineOperandArray),
+   pClassName(VirtualMachineOperandStack),
+   pClassName(VirtualMachineRegister),
+   pClassName(VirtualMachineRegisterInStruct),
    pClassName(VirtualMachineState),
 )
 

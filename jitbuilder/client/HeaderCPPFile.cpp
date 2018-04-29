@@ -62,7 +62,7 @@ HeaderCPPFile::functionPrototype(JBFunction *func, JBClass *clazz, string extraQ
 string
 HeaderCPPFile::prototypeQualifiers(JBFunction *func)
    {
-   if (func->isCallback())
+   if (func->isCallback() || func->isVirtual())
       return "virtual";
    return "";
    }

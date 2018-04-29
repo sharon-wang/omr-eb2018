@@ -28,18 +28,18 @@ class SourceCPPFile : public CPPFile
    {
 public:
    virtual void prolog();
-   virtual void constructorBody(JBFunction *func, JBClass *clazz);
    virtual void creatorBody(JBFunction *func, JBClass *clazz);
+   virtual void initializerBody(JBFunction *func, JBClass *clazz);
    virtual void destructorBody(JBFunction *func, JBClass *clazz);
-   virtual void functionBody(JBFunction *func, JBClass *clazz);
+   virtual void functionBody(JBFunction *func, JBClass *implClazz, JBClass *clazz);
 
 protected:
    virtual string argumentNameForCall(JBParameter & parm);
    virtual string argumentText(JBParameter & parm);
    virtual string argument0ForCall(JBParameter & parm);
    virtual string argumentNForCall(JBParameter & parm);
-   virtual void callFunction(JBFunction *func, JBClass *clazz);
-   virtual string callFunctionString(JBFunction *func, JBClass *clazz, bool isStatement=true);
+   virtual void callFunction(JBFunction *func, JBClass *implClazz, JBClass *clazz);
+   virtual string callFunctionString(JBFunction *func, JBClass *implClazz, JBClass *clazz, bool isStatement=true);
    virtual string classSpecifier(JBClass *clazz);
    virtual string constructorCall(JBFunction *func, JBClass *clazz);
    virtual string declarationQualifiers(JBFunction *func);
@@ -59,7 +59,7 @@ protected:
    virtual void recoverArgument(JBParameter & parm);
    virtual void recoverArrayArgument(JBParameter & parm, JBParameter & sizeParm);
    virtual void recoverVarArgs(uint32_t numParameters, JBParameter *parms, uint32_t varArg);
-   virtual void returnValue(JBType type, string implObject);
+   virtual void returnValue(JBFunction *func, JBClass *clazz, string implObject);
    virtual void startFunctionDeclaration(JBFunction *func, JBClass *clazz);
    };
 

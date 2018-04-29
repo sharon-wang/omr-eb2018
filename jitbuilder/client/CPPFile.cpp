@@ -66,48 +66,53 @@ CPPFile::typeName(JBType type)
    {
    switch (type)
       {
-      case T_none                     : { return "void"; }
-      case T_boolean                  : { return "bool"; }
-      case T_integer                  : { return "size_t"; }
-      case T_int8                     : { return "int8_t"; }
-      case T_int16                    : { return "int16_t"; }
-      case T_int32                    : { return "int32_t"; }
-      case T_int64                    : { return "int64_t"; }
-      case T_uint32                   : { return "uint32_t"; }
-      case T_float                    : { return "float"; }
-      case T_double                   : { return "double"; }
-      case T_pointer                  : { return "void *"; }
-      case T_ppointer                  : { return "void **"; }
-      case T_unsignedInteger          : { return "size_t"; }
-      case T_constString              : { return "const char *"; }
-      case T_string                   : { return "char *"; }
-      case T_booleanArray             : { return "bool *"; }
-      case T_int32Array               : { return "int32_t *"; }
-      case T_vararg                   : { return ""; }
-      case T_BytecodeBuilder          : { return "BytecodeBuilder *"; }
-      case T_BytecodeBuilderArray     : { return "BytecodeBuilder **"; }
-      case T_BytecodeBuilderByRef     : { return "BytecodeBuilder **"; }
-      case T_BytecodeBuilderImpl      : { return "TR::BytecodeBuilder *"; }
-      case T_ppBytecodeBuilder        : { return "BytecodeBuilder **"; }
-      case T_IlBuilder                : { return "IlBuilder *"; }
-      case T_IlBuilderArray           : { return "IlBuilder **"; }
-      case T_IlBuilderImpl            : { return "TR::IlBuilder *"; }
-      case T_IlBuilderByRef           : { return "IlBuilder **"; }
-      case T_ppIlBuilder              : { return "IlBuilder **"; }
-      case T_MethodBuilder            : { return "MethodBuilder *"; }
-      case T_MethodBuilderImpl        : { return "TR::MethodBuilder *"; }
-      case T_IlReference              : { return "IlReference *"; }
-      case T_IlType                   : { return "IlType *"; }
-      case T_IlTypeArray              : { return "IlType **"; }
-      case T_IlTypeImpl               : { return "TR::IlType *"; }
-      case T_IlValue                  : { return "IlValue *"; }
-      case T_IlValueImpl              : { return "TR::IlValue *"; }
-      case T_IlValueArray             : { return "IlValue **"; }
-      case T_TypeDictionary           : { return "TypeDictionary *"; }
-      case T_TypeDictionaryImpl       : { return "TR::TypeDictionary *"; }
-      case T_VirtualMachineState      : { return "VirtualMachineState *"; }
-      case T_VirtualMachineStateImpl  : { return "TR::VirtualMachineState *"; }
-      default                         : { cerr << "Error generating text for type " << type << endl; assert(0); }
+      case T_none                           : { return "void"; }
+      case T_boolean                        : { return "bool"; }
+      case T_integer                        : { return "size_t"; }
+      case T_int8                           : { return "int8_t"; }
+      case T_int16                          : { return "int16_t"; }
+      case T_int32                          : { return "int32_t"; }
+      case T_int64                          : { return "int64_t"; }
+      case T_uint32                         : { return "uint32_t"; }
+      case T_float                          : { return "float"; }
+      case T_double                         : { return "double"; }
+      case T_pointer                        : { return "void *"; }
+      case T_ppointer                       : { return "void **"; }
+      case T_unsignedInteger                : { return "size_t"; }
+      case T_constString                    : { return "const char *"; }
+      case T_string                         : { return "char *"; }
+      case T_booleanArray                   : { return "bool *"; }
+      case T_int32Array                     : { return "int32_t *"; }
+      case T_vararg                         : { return ""; }
+      case T_BytecodeBuilder                : { return "BytecodeBuilder *"; }
+      case T_BytecodeBuilderArray           : { return "BytecodeBuilder **"; }
+      case T_BytecodeBuilderByRef           : { return "BytecodeBuilder **"; }
+      case T_BytecodeBuilderImpl            : { return "TR::BytecodeBuilder *"; }
+      case T_ppBytecodeBuilder              : { return "BytecodeBuilder **"; }
+      case T_IlBuilder                      : { return "IlBuilder *"; }
+      case T_IlBuilderArray                 : { return "IlBuilder **"; }
+      case T_IlBuilderImpl                  : { return "TR::IlBuilder *"; }
+      case T_IlBuilderByRef                 : { return "IlBuilder **"; }
+      case T_ppIlBuilder                    : { return "IlBuilder **"; }
+      case T_MethodBuilder                  : { return "MethodBuilder *"; }
+      case T_MethodBuilderImpl              : { return "TR::MethodBuilder *"; }
+      case T_IlReference                    : { return "IlReference *"; }
+      case T_IlType                         : { return "IlType *"; }
+      case T_IlTypeArray                    : { return "IlType **"; }
+      case T_IlTypeImpl                     : { return "TR::IlType *"; }
+      case T_IlValue                        : { return "IlValue *"; }
+      case T_IlValueImpl                    : { return "TR::IlValue *"; }
+      case T_IlValueArray                   : { return "IlValue **"; }
+      case T_ThunkBuilder                   : { return "ThunkBuilder *"; }
+      case T_TypeDictionary                 : { return "TypeDictionary *"; }
+      case T_TypeDictionaryImpl             : { return "TR::TypeDictionary *"; }
+      case T_VirtualMachineOperandArray     : { return "VirtualMachineOperandArray *"; }
+      case T_VirtualMachineOperandStack     : { return "VirtualMachineOperandStack *"; }
+      case T_VirtualMachineRegister         : { return "VirtualMachineRegister *"; }
+      case T_VirtualMachineRegisterInStruct : { return "VirtualMachineRegisterInStruct *"; }
+      case T_VirtualMachineState            : { return "VirtualMachineState *"; }
+      case T_VirtualMachineStateImpl        : { return "TR::VirtualMachineState *"; }
+      default                               : { cerr << "Error generating text for type " << type << endl; assert(0); }
       }
    return "";
    }
@@ -117,16 +122,21 @@ CPPFile::bareTypeName(JBType type)
    {
    switch (type)
       {
-      case T_BytecodeBuilder          : { return "BytecodeBuilder"; }
-      case T_IlBuilder                : { return "IlBuilder"; }
-      case T_IlBuilderByRef           : { return "IlBuilder"; }
-      case T_MethodBuilder            : { return "MethodBuilder"; }
-      case T_IlReference              : { return "IlReference"; }
-      case T_IlType                   : { return "IlType"; }
-      case T_IlValue                  : { return "IlValue"; }
-      case T_TypeDictionary           : { return "TypeDictionary"; }
-      case T_VirtualMachineState      : { return "VirtualMachineState"; }
-      default                         : { cerr << "Error generating bare type name for type " << type << endl; assert(0); }
+      case T_BytecodeBuilder                : { return "BytecodeBuilder"; }
+      case T_IlBuilder                      : { return "IlBuilder"; }
+      case T_IlBuilderByRef                 : { return "IlBuilder"; }
+      case T_MethodBuilder                  : { return "MethodBuilder"; }
+      case T_IlReference                    : { return "IlReference"; }
+      case T_IlType                         : { return "IlType"; }
+      case T_IlValue                        : { return "IlValue"; }
+      case T_ThunkBuilder                   : { return "ThunkBuilder"; }
+      case T_TypeDictionary                 : { return "TypeDictionary"; }
+      case T_VirtualMachineOperandArray     : { return "VirtualMachineOperandArray"; }
+      case T_VirtualMachineOperandStack     : { return "VirtualMachineOperandStack"; }
+      case T_VirtualMachineRegister         : { return "VirtualMachineRegister"; }
+      case T_VirtualMachineRegisterInStruct : { return "VirtualMachineRegisterInStruct"; }
+      case T_VirtualMachineState            : { return "VirtualMachineState"; }
+      default                               : { cerr << "Error generating bare type name for type " << type << endl; assert(0); }
       }
    return "";
    }
@@ -136,21 +146,26 @@ CPPFile::implName(JBType type)
    {
    switch (type)
       {
-      case T_boolean                  : return "bool";
-      case T_int32                    : return "int32_t";
-      case T_string                   : return "char *";
-      case T_constString              : return "const char *";
-      case T_unsignedInteger          : return "size_t";
-      case T_BytecodeBuilder          : return "TR::BytecodeBuilder *";
-      case T_IlBuilder                : return "TR::IlBuilder *";
-      case T_IlBuilderByRef           : return "TR::IlBuilder *";
-      case T_MethodBuilder            : return "TR::MethodBuilder *";
-      case T_IlReference              : return "TR::IlReference *";
-      case T_IlType                   : return "TR::IlType *";
-      case T_IlValue                  : return "TR::IlValue *";
-      case T_TypeDictionary           : return "TR::TypeDictionary *";
-      case T_VirtualMachineState      : return "TR::VirtualMachineState *";
-      default                         : break;
+      case T_boolean                        : return "bool";
+      case T_int32                          : return "int32_t";
+      case T_string                         : return "char *";
+      case T_constString                    : return "const char *";
+      case T_unsignedInteger                : return "size_t";
+      case T_BytecodeBuilder                : return "TR::BytecodeBuilder *";
+      case T_IlBuilder                      : return "TR::IlBuilder *";
+      case T_IlBuilderByRef                 : return "TR::IlBuilder *";
+      case T_MethodBuilder                  : return "TR::MethodBuilder *";
+      case T_IlReference                    : return "TR::IlReference *";
+      case T_IlType                         : return "TR::IlType *";
+      case T_IlValue                        : return "TR::IlValue *";
+      case T_ThunkBuilder                   : return "TR::ThunkBuilder *";
+      case T_TypeDictionary                 : return "TR::TypeDictionary *";
+      case T_VirtualMachineOperandArray     : return "TR::VirtualMachineOperandArray *";
+      case T_VirtualMachineOperandStack     : return "TR::VirtualMachineOperandStack *";
+      case T_VirtualMachineRegister         : return "TR::VirtualMachineRegister *";
+      case T_VirtualMachineRegisterInStruct : return "TR::VirtualMachineRegisterInStruct *";
+      case T_VirtualMachineState            : return "TR::VirtualMachineState *";
+      default                               : break;
       }
 
    return "";
@@ -161,19 +176,24 @@ CPPFile::implTypeCast(JBType type)
    {
    switch (type)
       {
-      case T_pointer:             return "(void *)";
-      case T_ppointer:            return "(void **)";
-      case T_BytecodeBuilder:     return "(TR::BytecodeBuilder *)";
-      case T_IlBuilder:           return "(TR::IlBuilder *)";
-      case T_MethodBuilder:       return "(TR::MethodBuilder *)";
-      case T_IlReference:         return "(TR::IlReference *)";
-      case T_IlType:              return "(TR::IlType *)";
-      case T_IlValue:             return "(TR::IlValue *)";
-      case T_TypeDictionary:      return "(TR::TypeDictionary *)";
-      case T_VirtualMachineState: return "(TR::VirtualMachineState *)";
+      case T_pointer:                        return "(void *)";
+      case T_ppointer:                       return "(void **)";
+      case T_BytecodeBuilder:                return "(TR::BytecodeBuilder *)";
+      case T_IlBuilder:                      return "(TR::IlBuilder *)";
+      case T_MethodBuilder:                  return "(TR::MethodBuilder *)";
+      case T_IlReference:                    return "(TR::IlReference *)";
+      case T_IlType:                         return "(TR::IlType *)";
+      case T_IlValue:                        return "(TR::IlValue *)";
+      case T_ThunkBuilder:                   return "(TR::ThunkBuilder *)";
+      case T_TypeDictionary:                 return "(TR::TypeDictionary *)";
+      case T_VirtualMachineOperandArray:     return "(TR::VirtualMachineOperandArray *)";
+      case T_VirtualMachineOperandStack:     return "(TR::VirtualMachineOperandStack *)";
+      case T_VirtualMachineRegister:         return "(TR::VirtualMachineRegister *)";
+      case T_VirtualMachineRegisterInStruct: return "(TR::VirtualMachineRegisterInStruct *)";
+      case T_VirtualMachineState:            return "(TR::VirtualMachineState *)";
 
-      case T_BytecodeBuilderByRef:return "(TR::BytecodeBuilder *)";
-      case T_IlBuilderByRef:      return "(TR::IlBuilder *)";
+      case T_BytecodeBuilderByRef:           return "(TR::BytecodeBuilder *)";
+      case T_IlBuilderByRef:                 return "(TR::IlBuilder *)";
 
       case T_boolean:
       case T_integer:
@@ -246,7 +266,12 @@ CPPFile::hasImpl(JBType type)
       case T_IlReference:
       case T_IlType:
       case T_IlValue:
+      case T_ThunkBuilder:
       case T_TypeDictionary:
+      case T_VirtualMachineOperandArray:
+      case T_VirtualMachineOperandStack:
+      case T_VirtualMachineRegister:
+      case T_VirtualMachineRegisterInStruct:
       case T_VirtualMachineState:
          return true;
 
@@ -350,7 +375,8 @@ CPPFile::beginClass(JBClass *clazz)
    startScope(classLine);
    backtab();
 
-   if ((clazz->flags & IS_CREATABLE) == 0)
+   //if ((clazz->flags & IS_CREATABLE) == 0)
+   if (0)
       {
       // give class a protected default constructor for supers to use
       indent() << "protected:\n";

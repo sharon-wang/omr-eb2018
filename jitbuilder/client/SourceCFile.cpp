@@ -205,6 +205,12 @@ SourceCFile::returnValue(JBType type, string implObject)
       case T_IlBuilder:
       case T_IlValue:
       case T_IlType:
+      case T_ThunkBuilder:
+      case T_TypeDictionary:
+      case T_VirtualMachineOperandArray:
+      case T_VirtualMachineOperandStack:
+      case T_VirtualMachineRegister:
+      case T_VirtualMachineRegisterInStruct:
       case T_VirtualMachineState:
          indent() << "GET_CLIENT_OBJECT(clientObj, " << bareTypeName(type) + ", " + implObject + ");\n";
          indent() << "return clientObj;\n";
@@ -447,7 +453,7 @@ SourceCFile::initializeFieldsRecursive(JBClass *implClazz, JBClass *clazz)
    for (int f=0;f < clazz->numFields;f++)
       {
       JBField *field = clazz->fields+f;;
-      if ((field->flags & ASSIGN_AT_CREATE) != 0)
+      if ((field->flags & ASSIGN_AT_INIT) != 0)
          {
          indent() << "GET_CLIENT_OBJECT(clientObj_" << field->name << ", " << bareTypeName(field->type) << ", (" << implTypeCast(implClazz->type) << "impl)->" << field->name << ");\n";
          indent() << "receiverObject->" << field->name << " = clientObj_" << field->name << ";\n";

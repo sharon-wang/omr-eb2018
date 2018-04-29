@@ -67,8 +67,13 @@ typedef enum JBType
    T_IlValue,
    T_IlValueImpl,
    T_IlValueArray,
+   T_ThunkBuilder,
    T_TypeDictionary,
    T_TypeDictionaryImpl,
+   T_VirtualMachineOperandArray,
+   T_VirtualMachineOperandStack,
+   T_VirtualMachineRegister,
+   T_VirtualMachineRegisterInStruct,
    T_VirtualMachineState,
    T_VirtualMachineStateImpl,
    } JBType;
@@ -76,15 +81,18 @@ typedef enum JBType
 
 /* possible flag settings */
 #define ACCESS_FLAG		1
-#define	IS_PROTECTED		0
-#define	IS_PUBLIC		(1<<0)
+#define	IS_PROTECTED		(0)
+#define	IS_PUBLIC		(1)
 
 #define IS_STATIC		(1<<1)
-#define	IS_CREATABLE		(1<<2)
-#define ASSIGN_AT_CREATE	(1<<3)
-#define IS_CALLBACK		(1<<4)
-#define CREATE_IMPL             (1<<5)
-#define HAS_EXTRAS_HEADER       (1<<6)
+#define IS_VIRTUAL		(1<<2)
+#define	IS_CREATABLE		(1<<3)
+#define ASSIGN_AT_INIT  	(1<<4)
+#define IS_CALLBACK		(1<<5)
+#define CREATE_IMPL             (1<<6)
+#define HAS_EXTRAS_HEADER       (1<<7)
+#define ALLOCATES_CLASS         (1<<8)
+#define IS_OVERIDDEN            (1<<9)
 
 
 typedef uint32_t flags_t;
@@ -106,14 +114,17 @@ typedef struct JBParameter
 
 #define NO_PARAMETERS
 #define CREATOR Create
+#define INITIALIZER initializeFromImpl
 #define CONSTRUCTOR Initialize
 #define DESTRUCTOR Destroy
 
 #define CREATOR_STR     TOSTR(CREATOR)
+#define INITIALIZER_STR TOSTR(INITIALIZER)
 #define CONSTRUCTOR_STR TOSTR(CONSTRUCTOR)
 #define DESTRUCTOR_STR  TOSTR(DESTRUCTOR)
 
 #define CREATOR_LEN     strlen(CREATOR_STR)
+#define INITIALIZER_LEN strlen(INITIALIZERR_STR)
 #define CONSTRUCTOR_LEN strlen(CONSTRUCTOR_STR)
 #define DESTRUCTOR_LEN  strlen(DESTRUCTOR_STR)
 
@@ -127,11 +138,15 @@ typedef struct JBFunction
    uint32_t     numParameters;
    JBParameter  parms[8];
 
-   bool isCallback()    { return (flags & IS_CALLBACK) != 0; }
-   bool isConstructor() { return name == CONSTRUCTOR_STR; }
-   bool isCreator()     { return name == CREATOR_STR; }
-   bool isDestructor()  { return name == DESTRUCTOR_STR; }
-   bool isStatic()      { return (flags & IS_STATIC) != 0; }
+   bool isCallback()         { return (flags & IS_CALLBACK) != 0; }
+   bool isConstructor()      { return name == CONSTRUCTOR_STR; }
+   bool isCreator()          { return name == CREATOR_STR; }
+   bool isInitializer()      { return name == INITIALIZER_STR; }
+   bool isDestructor()       { return name == DESTRUCTOR_STR; }
+   bool isStatic()           { return (flags & IS_STATIC) != 0; }
+   bool isVirtual()          { return (flags & IS_VIRTUAL) != 0; }
+   bool allocatesThisClass() { return (flags & ALLOCATES_CLASS) != 0; }
+   bool isOveridden()        { return (flags & IS_OVERIDDEN) != 0; }
 
    } JBFunction;
 
@@ -163,8 +178,8 @@ typedef struct JBClass
          { }
       JBFunction * operator*() // not returning & because don't want to be modifiable
          {
-         assert(_cursor < _numFunctions);
-         return _functions+_cursor;
+         assert (_cursor < _numFunctions);
+         return _functions + _cursor;
          }
       bool operator!=(JBFunction *other)
          {
@@ -183,9 +198,39 @@ typedef struct JBClass
       JBFunction *_functions;
       int _cursor;
       };
-   JBClass::FunctionIterator functionsBegin() { return JBClass::FunctionIterator(numFunctions, functions); }
-   JBFunction *              functionsEnd()   { return NULL; }
-   
+
+   JBClass::FunctionIterator functionsBegin()    { return JBClass::FunctionIterator(numFunctions, functions); }
+   JBFunction *              functionsEnd()      { return NULL; }
+
+   class SuperIterator
+      {
+      public:
+      SuperIterator(JBClass *firstSuper)
+         : _cursor(firstSuper)
+         { }
+      JBClass * operator*() // not returning & because don't want to be modifiable
+         {
+         assert (_cursor != NULL);
+         return _cursor;
+         }
+      bool operator!=(JBClass *other)
+         {
+         return (_cursor != other);
+         }
+      SuperIterator & operator ++()  // only prefix ++ defined
+         {
+         if (_cursor != NULL)
+            _cursor = _cursor->super;
+         return *this;
+         }
+
+      private:
+      JBClass * _cursor;
+      };
+
+   JBClass::SuperIterator supersBegin()    { return JBClass::SuperIterator(super); }
+   JBClass *              supersEnd()      { return NULL; }
+
    } JBClass;
 
 #define ClassName(name) __ ## name ## Class__

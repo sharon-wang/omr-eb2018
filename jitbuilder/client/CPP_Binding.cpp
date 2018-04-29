@@ -83,6 +83,17 @@ CPPBinding::generateHeader(JBClass *clazz)
       header.functionPrototype(func, clazz, "");
       }
 
+   for (auto superIt = clazz->supersBegin(); superIt != clazz->supersEnd(); ++superIt)
+      {
+      JBClass *super = *superIt;
+      for (auto it = super->functionsBegin(); it != super->functionsEnd(); ++it)
+         {
+         JBFunction *func = (*it);
+         if (!func->isOveridden() && !func->isConstructor() && !func->isCreator() && !func->isInitializer() && !func->isDestructor() && !func->isCallback())
+            header.functionPrototype(func, clazz, "");
+         }
+      }
+
    if (clazz->hasExtrasHeader())
       header.includeFile(clazz->name + "ExtrasInsideClass.hpp");
 
@@ -119,10 +130,23 @@ CPPBinding::generateSource(JBClass *clazz)
       JBFunction *func = *it;
       if (func->isCreator())
          source.creatorBody(func, clazz);
+      else if (func->isInitializer())
+         source.initializerBody(func, clazz);
       else if (func->isDestructor())
          source.destructorBody(func, clazz);
       else if (!func->isCallback())
-         source.functionBody(func, clazz);
+         source.functionBody(func, clazz, clazz);
+      }
+
+   for (auto superIt = clazz->supersBegin(); superIt != clazz->supersEnd(); ++superIt)
+      {
+      JBClass *super = *superIt;
+      for (auto it = super->functionsBegin(); it != super->functionsEnd(); ++it)
+         {
+         JBFunction *func = (*it);
+         if (!func->isOveridden() && !func->isConstructor() && !func->isCreator() && !func->isInitializer() && !func->isDestructor() && !func->isCallback())
+            source.functionBody(func, super, clazz);
+         }
       }
 
    source.endNamespace();
