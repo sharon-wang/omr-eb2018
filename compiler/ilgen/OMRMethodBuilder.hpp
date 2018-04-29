@@ -106,7 +106,7 @@ class MethodBuilder : public TR::IlBuilder
 
    TR::ResolvedMethod *lookupFunction(const char *name);
 
-   void AppendBuilder(TR::BytecodeBuilder *bb);
+   void AppendBuilder(TR::BytecodeBuilder *bb) { AppendBytecodeBuilder(bb); }
    void AppendBuilder(TR::IlBuilder *b)    { this->OMR::IlBuilder::AppendBuilder(b); }
 
    void DefineFile(const char *file)                         { _definingFile = file; }
@@ -181,6 +181,11 @@ class MethodBuilder : public TR::IlBuilder
     */
    int32_t GetNextBytecodeFromWorklist();
    
+   /**
+    * @brief returns the client object associated with this object, allocating it if necessary
+    */
+   void *client();
+
    /**
     * @brief Store callback function to be called on client when RequestFunction is called
     */
@@ -259,6 +264,9 @@ class MethodBuilder : public TR::IlBuilder
 
    TR_BitVector              * _bytecodeWorklist;
    TR_BitVector              * _bytecodeHasBeenInWorklist;
+
+private:
+   static void * allocateClientObject(TR::MethodBuilder *);
    };
 
 } // namespace OMR
