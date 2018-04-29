@@ -22,8 +22,11 @@
 #ifndef OMR_VIRTUALMACHINEREGISTERINSTRUCT_INCL
 #define OMR_VIRTUALMACHINEREGISTERINSTRUCT_INCL
 
+#include "ilgen/VirtualMachineRegister.hpp"
 #include "ilgen/VirtualMachineRegisterInStruct.hpp"
 #include "ilgen/IlBuilder.hpp"
+
+namespace TR { class VirtualMachineRegisterInStruct; }
 
 namespace OMR
 {
@@ -51,6 +54,28 @@ class VirtualMachineRegisterInStruct : public TR::VirtualMachineRegister
    {
    public:
    /**
+    * @brief private constructor used only to create a copy of a VirtualMachineRegisterInSruct object
+    * @param structName the name of the struct type that holds the virtual machine state variable
+    * @param localNameHoldingStructAddress is the name of a local variable holding the struct base address; it must have been stored in this name before control will reach the builder "b"
+    * @param fieldName name of the field in "structName" that holds the virtual machine state variable
+    * @param localName the name of the local variable where the simulated value is to be stored
+    */
+   VirtualMachineRegisterInStruct(TR::TypeDictionary *dict,
+                                  const char * const structName,
+                                  const char * const localNameHoldingStructAddress,
+                                  const char * const fieldName,
+                                  const char * const localName) :
+      TR::VirtualMachineRegister(localName),
+      _dict(dict),
+      _structName(structName),
+      _fieldName(fieldName),
+      _localNameHoldingStructAddress(localNameHoldingStructAddress)
+      {
+      _elementType = dict->GetFieldType(structName, fieldName)->baseType()->baseType();
+      _adjustByStep = _elementType->getSize();
+      }
+
+   /**
     * @brief public constructor used to create a virtual machine state variable from struct
     * @param b a builder object where the first Reload operations will be inserted
     * @param structName the name of the struct type that holds the virtual machine state variable
@@ -64,11 +89,12 @@ class VirtualMachineRegisterInStruct : public TR::VirtualMachineRegister
                           const char * const fieldName,
                           const char * const localName) :
       TR::VirtualMachineRegister(localName),
+      _dict(b->typeDictionary()),
       _structName(structName),
       _fieldName(fieldName),
       _localNameHoldingStructAddress(localNameHoldingStructAddress)
       {
-      _elementType = b->typeDictionary()->GetFieldType(structName, fieldName)->baseType()->baseType();
+      _elementType = _dict->GetFieldType(structName, fieldName)->baseType()->baseType();
       _adjustByStep = _elementType->getSize();
       Reload(b);
       }
@@ -95,11 +121,25 @@ class VirtualMachineRegisterInStruct : public TR::VirtualMachineRegister
       b->      Load(_localNameHoldingStructAddress)));
       }
 
-   private:
+   /**
+    * @brief create an identical copy of the current object.
+    * @returns the copy of the current object
+    */
+   virtual TR::VirtualMachineState *MakeCopy();
 
-   const char * const _structName;
-   const char * const _fieldName;
-   const char * const _localNameHoldingStructAddress;
+   /**
+    * @brief returns the client object associated with this object
+    */
+   virtual void *client();
+
+   protected:
+   TR::TypeDictionary * _dict;
+   const char * const   _structName;
+   const char * const   _fieldName;
+   const char * const   _localNameHoldingStructAddress;
+
+private:
+   static void * allocateClientObject(TR::VirtualMachineRegisterInStruct *);
    };
 }
 
