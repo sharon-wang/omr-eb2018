@@ -388,6 +388,7 @@ Class(	/* .doc          = */   "",
 		BINARY("", Mul)
 		BINARYWITHOVERFLOW("", MulWithOverflow)
 		BINARY("", Or)
+		BINARY("", Rem)
 		BINARY("", ShiftL)
 		BINARY("", ShiftR)
 		BINARY("", Sub)
