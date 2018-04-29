@@ -382,12 +382,6 @@ OMR::MethodBuilder::isSymbolAnArray(const char *name)
    }
 
 void
-OMR::MethodBuilder::AppendBuilder(TR::BytecodeBuilder *bb)
-   {
-   AppendBytecodeBuilder(bb);
-   }
-
-void
 OMR::MethodBuilder::DefineName(const char *name)
    {
    _methodName = name;
@@ -605,4 +599,12 @@ OMR::MethodBuilder::Compile(void **entry)
    *entry = (void *) compileMethodFromDetails(NULL, details, warm, rc);
    typeDictionary()->NotifyCompilationDone();
    return rc;
+   }
+
+void *
+OMR::MethodBuilder::client()
+   {
+   if (_client == NULL)
+      _client = allocateClientObject(static_cast<TR::MethodBuilder *>(this));
+   return _client;
    }
