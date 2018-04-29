@@ -133,12 +133,19 @@ class VirtualMachineOperandArray : public TR::VirtualMachineState
     */ 
    virtual void Move(TR::IlBuilder *b, int32_t dstIndex, int32_t srcIndex);
 
+   /**
+    * @brief returns the client object associated with this object
+    */
+   virtual void *client();
+
    private:
    TR::MethodBuilder *_mb;
    int32_t _numberOfElements;
    TR::VirtualMachineRegister *_arrayBaseRegister;
    TR::IlType *_elementType;
    TR::IlValue **_values;
+
+   static void * allocateClientObject(TR::VirtualMachineOperandArray *);
    };
 }
 
