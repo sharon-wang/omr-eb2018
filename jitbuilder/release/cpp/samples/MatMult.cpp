@@ -334,7 +334,6 @@ main(int argc, char *argv[])
    test(C, A, B, N);
    printMatrix(C, N, "C");
 
-#if 0
    printf("Step 6: compile VectorMatMult method builder\n");
    VectorMatMult vecmethod(&vectypes);
    void *vecentry=0;
@@ -349,7 +348,6 @@ main(int argc, char *argv[])
    MatMultFunctionType *vectest = (MatMultFunctionType *)vecentry;
    vectest(D, A, B, N);
    printMatrix(D, N, "D");
-#endif
 
    printf ("Step 8: shutdown JIT\n");
    shutdownJit();
