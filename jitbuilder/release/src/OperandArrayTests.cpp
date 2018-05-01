@@ -371,7 +371,7 @@ OperandArrayTestMethod::OperandArrayTestMethod(TR::TypeDictionary *d)
    }
 
 // convenience macros
-#define STACK(b)         ((OMR::VirtualMachineOperandArray *)(b)->vmState())
+#define STACK(b)         ((TR::VirtualMachineOperandArray *)(b)->vmState())
 #define UPDATEARRAY(b,s) (STACK(b)->UpdateArray(b, s))
 #define COMMIT(b)        (STACK(b)->Commit(b))
 #define RELOAD(b)        (STACK(b)->Reload(b))
@@ -511,8 +511,8 @@ OperandArrayTestMethod::buildIL()
    Call("createArray", 0);
 
    TR::IlValue *arrayBaseAddress = ConstAddress(&_realArray);
-   OMR::VirtualMachineRegister *arrayBase = new OMR::VirtualMachineRegister(this, "ARRAY", pElementType, sizeof(ARRAYVALUETYPE), arrayBaseAddress);
-   OMR::VirtualMachineOperandArray *array = new OMR::VirtualMachineOperandArray(this, _realArrayLength, _valueType, arrayBase);
+   TR::VirtualMachineRegister *arrayBase = new TR::VirtualMachineRegister(this, "ARRAY", pElementType, sizeof(ARRAYVALUETYPE), arrayBaseAddress);
+   TR::VirtualMachineOperandArray *array = new TR::VirtualMachineOperandArray(this, _realArrayLength, _valueType, arrayBase);
 
    setVMState(array);
 
@@ -539,8 +539,8 @@ OperandArrayTestUsingFalseMethod::buildIL()
    Call("createArray", 0);
 
    TR::IlValue *arrayBaseAddress = ConstAddress(&_realArray);
-   OMR::VirtualMachineRegister *arrayBase = new OMR::VirtualMachineRegister(this, "ARRAY", pElementType, sizeof(ARRAYVALUETYPE), arrayBaseAddress);
-   OMR::VirtualMachineOperandArray *array = new OMR::VirtualMachineOperandArray(this, _realArrayLength, _valueType, arrayBase);
+   TR::VirtualMachineRegister *arrayBase = new TR::VirtualMachineRegister(this, "ARRAY", pElementType, sizeof(ARRAYVALUETYPE), arrayBaseAddress);
+   TR::VirtualMachineOperandArray *array = new TR::VirtualMachineOperandArray(this, _realArrayLength, _valueType, arrayBase);
 
    setVMState(array);
 
