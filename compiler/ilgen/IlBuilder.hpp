@@ -242,6 +242,7 @@ public:
    TR::IlValue *Call(const char *name, int32_t numArgs, TR::IlValue **argValues);
    TR::IlValue *ComputedCall(const char *name, int32_t numArgs, ...);
    TR::IlValue *ComputedCall(const char *name, int32_t numArgs, TR::IlValue **args);
+   void genCall(TR::IlValue *returnValue, TR::SymbolReference *methodSymRef, int32_t numArgs, TR::IlValue ** paramValues, bool isDirectCall = true);
    TR::IlValue *genCall(TR::SymbolReference *methodSymRef, int32_t numArgs, TR::IlValue ** paramValues, bool isDirectCall = true);
    void Goto(TR::IlBuilder **dest);
    void Goto(TR::IlBuilder *dest);
@@ -436,6 +437,8 @@ protected:
    void storeNode(TR::SymbolReference *symRef, TR::Node *v);
    void indirectStoreNode(TR::Node *addr, TR::Node *v);
    TR::IlValue *indirectLoadNode(TR::IlType *dt, TR::Node *addr, bool isVectorLoad=false);
+   void indirectLoadNode(TR::IlValue *returnValue, TR::IlType *dt, TR::Node *addr, bool isVectorLoad = false);
+
 
    TR::Node *zero(TR::DataType dt);
    TR::Node *zero(TR::IlType *dt);
@@ -454,7 +457,9 @@ protected:
    void binaryOpFromOpCode(TR::ILOpCodes op, TR::IlValue *returnValue, TR::IlValue *left, TR::IlValue *right);
    TR::IlValue *binaryOpFromOpCode(TR::ILOpCodes op, TR::IlValue *left, TR::IlValue *right);
    TR::Node *shiftOpNodeFromNodes(TR::ILOpCodes op, TR::Node *leftNode, TR::Node *rightNode);
+   void shiftOpFromNodes(TR::ILOpCodes op, TR::IlValue *returnValue, TR::Node *leftNode, TR::Node *rightNode);
    TR::IlValue *shiftOpFromNodes(TR::ILOpCodes op, TR::Node *leftNode, TR::Node *rightNode);
+   void shiftOpFromOpMap(OpCodeMapper mapOp, TR::IlValue *returnValue, TR::IlValue *left, TR::IlValue *right);
    TR::IlValue *shiftOpFromOpMap(OpCodeMapper mapOp, TR::IlValue *left, TR::IlValue *right);
 
    TR::IlValue *compareOp(TR_ComparisonTypes ct, bool needUnsigned, TR::IlValue *left, TR::IlValue *right);

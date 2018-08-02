@@ -154,8 +154,7 @@ public:
    void Transaction(TR::IlBuilder **persistentFailureBuilder, TR::IlBuilder **transientFailureBuilder, TR::IlBuilder **fallThroughBuilder);
    void TransactionAbort();
    void AppendBuilder(TR::IlBuilder *builder);
-   TR::IlValue *Call(const char *name, int32_t numArgs, ...);
-   TR::IlValue *Call(const char *name, int32_t numArgs, TR::IlValue **argValues);
+   TR::IlValue *Call(const char *name, TR::DataType returnType, int32_t numArgs, TR::IlValue **argValues);
    TR::IlValue *ComputedCall(const char *name, int32_t numArgs, ...);
    TR::IlValue *ComputedCall(const char *name, int32_t numArgs, TR::IlValue **args);
    void Goto(TR::IlBuilder **dest);
@@ -305,6 +304,7 @@ protected:
    void convertTo(TR::IlValue *returnValue, TR::IlType *dt, TR::IlValue *v, const char *s);
    void binaryOp(const TR::IlValue *returnValue, const TR::IlValue *left, const TR::IlValue *right, const char *s);
    void unaryOp(TR::IlValue *returnValue, TR::IlValue *v, const char *s);
+   void shiftOp(const TR::IlValue *returnValue, const TR::IlValue *v, const TR::IlValue *amount, const char *s);
 
    TR::JitBuilderRecorder *recorder() const;
    TR::JitBuilderRecorder *clearRecorder();

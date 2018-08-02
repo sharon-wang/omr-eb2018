@@ -132,15 +132,24 @@ class JitBuilderRecorder
    const char *STATEMENT_UNSIGNEDCONVERTTO          = "UnsignedConvertTo";
    const char *STATEMENT_ADD                        = "Add";
    const char *STATEMENT_SUB                        = "Sub";
+   const char *STATEMENT_MUL                        = "Mul";
+   const char *STATEMENT_DIV                        = "Div";
+   const char *STATEMENT_AND                        = "And";
+   const char *STATEMENT_OR                         = "Or";
+   const char *STATEMENT_XOR                        = "Xor";
    const char *STATEMENT_LESSTHAN                   = "LessThan";
+   const char *STATEMENT_GREATERTHAN                = "GreaterThan";
    const char *STATEMENT_NOTEQUALTO                 = "NotEqualTo";
    const char *STATEMENT_APPENDBUILDER              = "AppendBuilder";
    const char *STATEMENT_APPENDBYTECODEBUILDER      = "AppendBytecodeBuilder";
    const char *STATEMENT_GOTO                       = "Goto";
+   const char *STATEMENT_UNSIGNEDSHIFTR             = "UnsignedShiftR";
    const char *STATEMENT_RETURN                     = "Return";
    const char *STATEMENT_RETURNVALUE                = "ReturnValue";
    const char *STATEMENT_IFTHENELSE                 = "IfThenElse";
+   const char *STATEMENT_IFCMPEQUALZERO             = "IfCmpEqualZero";
    const char *STATEMENT_FORLOOP                    = "ForLoop";
+   const char *STATEMENT_CALL                       = "Call";
    const char *STATEMENT_DONECONSTRUCTOR            = "DoneConstructor";
 
    protected:

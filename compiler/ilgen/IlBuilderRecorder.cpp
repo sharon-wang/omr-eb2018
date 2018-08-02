@@ -157,6 +157,20 @@ OMR::IlBuilderRecorder::binaryOp(const TR::IlValue *returnValue, const TR::IlVal
    }
 
 void
+OMR::IlBuilderRecorder::shiftOp(const TR::IlValue *returnValue, const TR::IlValue *v, const TR::IlValue *amount, const char *s)
+   {
+   TR::JitBuilderRecorder *rec = recorder();
+   TR_ASSERT(rec, "cannot call IlBuilderRecorder::shiftOp if recorder is NULL");
+
+   rec->StoreID(returnValue);
+   rec->BeginStatement(asIlBuilder(), s);
+   rec->Value(returnValue);
+   rec->Value(v);
+   rec->Value(amount);
+   rec->EndStatement();
+   }
+
+void
 OMR::IlBuilderRecorder::AppendBuilder(TR::IlBuilder *builder)
    {
    TR::JitBuilderRecorder *rec = recorder();
@@ -627,6 +641,16 @@ OMR::IlBuilderRecorder::LessThan(TR::IlValue *left, TR::IlValue *right)
    }
 
 TR::IlValue *
+OMR::IlBuilderRecorder::GreaterThan(TR::IlValue *left, TR::IlValue *right)
+   {
+   TR::IlValue *returnValue = newValue();
+   TR::JitBuilderRecorder *rec = recorder();
+   if (rec)
+      binaryOp(returnValue, left, right, rec->STATEMENT_GREATERTHAN);
+   return returnValue;
+   }
+
+TR::IlValue *
 OMR::IlBuilderRecorder::ConstString(const char * const value)
    {
    TR::IlValue *returnValue = newValue();
@@ -727,6 +751,16 @@ OMR::IlBuilderRecorder::unaryOp(TR::IlValue *returnValue, TR::IlValue *v, const 
    }
 
 TR::IlValue *
+OMR::IlBuilderRecorder::UnsignedShiftR(TR::IlValue *v, TR::IlValue *amount)
+   {
+   TR::IlValue *returnValue = newValue();
+   TR::JitBuilderRecorder *rec = recorder();
+   if (rec)
+      shiftOp(returnValue, v, amount, rec->STATEMENT_UNSIGNEDSHIFTR);
+   return returnValue;
+   }
+
+TR::IlValue *
 OMR::IlBuilderRecorder::NotEqualTo(TR::IlValue *left, TR::IlValue *right)
    {
    TR::IlValue *returnValue = newValue();
@@ -791,15 +825,67 @@ OMR::IlBuilderRecorder::Sub(TR::IlValue *left, TR::IlValue *right)
 
 TR::IlValue *
 OMR::IlBuilderRecorder::Mul(TR::IlValue *left, TR::IlValue *right)
+   {
+   TR::IlValue *returnValue = newValue();
+   TR::JitBuilderRecorder *rec = recorder();
+   if (rec)
+      binaryOp(returnValue, left, right, rec->STATEMENT_MUL);
+   return returnValue;
+   }
+
+TR::IlValue *
+OMR::IlBuilderRecorder::Div(TR::IlValue *left, TR::IlValue *right)
+   {
+   TR::IlValue *returnValue = newValue();
+   TR::JitBuilderRecorder *rec = recorder();
+   if (rec)
+      binaryOp(returnValue, left, right, rec->STATEMENT_DIV);
+   return returnValue;
+   }
+
+TR::IlValue *
+OMR::IlBuilderRecorder::And(TR::IlValue *left, TR::IlValue *right)
+   {
+   TR::IlValue *returnValue = newValue();
+   TR::JitBuilderRecorder *rec = recorder();
+   if (rec)
+      binaryOp(returnValue, left, right, rec->STATEMENT_AND);
+   return returnValue;
+   }
+
+TR::IlValue *
+OMR::IlBuilderRecorder::Or(TR::IlValue *left, TR::IlValue *right)
+   {
+   TR::IlValue *returnValue = newValue();
+   TR::JitBuilderRecorder *rec = recorder();
+   if (rec)
+      binaryOp(returnValue, left, right, rec->STATEMENT_OR);
+   return returnValue;
+   }
+
+TR::IlValue *
+OMR::IlBuilderRecorder::Xor(TR::IlValue *left, TR::IlValue *right)
+   {
+   TR::IlValue *returnValue = newValue();
+   TR::JitBuilderRecorder *rec = recorder();
+   if (rec)
+      binaryOp(returnValue, left, right, rec->STATEMENT_XOR);
+   return returnValue;
+   }
+
+void
+OMR::IlBuilderRecorder::IfCmpEqualZero(TR::IlBuilder *target, TR::IlValue *condition)
+   {
+   TR::JitBuilderRecorder *rec = recorder();
+
+   if(rec)
       {
-      TR::IlValue *returnValue = newValue();
-      TR::JitBuilderRecorder *rec = recorder();
-      if (rec)
-//         binaryOp(returnValue, left, right, rec->STATEMENT_MUL);//???
-      return returnValue;
+      rec->BeginStatement(asIlBuilder(), rec->STATEMENT_IFCMPEQUALZERO);
+      rec->Builder(target);
+      rec->Value(condition);
+      rec->EndStatement();
       }
-
-
+   }
 
 
 // TR::IlValue *
@@ -1300,39 +1386,35 @@ OMR::IlBuilderRecorder::ComputedCall(const char *functionName, int32_t numArgs, 
    TR::SymbolReference *methodSymRef = symRefTab()->findOrCreateComputedStaticMethodSymbol(JITTED_METHOD_INDEX, -1, resolvedMethod);
    return genCall(methodSymRef, numArgs, argValues, false /*isDirectCall*/);
    }
+#endif
 
 TR::IlValue *
-OMR::IlBuilderRecorder::Call(const char *functionName, int32_t numArgs, ...)
+OMR::IlBuilderRecorder::Call(const char *functionName, TR::DataType returnType, int32_t numArgs, TR::IlValue ** argValues)
    {
-   // TODO: figure out Call REPLAY
-   TraceIL("IlBuilder[ %p ]::Call %s\n", this, functionName);
-   va_list args;
-   va_start(args, numArgs);
-   TR::IlValue **argValues = processCallArgs(_comp, numArgs, args);
-   va_end(args);
-   TR::ResolvedMethod *resolvedMethod = _methodBuilder->lookupFunction(functionName);
-   if (resolvedMethod == NULL && _methodBuilder->RequestFunction(functionName))
-      resolvedMethod = _methodBuilder->lookupFunction(functionName);
-   TR_ASSERT(resolvedMethod, "Could not identify function %s\n", functionName);
-
-   TR::SymbolReference *methodSymRef = symRefTab()->findOrCreateStaticMethodSymbol(JITTED_METHOD_INDEX, -1, resolvedMethod);
-   return genCall(methodSymRef, numArgs, argValues);
+   TR::IlValue *returnValue = NULL;
+   if (returnType != TR::NoType)
+      {
+      returnValue = newValue();
+      }
+   TR::JitBuilderRecorder *rec = recorder();
+   if (NULL != rec)
+      {
+      rec->BeginStatement(asIlBuilder(), rec->STATEMENT_CALL);
+      rec->String(functionName);
+      rec->Number(numArgs);
+      for (int32_t v=0;v < numArgs;v++)
+         rec->Value(argValues[v]);
+      if (returnType != TR::NoType)
+         {
+         rec->StoreID(returnValue);
+         rec->Value(returnValue);
+         }
+      rec->EndStatement();
+      }
+   return returnValue;
    }
 
-TR::IlValue *
-OMR::IlBuilderRecorder::Call(const char *functionName, int32_t numArgs, TR::IlValue ** argValues)
-   {
-   // TODO: figure out Call REPLAY
-   TraceIL("IlBuilder[ %p ]::Call %s\n", this, functionName);
-   TR::ResolvedMethod *resolvedMethod = _methodBuilder->lookupFunction(functionName);
-   if (resolvedMethod == NULL && _methodBuilder->RequestFunction(functionName))
-      resolvedMethod = _methodBuilder->lookupFunction(functionName);
-   TR_ASSERT(resolvedMethod, "Could not identify function %s\n", functionName);
-
-   TR::SymbolReference *methodSymRef = symRefTab()->findOrCreateStaticMethodSymbol(JITTED_METHOD_INDEX, -1, resolvedMethod);
-   return genCall(methodSymRef, numArgs, argValues);
-   }
-
+#if 0
 TR::IlValue *
 OMR::IlBuilderRecorder::genCall(TR::SymbolReference *methodSymRef, int32_t numArgs, TR::IlValue ** argValues, bool isDirectCall /* true by default*/)
    {
@@ -1955,7 +2037,11 @@ OMR::IlBuilderRecorder::ForLoop(bool countsUp,
    if (rec)
       {
       rec->BeginStatement(asIlBuilder(), rec->STATEMENT_FORLOOP);
-      rec->Number((int8_t)countsUp);
+      // rec->Number((int8_t)countsUp);
+      if(countsUp)
+         rec->Number(1); // True
+      else
+         rec->Number(0); // False 
       rec->String(indVar);
       rec->Builder(bLoop);
       rec->Builder(bBreak);
