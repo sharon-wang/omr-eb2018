@@ -245,6 +245,22 @@ OMR::JitBuilderReplayTextFile::handleServiceIlBuilder(uint32_t mbID, char * toke
       else if(strcmp(serviceString, STATEMENT_IFTHENELSE) == 0){
         handleIfThenElse(ilmb, tokens);
       }
+      else if(strcmp(serviceString, STATEMENT_POINTERTYPE) == 0){
+        handlePointerType(ilmb, tokens);
+      }
+      else if(strcmp(serviceString, STATEMENT_CREATELOCALARRAY) == 0){
+        handleCreateLocalArray(ilmb, tokens);
+      }
+      //Needs to be implemented:
+      else if(strcmp(serviceString, STATEMENT_INDEXAT) == 0){
+        handleIndexAt(ilmb, tokens);
+      }
+      else if(strcmp(serviceString, STATEMENT_STOREAT) == 0){
+        handleStoreAt(ilmb, tokens);
+      }
+      else if(strcmp(serviceString, STATEMENT_LOADAT) == 0){
+        handleLoadAt(ilmb, tokens);
+      }
       else{
           TR_ASSERT_FATAL(0, "handleServiceIlBuilder asked to handle unknown serive %s", serviceString);
          }
@@ -329,9 +345,9 @@ void OMR::JitBuilderReplayTextFile::handlePrimitiveType(TR::MethodBuilder * mb, 
     // Store IlType in map with respective ID from tokens
     // tokens: "T7 3"
     // Key: 7, Value: IlValue(3)
-    uint32_t ID = getNumberFromToken(tokens);
+    uint32_t ID = getNumberFromToken(tokens); //"7"
     tokens = std::strtok(NULL, SPACE);
-    uint32_t value = getNumberFromToken(tokens);
+    uint32_t value = getNumberFromToken(tokens); //"3"
 
     TR::DataType dt((TR::DataTypes)value);
     TR::IlType *type = mb->typeDictionary()->PrimitiveType(dt);
@@ -501,7 +517,7 @@ OMR::JitBuilderReplayTextFile::handleAdd(TR::IlBuilder * ilmb, char * tokens)
 
 
 
-   // Add IfThenElse June.29
+   // Add IfThenElse June.29.2018
    void
    OMR::JitBuilderReplayTextFile::handleIfThenElse(TR::IlBuilder * ilmb, char * tokens)
       {
@@ -529,6 +545,128 @@ OMR::JitBuilderReplayTextFile::handleAdd(TR::IlBuilder * ilmb, char * tokens)
       ilmb->IfThenElse(&IfBlock, &ElseBlock, conditionValue);
 
       }
+
+
+void
+OMR::JitBuilderReplayTextFile::handlePointerType(TR::IlBuilder * ilmb, char * tokens)
+{
+  // Def S14 "11 [PointerType]"
+  // B2 S14 T13 T7
+
+  std::cout << "Calling handlePointerType helper.\n";
+
+  uint32_t PointerTypeID = getNumberFromToken(tokens);
+  tokens = std::strtok(NULL, SPACE);
+
+  uint32_t TypeID = getNumberFromToken(tokens);
+  //Find the corresponding type through mapping:
+  TR::IlType * TypeValue = static_cast<TR::IlType *>(lookupPointer(TypeID));
+
+  //Define a new dt and create a pointer to it through TypeDictionary
+  TR::IlType *pointer = ilmb->typeDictionary()->PointerTo(TypeValue);
+
+  StoreIDPointerPair(PointerTypeID, pointer);
+
+}
+
+
+void
+OMR::JitBuilderReplayTextFile::handleCreateLocalArray(TR::IlBuilder * ilmb, char * tokens) {
+  // Def S13 "16 [CreateLocalArray]"
+  // B2 S13 V12 2 T7
+
+  std::cout << "Calling handleCreateLocalArray helper.\n";
+
+  uint32_t IDtoStore = getNumberFromToken(tokens);
+  tokens = std::strtok(NULL, SPACE);
+
+  uint32_t arrayLength = getNumberFromToken(tokens);
+  tokens = std::strtok(NULL, SPACE);
+  uint32_t typeID = getNumberFromToken(tokens);
+
+  TR::IlType * ilType = static_cast<TR::IlType *>(lookupPointer(typeID));
+
+  TR::IlValue * result = ilmb->CreateLocalArray(arrayLength, ilType);
+
+  StoreIDPointerPair(IDtoStore, result);
+
+}
+
+
+void
+OMR::JitBuilderReplayTextFile::handleIndexAt(TR::IlBuilder * ilmb, char * tokens) {
+
+  //Def S30 "7 [IndexAt]"
+  //B21 S30 V27(store the value at) T28(type: pInt32) V12(localArray) V26(0)
+
+  std::cout << "Calling handleIndexAt helper.\n";
+
+  uint32_t IDtoStore = getNumberFromToken(tokens);
+  tokens = std::strtok(NULL, SPACE);
+
+  uint32_t dataTypeID = getNumberFromToken(tokens);
+  tokens = std::strtok(NULL, SPACE);
+
+  uint32_t arrayID = getNumberFromToken(tokens);
+  tokens = std::strtok(NULL, SPACE);
+
+  uint32_t position = getNumberFromToken(tokens);
+  tokens = std::strtok(NULL, SPACE);
+
+  TR::IlType * dataType = static_cast<TR::IlType *>(lookupPointer(dataTypeID));
+  TR::IlValue * base = static_cast<TR::IlValue *>(lookupPointer(arrayID));
+  TR::IlValue * index = static_cast<TR::IlValue *>(lookupPointer(position));
+
+  TR::IlValue * result = ilmb->IndexAt(dataType, base, index);
+
+  StoreIDPointerPair(IDtoStore, result);
+}
+
+
+void
+OMR::JitBuilderReplayTextFile::handleStoreAt(TR::IlBuilder * ilmb, char * tokens) {
+  //Def S32 "7 [StoreAt]"
+  //B21 S32 V27 V31
+
+  std::cout << "Calling handleStoreAt helper.\n";
+
+  uint32_t addressID = getNumberFromToken(tokens);
+  tokens = std::strtok(NULL, SPACE);
+  uint32_t ValueID = getNumberFromToken(tokens);
+
+
+  TR::IlValue * address = static_cast<TR::IlValue *>(lookupPointer(addressID));
+  TR::IlValue * value = static_cast<TR::IlValue *>(lookupPointer(ValueID));
+
+  ilmb->StoreAt(address, value);
+}
+
+
+void
+OMR::JitBuilderReplayTextFile::handleLoadAt(TR::IlBuilder * ilmb, char * tokens) {
+  //Def S45 "6 [LoadAt]"
+  //B2 S45 V44 T28 V43
+
+  std::cout << "Calling handleLoadAt helper.\n";
+
+  uint32_t IDtoStore = getNumberFromToken(tokens);
+  tokens = std::strtok(NULL, SPACE);
+
+  uint32_t dataTypeID = getNumberFromToken(tokens);
+  tokens = std::strtok(NULL, SPACE);
+
+  uint32_t addressID = getNumberFromToken(tokens);
+  tokens = std::strtok(NULL, SPACE);
+
+  TR::IlType * dataType = static_cast<TR::IlType *>(lookupPointer(dataTypeID));
+  TR::IlValue * address = static_cast<TR::IlValue *>(lookupPointer(addressID));
+
+  TR::IlValue * result = ilmb->LoadAt(dataType, address);
+
+  StoreIDPointerPair(IDtoStore, result);
+
+}
+
 
 
 void
@@ -580,6 +718,7 @@ OMR::JitBuilderReplayTextFile::parseConstructor()
                    constructorFlag = handleService(METHOD_BUILDER, tokens);
                }
          }
+         return true;
    }
 
 bool

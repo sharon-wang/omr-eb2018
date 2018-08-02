@@ -270,6 +270,7 @@ OMR::IlBuilderRecorder::CreateLocalArray(int32_t numElements, TR::IlType *elemen
    if (rec)
       {
       rec->StoreID(returnValue);
+      elementType->RecordFirstTime(rec);
 
       rec->BeginStatement(asIlBuilder(), rec->STATEMENT_CREATELOCALARRAY);
       rec->Value(returnValue);
@@ -414,6 +415,7 @@ OMR::IlBuilderRecorder::IndexAt(TR::IlType *dt, TR::IlValue *base, TR::IlValue *
    if (rec)
       {
       rec->StoreID(returnValue);
+      dt->RecordFirstTime(rec);
 
       rec->BeginStatement(asIlBuilder(), rec->STATEMENT_INDEXAT);
       rec->Value(returnValue);

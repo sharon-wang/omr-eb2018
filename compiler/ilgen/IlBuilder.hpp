@@ -41,7 +41,7 @@ namespace OMR { class JitBuilderWriter; }
 namespace TR { class Block; }
 namespace TR { class IlGeneratorMethodDetails; }
 namespace TR { class IlBuilder; }
-namespace TR { class ResolvedMethodSymbol; } 
+namespace TR { class ResolvedMethodSymbol; }
 namespace TR { class SymbolReference; }
 namespace TR { class SymbolReferenceTable; }
 
@@ -216,6 +216,8 @@ public:
    TR::IlValue *AtomicAddWithOffset(TR::IlValue *baseAddress, TR::IlValue * offset, TR::IlValue * value);
    void Transaction(TR::IlBuilder **persistentFailureBuilder, TR::IlBuilder **transientFailureBuilder, TR::IlBuilder **fallThroughBuilder);
    void TransactionAbort();
+
+   void indirectLoadNode(TR::IlValue *loadValue, TR::IlType *dt, TR::Node *addr, bool isVectorLoad=false);
 
    /**
     * `StructFieldAddress` and `UnionFieldAddress` are two functions that
@@ -475,7 +477,7 @@ protected:
       }
 
    TR::Block *emptyBlock();
-   
+
    virtual uint32_t countBlocks();
 
    void pullInBuilderTrees(TR::IlBuilder *builder,

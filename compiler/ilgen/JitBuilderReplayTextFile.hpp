@@ -79,6 +79,13 @@
     void handleLessThan(TR::IlBuilder * ilmb, char * tokens);
     void handleIfThenElse(TR::IlBuilder * ilmb, char * tokens);
 
+    void handlePointerType(TR::IlBuilder * ilmb, char * tokens);
+    void handleCreateLocalArray(TR::IlBuilder * ilmb, char * tokens);
+    void handleIndexAt(TR::IlBuilder * ilmb, char * tokens);
+    void handleStoreAt(TR::IlBuilder * ilmb, char * tokens);
+    void handleLoadAt(TR::IlBuilder * ilmb, char * tokens);
+
+
     void handleReturnValue(TR::IlBuilder * ilmb, char * tokens);
 
     uint32_t getNumberFromToken(char * token);
