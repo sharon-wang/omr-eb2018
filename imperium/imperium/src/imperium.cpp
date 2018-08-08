@@ -142,6 +142,9 @@
         ClientMessage request = constructMessage(fileString, reinterpret_cast<uint64_t>(entry));
         std::remove(fileName);
 
+        std::cout << std::endl << "Requested server compilation..." << std::endl;
+        std::cout << "Waiting for server response... " << std::endl;
+
         Status status = _stub->CompileMethod(&codeCacheContext, request, &reply);
         
         auto fe = JitBuilder::FrontEnd::instance();
@@ -636,8 +639,8 @@
            {
             std::chrono::high_resolution_clock::time_point t1 = std::chrono::high_resolution_clock::now();
 
-            std::cout << "No need to compile!\n";
-            std::cout << "Sending cached data to client...\n";
+            std::cout << "No need to compile!" << std::endl;
+            std::cout << "Sending cached data to client..." << std::endl;
 
             CachedMethodData data = it->second;
             entry = data.entry;
@@ -650,7 +653,7 @@
            
             std::chrono::high_resolution_clock::time_point t2 = std::chrono::high_resolution_clock::now();
             auto duration = std::chrono::duration_cast<std::chrono::microseconds>( t2 - t1 ).count();
-            std::cout << "Duration of compilation on server: " << duration << " microseconds." << std::endl << std::endl;
+            std::cout << "Server response generated in: " << duration << " microseconds." << std::endl << std::endl;
            }
 
         reply->set_instructions((char*) entry, sizeCode);
