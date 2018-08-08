@@ -392,6 +392,10 @@ OMR::JitBuilderReplayTextFile::handleServiceIlBuilder(uint32_t mbID, char * toke
          {
          handlePrimitiveType(ilmb, tokens);
          }
+      else if(strcmp(serviceString, STATEMENT_POINTERTYPE) == 0)
+         {
+         handlePointerType(ilmb, tokens);
+         }
       else
          {
          TR_ASSERT_FATAL(0, "handleServiceIlBuilder asked to handle unknown serive %s", serviceString);
