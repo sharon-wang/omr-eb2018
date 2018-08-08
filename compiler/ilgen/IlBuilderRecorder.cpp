@@ -390,6 +390,7 @@ OMR::IlBuilderRecorder::LoadAt(TR::IlType *dt, TR::IlValue *address)
    if (rec)
       {
       rec->StoreID(returnValue);
+      dt->RecordFirstTime(rec);
 
       rec->BeginStatement(asIlBuilder(), rec->STATEMENT_LOADAT);
       rec->Value(returnValue);
@@ -409,6 +410,7 @@ OMR::IlBuilderRecorder::VectorLoadAt(TR::IlType *dt, TR::IlValue *address)
    if (rec)
       {
       rec->StoreID(returnValue);
+      dt->RecordFirstTime(rec);
 
       rec->BeginStatement(asIlBuilder(), rec->STATEMENT_VECTORLOADAT);
       rec->Value(returnValue);
@@ -428,6 +430,7 @@ OMR::IlBuilderRecorder::IndexAt(TR::IlType *dt, TR::IlValue *base, TR::IlValue *
    if (rec)
       {
       rec->StoreID(returnValue);
+      dt->RecordFirstTime(rec);
 
       rec->BeginStatement(asIlBuilder(), rec->STATEMENT_INDEXAT);
       rec->Value(returnValue);
