@@ -50,7 +50,7 @@
     if(rep)
        {
            rep->initializeMethodBuilder(static_cast<TR::MethodBuilderReplay *>(this));
-           std::cout << "MethodBuilderReplay initialized.\n";
+        //    std::cout << "MethodBuilderReplay initialized.\n";
        }
     else
        {
