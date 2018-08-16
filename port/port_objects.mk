@@ -188,6 +188,11 @@ ifeq (ppc,$(OMR_HOST_ARCH))
     OBJECTS += auxv
   endif
 endif
+ifeq (s390,$(OMR_HOST_ARCH))
+  ifeq (linux,$(OMR_HOST_OS))
+    OBJECTS += auxv
+  endif
+endif
 ifeq (1,$(OMR_OPT_CUDA))
   OBJECTS += omrcuda
 endif
@@ -317,16 +322,6 @@ omrsyslog.obj: omrsyslogmessages.res
 endif
 
 ifeq (linux,$(OMR_HOST_OS))
-
-# Linux standard headers have some functions marked with the attribute "warn_unused_result".
-  ifeq (gcc,$(OMR_TOOLCHAIN))
-omrfile.o: MODULE_CFLAGS+=-Wno-error
-omrfiletext.o: MODULE_CFLAGS+=-Wno-error
-omrintrospect.o: MODULE_CFLAGS+=-Wno-error
-omrosdump.o: MODULE_CFLAGS+=-Wno-error
-omrosdump_helpers.o: MODULE_CFLAGS+=-Wno-error
-omrsysinfo.o: MODULE_CFLAGS+=-Wno-error
-  endif
 
   ifeq (s390,$(OMR_HOST_ARCH))
     # OMRTODO: This is to get around a compiler bug:

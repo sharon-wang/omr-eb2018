@@ -165,7 +165,7 @@ TR_Debug * createDebugObject(TR::Compilation * comp)
 
 
 
-#if defined(AIXPPC) || defined(LINUX) || defined(J9ZOS390) || defined(WINDOWS)
+#if defined(AIXPPC) || defined(LINUX) || defined(J9ZOS390) || defined(OMR_OS_WINDOWS)
 static void stopOnCreate()
    {
    static int first = 1;
@@ -176,7 +176,7 @@ static void stopOnCreate()
       first = 0;
       }
    }
-#endif
+#endif /* defined(AIXPPC) || defined(LINUX) || defined(J9ZOS390) || defined(OMR_OS_WINDOWS) */
 
 
 void
@@ -210,10 +210,10 @@ TR_Debug::debugOnCreate()
 #elif defined(AIXPPC)
    setupDebugger((void *) *((long*)&(stopOnCreate)));
    stopOnCreate();
-#elif defined(LINUX) || defined(J9ZOS390) || (defined(WINDOWS))
+#elif defined(LINUX) || defined(J9ZOS390) || (defined(OMR_OS_WINDOWS))
    setupDebugger((void *) &stopOnCreate,(void *) &stopOnCreate,true);
    stopOnCreate();
-#endif
+#endif /* defined(TR_HOST_X86) */
    }
 
 
@@ -3100,7 +3100,6 @@ TR_Debug::getRegisterKindName(TR_RegisterKinds rk)
       case TR_VSX_VECTOR:   return "VSX_VECTOR";
       case TR_GPR64: return "GPR64";
       case TR_SSR:   return "SSR";
-      case TR_AR:    return "AR";
       default:       return "??R";
       }
    }
@@ -3836,6 +3835,7 @@ TR_Debug::getRuntimeHelperName(int32_t index)
          case TR_checkCast:                 return "jitCheckCast";
          case TR_checkCastForArrayStore:    return "jitCheckCastForArrayStore";
          case TR_instanceOf:                return "jitInstanceOf";
+         case TR_checkAssignable:           return "jitCheckAssignable";
          case TR_induceOSRAtCurrentPC:      return "jitInduceOSRAtCurrentPC";
          case TR_monitorEntry:              return "jitMonitorEntry";
          case TR_methodMonitorEntry:        return "jitMethodMonitorEntry";
@@ -3900,6 +3900,7 @@ TR_Debug::getRuntimeHelperName(int32_t index)
          case TR_jitCheckIfFinalizeObject:  return "jitCheckIfFinalizeObject";
          case TR_releaseVMAccess:           return "jitReleaseVMAccess";
          case TR_throwCurrentException:     return "jitThrowCurrentException";
+         case TR_throwClassCastException:   return "jitThrowClassCastException";
 
          case TR_IncompatibleClassChangeError:return "jitThrowIncompatibleClassChangeError";
          case TR_AbstractMethodError:       return "jitThrowAbstractMethodError";
@@ -4894,7 +4895,6 @@ TR_Debug::traceRegisterAssignment(TR::Instruction *instr, bool insertedByRA, boo
             const bool isHPR = _registerKindsToAssign & TR_HPR_Mask;
             const bool isVRF = _registerKindsToAssign & TR_VRF_Mask;
             const bool isFPR = _registerKindsToAssign & TR_FPR_Mask;
-            const bool isAR  = _registerKindsToAssign & TR_AR_Mask;
             const bool isX87 = _registerKindsToAssign & TR_X87_Mask;
 
             TR::RegisterIterator *gprIter = _comp->cg()->getGPRegisterIterator();
@@ -4945,18 +4945,6 @@ TR_Debug::traceRegisterAssignment(TR::Instruction *instr, bool insertedByRA, boo
                   printFullRegInfo(_file, vrf);
                   }
                trfprintf(_file, "</vrfs>\n");
-               }
-#endif
-#if defined(TR_TARGET_S390)
-            if (_registerKindsToAssign & TR_AR_Mask)
-               {
-               trfprintf(_file, "<ars>\n");
-               TR::RegisterIterator *iter = _cg->getARegisterIterator();
-               for (TR::Register *ar = iter->getFirst(); ar; ar = iter->getNext())
-                  {
-                  printFullRegInfo(_file, ar);
-                  }
-               trfprintf(_file, "</ars>\n");
                }
 #endif
             if (_registerKindsToAssign & TR_FPR_Mask)
@@ -5349,7 +5337,7 @@ void TR_Debug::setupDebugger(void *startaddr, void *endaddr, bool before)
          else printf("Could not open %s, skipping break !\n",cfname);
          }
    }
-#elif defined(WINDOWS)
+#elif defined(OMR_OS_WINDOWS)
 #ifndef WINDOWS_API_INCLUDED
 extern "C"
    {
@@ -5414,7 +5402,7 @@ void TR_Debug::setupDebugger(void *startaddr, void *endaddr, bool before)
       started = true;
       }
    }
-#endif
+#endif /* defined(AIXPPC) */
 
 void TR_Debug::setSingleAllocMetaData(bool usesSingleAllocMetaData)
    {

@@ -313,7 +313,7 @@ MM_Scavenger::collectorStartup(MM_GCExtensionsBase* extensions)
 {
 #if defined(OMR_GC_CONCURRENT_SCAVENGER)
 	if (_extensions->concurrentScavenger) {
-		if (!_masterGCThread.initialize(this)) {
+		if (!_masterGCThread.initialize(this, true, true)) {
 			return false;
 		}
 		if (!_masterGCThread.startup()) {
@@ -829,32 +829,61 @@ MM_Scavenger::calcGCStats(MM_EnvironmentStandard *env)
  ****************************************
  */
 
+uintptr_t
+MM_Scavenger::calculateCopyScanCacheSizeForWaitingThreads(uintptr_t maxCacheSize, uintptr_t threadCount, uintptr_t waitingThreads)
+{
+	uintptr_t minCacheSize = _extensions->scavengerScanCacheMinimumSize;
+	uintptr_t range = maxCacheSize - minCacheSize;
+	uintptr_t minTLHSize = _extensions->tlhMinimumSize;
+	uintptr_t step = range / minTLHSize;
+	uintptr_t multiplier = (step * (threadCount - waitingThreads)) / threadCount;
+	uintptr_t cacheSize = (minTLHSize * multiplier) + minCacheSize;
+
+	return cacheSize;
+}
+
+uintptr_t
+MM_Scavenger::calculateCopyScanCacheSizeForQueueLength(uintptr_t maxCacheSize, uintptr_t threadCount, uintptr_t scanCacheCount)
+{
+	uintptr_t minCacheSize = _extensions->scavengerScanCacheMinimumSize;
+	uintptr_t range = maxCacheSize - minCacheSize;
+	uintptr_t cacheSize =  minCacheSize + ((range / threadCount) * (scanCacheCount + 1));
+
+	return MM_Math::roundToCeiling(_extensions->getObjectAlignmentInBytes(), cacheSize);
+}
+
 /**
  * Calculate optimum copyscancache size.
+ *
+ * Perform the hot path checks inline but if calculations are required call helper functions.
  * @return the optimum copyscancache size
  */
 MMINLINE uintptr_t
 MM_Scavenger::calculateOptimumCopyScanCacheSize(MM_EnvironmentStandard *env)
 {
-	/* scale down maximal scan cache size using wait/copy/scan factor and round up to nearest tlh size */
-	uintptr_t scaleSize = (uintptr_t)(_extensions->copyScanRatio.getScalingFactor(env) * _extensions->scavengerScanCacheMaximumSize);
-	uintptr_t cacheSize = MM_Math::roundToCeiling(_extensions->tlhMinimumSize, scaleSize);
-
-	/* Fit result into allowable cache size range */
-	if (cacheSize < _extensions->scavengerScanCacheMinimumSize) {
-		cacheSize = _extensions->scavengerScanCacheMinimumSize;
-	} else if (cacheSize > _extensions->scavengerScanCacheMaximumSize) {
-		cacheSize = _extensions->scavengerScanCacheMaximumSize;
+	uintptr_t threadCount = _dispatcher->threadCount();
+	uintptr_t maxCacheSize = _extensions->scavengerScanCacheMaximumSize;
+	uintptr_t cacheSize = maxCacheSize;
+	uintptr_t waitingThreads = _waitingCount;
+	if (waitingThreads > 0) {
+		uintptr_t cacheSizeBasedOnWaitingCount = calculateCopyScanCacheSizeForWaitingThreads(maxCacheSize, threadCount, waitingThreads);
+		cacheSize = OMR_MIN(cacheSizeBasedOnWaitingCount, cacheSize);
 	}
 
-	env->_scavengerStats.countCopyCacheSize(cacheSize, _extensions->scavengerScanCacheMaximumSize);
+	uintptr_t scanCacheCount = _scavengeCacheScanList.getApproximateEntryCount();
+	if (scanCacheCount < threadCount) {
+		uintptr_t cacheSizeBasedOnScanCacheCount = calculateCopyScanCacheSizeForQueueLength(maxCacheSize, threadCount, scanCacheCount);
+		cacheSize = OMR_MIN(cacheSizeBasedOnScanCacheCount, cacheSize);
+	}
 
-#if defined(OMR_SCAVENGER_TRACE)
-	OMRPORT_ACCESS_FROM_OMRPORT(env->getPortLibrary());
-	omrtty_printf("{SCAV: scanCacheSize %zu}\n", cacheSize);
-#endif /* OMR_SCAVENGER_TRACE */
+	env->_scavengerStats.countCopyCacheSize(cacheSize, maxCacheSize);
 
-	return cacheSize;
+#if defined(J9MODRON_SCAVENGER_TRACE)
+    PORT_ACCESS_FROM_ENVIRONMENT(env);
+    j9tty_printf(PORTLIB, "{SCAV: scanCacheSize %zu}\n", cacheSize);
+#endif /* J9MODRON_SCAVENGER_TRACE */
+
+    return cacheSize;
 }
 
 MMINLINE MM_CopyScanCacheStandard *
@@ -1386,11 +1415,7 @@ MM_Scavenger::copy(MM_EnvironmentStandard *env, MM_ForwardedHeader* forwardedHea
 #endif /* J9VM_INTERP_NATIVE_SUPPORT */
 
 #if defined(OMR_VALGRIND_MEMCHECK)
-		valgrindMempoolAlloc(_extensions,(uintptr_t) destinationObjectPtr,(uintptr_t)objectCopySizeInBytes);
-		/* We don't free original object here or in copyAndForward function because
-		 * 1. It is  needed back in case of backout.
-		   2. It's care is already taken when MM_MemoryPoolAddressOrderedListBase::createFreeEntry
-			  is called during end of scavanger cycle. */
+		valgrindMempoolAlloc(_extensions, (uintptr_t) destinationObjectPtr, objectReserveSizeInBytes);
 #endif /* defined(OMR_VALGRIND_MEMCHECK) */
 
 #if defined(OMR_GC_CONCURRENT_SCAVENGER)
@@ -1419,6 +1444,15 @@ MM_Scavenger::copy(MM_EnvironmentStandard *env, MM_ForwardedHeader* forwardedHea
 
 			_extensions->objectModel.fixupForwardedObject(forwardedHeader, destinationObjectPtr, objectAge);
 		}
+
+#if defined(OMR_VALGRIND_MEMCHECK)
+		valgrindFreeObject(_extensions,(uintptr_t) forwardedHeader->getObject());
+	
+		// Object is definitely dead but at many places (glue : ScavangerRootScanner)
+		// We use it's forwardedHeader to check it.
+		valgrindMakeMemDefined((uintptr_t) forwardedHeader->getObject(), sizeof(MM_ForwardedHeader));
+
+#endif /* defined(OMR_VALGRIND_MEMCHECK) */
 
 #if defined(OMR_SCAVENGER_TRACE_COPY)
 		OMRPORT_ACCESS_FROM_OMRPORT(env->getPortLibrary());
@@ -2942,38 +2976,43 @@ MM_Scavenger::clearCache(MM_EnvironmentStandard *env, MM_CopyScanCacheStandard *
 	Assert_MM_false(cache->flags & OMR_SCAVENGER_CACHE_TYPE_CLEARED);
 	bool remainderCreated = false;
 
-	if (cache->flags & OMR_SCAVENGER_CACHE_TYPE_TENURESPACE) {
-		allocSubSpace = _tenureMemorySubSpace;
-
-		if(discardSize < env->getExtensions()->tlhTenureDiscardThreshold) {
-			env->_scavengerStats._tenureDiscardBytes += discardSize;
-			/* Abandon the current entry in the cache */
-			allocSubSpace->abandonHeapChunk(cache->cacheAlloc, cache->cacheTop);
+	if (0 < discardSize) {
+		if (cache->flags & OMR_SCAVENGER_CACHE_TYPE_TENURESPACE) {
+			allocSubSpace = _tenureMemorySubSpace;
+			if (discardSize < env->getExtensions()->tlhTenureDiscardThreshold) {
+				env->_scavengerStats._tenureDiscardBytes += discardSize;
+				/* Abandon the current entry in the cache */
+				allocSubSpace->abandonHeapChunk(cache->cacheAlloc, cache->cacheTop);
+			} else {
+				remainderCreated = true;
+				env->_scavengerStats._tenureTLHRemainderCount += 1;
+				Assert_MM_true(NULL == env->_tenureTLHRemainderBase);
+				Assert_MM_true(NULL == env->_tenureTLHRemainderTop);
+				env->_tenureTLHRemainderBase = cache->cacheAlloc;
+				env->_tenureTLHRemainderTop = cache->cacheTop;
+				env->_loaAllocation = (OMR_SCAVENGER_CACHE_TYPE_LOA == (cache->flags & OMR_SCAVENGER_CACHE_TYPE_LOA));
+			}
+		} else if (cache->flags & OMR_SCAVENGER_CACHE_TYPE_SEMISPACE) {
+			allocSubSpace = _survivorMemorySubSpace;
+			if (discardSize < env->getExtensions()->tlhSurvivorDiscardThreshold) {
+				env->_scavengerStats._flipDiscardBytes += discardSize;
+				allocSubSpace->abandonHeapChunk(cache->cacheAlloc, cache->cacheTop);
+			} else {
+				remainderCreated = true;
+				env->_scavengerStats._survivorTLHRemainderCount += 1;
+				Assert_MM_true(NULL == env->_survivorTLHRemainderBase);
+				Assert_MM_true(NULL == env->_survivorTLHRemainderTop);
+				env->_survivorTLHRemainderBase = cache->cacheAlloc;
+				env->_survivorTLHRemainderTop = cache->cacheTop;
+			}
 		} else {
-			remainderCreated = true;
-			env->_scavengerStats._tenureTLHRemainderCount += 1;
-			Assert_MM_true(NULL == env->_tenureTLHRemainderBase);
-			Assert_MM_true(NULL == env->_tenureTLHRemainderTop);
-			env->_tenureTLHRemainderBase = cache->cacheAlloc;
-			env->_tenureTLHRemainderTop = cache->cacheTop;
-			env->_loaAllocation = (OMR_SCAVENGER_CACHE_TYPE_LOA == (cache->flags & OMR_SCAVENGER_CACHE_TYPE_LOA));
+			/*
+			 * In case if OMR_SCAVENGER_CACHE_TYPE_SPLIT_ARRAY flag is set none of
+			 * OMR_SCAVENGER_CACHE_TYPE_TENURESPACE or OMR_SCAVENGER_CACHE_TYPE_SEMISPACE might be set.
+			 * However discardSize must be zero in this case and we should not go here
+			 */
+			Assert_MM_unreachable();
 		}
-	} else if (cache->flags & OMR_SCAVENGER_CACHE_TYPE_SEMISPACE) {
-		allocSubSpace = _survivorMemorySubSpace;
-		if(discardSize < env->getExtensions()->tlhSurvivorDiscardThreshold) {
-			env->_scavengerStats._flipDiscardBytes += discardSize;
-			allocSubSpace->abandonHeapChunk(cache->cacheAlloc, cache->cacheTop);
-		} else {
-			remainderCreated = true;
-			env->_scavengerStats._survivorTLHRemainderCount += 1;
-			Assert_MM_true(NULL == env->_survivorTLHRemainderBase);
-			Assert_MM_true(NULL == env->_survivorTLHRemainderTop);
-			env->_survivorTLHRemainderBase = cache->cacheAlloc;
-			env->_survivorTLHRemainderTop = cache->cacheTop;
-		}
-	} else {
-		Assert_MM_true(cache->flags & OMR_SCAVENGER_CACHE_TYPE_SPLIT_ARRAY);
-		Assert_MM_true(0 == discardSize);
 	}
 
 	/* Broadcast details of that portion of memory within which objects have been allocated */
@@ -3286,19 +3325,17 @@ MM_Scavenger::backoutFixupAndReverseForwardPointersInSurvivor(MM_EnvironmentStan
 					 */
 					UDATA evacuateObjectSizeInBytes = _extensions->objectModel.getConsumedSizeInBytesWithHeader(forwardedObject);					
 					MM_HeapLinkedFreeHeader* freeHeader = MM_HeapLinkedFreeHeader::getHeapLinkedFreeHeader(forwardedObject);
+#if defined(OMR_VALGRIND_MEMCHECK)
+					valgrindMempoolAlloc(_extensions,(uintptr_t) originalObject, (uintptr_t) evacuateObjectSizeInBytes);
+					valgrindFreeObject(_extensions, (uintptr_t) forwardedObject);
+					valgrindMakeMemUndefined((uintptr_t)freeHeader, (uintptr_t) sizeof(MM_HeapLinkedFreeHeader));
+#endif /* defined(OMR_VALGRIND_MEMCHECK) */
 					freeHeader->setNext((MM_HeapLinkedFreeHeader*)originalObject);
 					freeHeader->setSize(evacuateObjectSizeInBytes);
 #if defined(OMR_SCAVENGER_TRACE_BACKOUT)
 					omrtty_printf("{SCAV: Back out forward pointer %p[%p]@%p -> %p[%p]}\n", objectPtr, *objectPtr, forwardedObject, freeHeader->getNext(), freeHeader->getSize());
 					Assert_MM_true(objectPtr == originalObject);
-#endif /* OMR_SCAVENGER_TRACE_BACKOUT */
-#if defined(OMR_VALGRIND_MEMCHECK)
-					/* Above methods setNext(), setSize(), getNext() and getSize()
-					 * will make free header undefined
-					 * as they are mostly used in undefined memory. But here forwardedObject
-					 * is still alive. So we manually have to make it defined again. */
-					valgrindMakeMemDefined((uintptr_t)freeHeader,(uintptr_t) sizeof(MM_HeapLinkedFreeHeader));					
-#endif /* defined(OMR_VALGRIND_MEMCHECK) */					
+#endif /* OMR_SCAVENGER_TRACE_BACKOUT */			
 				}
 			}
 		}
@@ -3698,7 +3735,7 @@ MM_Scavenger::masterThreadGarbageCollect(MM_EnvironmentBase *envBase, MM_Allocat
 			if(_extensions->scvTenureStrategyAdaptive) {
 				/* Adjust the tenure age based on the percentage of new space used.  Also, avoid / by 0 */
 				uintptr_t newSpaceTotalSize = _activeSubSpace->getActiveMemorySize();
-				uintptr_t newSpaceConsumedSize = newSpaceTotalSize - _activeSubSpace->getActualActiveFreeMemorySize();
+				uintptr_t newSpaceConsumedSize = _extensions->scavengerStats._flipBytes;
 				uintptr_t newSpaceSizeScale = newSpaceTotalSize / 100;
 
 				if((newSpaceConsumedSize < (_extensions->scvTenureRatioLow * newSpaceSizeScale)) && (_extensions->scvTenureAdaptiveTenureAge < OBJECT_HEADER_AGE_MAX)) {
@@ -4617,6 +4654,8 @@ MM_Scavenger::scavengeComplete(MM_EnvironmentBase *envBase)
 	MM_ConcurrentScavengeTask scavengeTask(env, _dispatcher, this, MM_ConcurrentScavengeTask::SCAVENGE_COMPLETE, U_64_MAX, NULL, env->_cycleState);
 	_dispatcher->run(env, &scavengeTask);
 
+	Assert_MM_true(_scavengeCacheFreeList.areAllCachesReturned());
+
 	return false;
 }
 
@@ -4743,15 +4782,10 @@ MM_Scavenger::scavengeIncremental(MM_EnvironmentBase *env)
 
 			_concurrentState = concurrent_state_complete;
 
-			if (isBackOutFlagRaised()) {
-				mergeIncrementGCStats(env, false);
-				clearIncrementGCStats(env, false);
-				continue;
-			}
-
-			timeout = true;
+			mergeIncrementGCStats(env, false);
+			clearIncrementGCStats(env, false);
+			continue;
 		}
-			break;
 
 		case concurrent_state_complete:
 		{
@@ -4869,23 +4903,29 @@ MM_Scavenger::workThreadComplete(MM_EnvironmentStandard *env)
 uintptr_t
 MM_Scavenger::masterThreadConcurrentCollect(MM_EnvironmentBase *env)
 {
-	Assert_MM_true(concurrent_state_scan == _concurrentState);
+	if (concurrent_state_scan == _concurrentState) {
+		Assert_MM_true(concurrent_state_scan == _concurrentState || concurrent_state_idle == _concurrentState);
 
-	clearIncrementGCStats(env, false);
+		clearIncrementGCStats(env, false);
 
-	MM_ConcurrentScavengeTask scavengeTask(env, _dispatcher, this, MM_ConcurrentScavengeTask::SCAVENGE_SCAN, UDATA_MAX, &_forceConcurrentTermination, env->_cycleState);
-	/* Concurrent background task will run with different (typically lower) number of threads. */
-	_dispatcher->run(env, &scavengeTask, _extensions->concurrentScavengerBackgroundThreads);
+		MM_ConcurrentScavengeTask scavengeTask(env, _dispatcher, this, MM_ConcurrentScavengeTask::SCAVENGE_SCAN, UDATA_MAX, &_forceConcurrentTermination, env->_cycleState);
+		/* Concurrent background task will run with different (typically lower) number of threads. */
+		_dispatcher->run(env, &scavengeTask, _extensions->concurrentScavengerBackgroundThreads);
 
-	/* we can't assert the work queue is empty. some mutator threads could have just flushed their copy caches, after the task terminated */
-	_concurrentState = concurrent_state_complete;
-	/* make allocate space non-allocatable to trigger the final GC phase */
-	_activeSubSpace->flip(env, MM_MemorySubSpaceSemiSpace::disable_allocation);
+		/* we can't assert the work queue is empty. some mutator threads could have just flushed their copy caches, after the task terminated */
+		_concurrentState = concurrent_state_complete;
+		/* make allocate space non-allocatable to trigger the final GC phase */
+		_activeSubSpace->flip(env, MM_MemorySubSpaceSemiSpace::disable_allocation);
 
-	mergeIncrementGCStats(env, false);
+		mergeIncrementGCStats(env, false);
 
-	/* return the number of bytes scanned since the caller needs to pass it into postConcurrentUpdateStatsAndReport for stats reporting */
-	return scavengeTask.getBytesScanned();
+		/* return the number of bytes scanned since the caller needs to pass it into postConcurrentUpdateStatsAndReport for stats reporting */
+		return scavengeTask.getBytesScanned();
+	} else {
+		/* someone else might have done this phase (and the rest of the cycle), forced in STW, before we even got a chance to run. */
+		Assert_MM_true(concurrent_state_idle == _concurrentState);
+		return 0;
+	}
 }
 
 void MM_Scavenger::preConcurrentInitializeStatsAndReport(MM_EnvironmentBase *env, MM_ConcurrentPhaseStatsBase *stats)

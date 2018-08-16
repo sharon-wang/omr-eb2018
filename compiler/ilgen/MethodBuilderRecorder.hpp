@@ -43,7 +43,7 @@ class MethodBuilderRecorder : public TR::IlBuilder
    public:
    TR_ALLOC(TR_Memory::IlGenerator)
 
-   MethodBuilderRecorder(TR::TypeDictionary *types, TR::JitBuilderRecorder *recorder, OMR::VirtualMachineState *vmState);
+   MethodBuilderRecorder(TR::TypeDictionary *types, TR::JitBuilderRecorder *recorder, TR::VirtualMachineState *vmState);
    virtual ~MethodBuilderRecorder()                          { }
 
    int32_t getNextValueID()                                  { return _nextValueID++; }
@@ -51,8 +51,8 @@ class MethodBuilderRecorder : public TR::IlBuilder
    bool usesBytecodeBuilders()                               { return _useBytecodeBuilders; }
    void setUseBytecodeBuilders()                             { _useBytecodeBuilders = true; }
 
-   OMR::VirtualMachineState *vmState()                       { return _vmState; }
-   void setVMState(OMR::VirtualMachineState *vmState)        { _vmState = vmState; }
+   TR::VirtualMachineState *vmState()                       { return _vmState; }
+   void setVMState(TR::VirtualMachineState *vmState)        { _vmState = vmState; }
 
    void AllLocalsHaveBeenDefined();
 
@@ -113,7 +113,7 @@ class MethodBuilderRecorder : public TR::IlBuilder
     * BytecodeBuilder object.
     */
    int32_t GetNextBytecodeFromWorklist();
-   
+
    void addToAllBytecodeBuildersList(TR::BytecodeBuilder *bcBuilder);
 
    TR::JitBuilderRecorder *recorder() const { return _recorder; }
@@ -123,7 +123,7 @@ class MethodBuilderRecorder : public TR::IlBuilder
    int32_t                          _nextValueID;
 
    bool                             _useBytecodeBuilders;
-   OMR::VirtualMachineState       * _vmState;
+   TR::VirtualMachineState       * _vmState;
 
    TR_BitVector                   * _bytecodeWorklist;
    TR_BitVector                   * _bytecodeHasBeenInWorklist;
@@ -146,7 +146,7 @@ namespace TR
          MethodBuilderRecorder(TR::TypeDictionary *types, TR::JitBuilderRecorder *recorder)
             : OMR::MethodBuilderRecorder(types, recorder, NULL)
             { }
-         MethodBuilderRecorder(TR::TypeDictionary *types, TR::JitBuilderRecorder *recorder=NULL, OMR::VirtualMachineState *vmState=NULL)
+         MethodBuilderRecorder(TR::TypeDictionary *types, TR::JitBuilderRecorder *recorder=NULL, TR::VirtualMachineState *vmState=NULL)
             : OMR::MethodBuilderRecorder(types, recorder, vmState)
             { }
       };

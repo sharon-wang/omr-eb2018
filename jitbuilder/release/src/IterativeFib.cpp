@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2016, 2016 IBM Corp. and others
+ * Copyright (c) 2016, 2018 IBM Corp. and others
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which accompanies this
@@ -101,7 +101,7 @@ main(int argc, char *argv[])
    TR::TypeDictionary types;
    TR::JitBuilderRecorderTextFile recorder(NULL, "iterFib.out");
    IterativeFibonnaciMethod iterFibMethodBuilder(&types, &recorder);
-   
+
    printf("Step 3: compile method builder (with recording)\n");
    uint8_t *entry=0;
    int32_t rc = compileMethodBuilder(&iterFibMethodBuilder, &entry);
@@ -140,7 +140,7 @@ main(int argc, char *argv[])
       fprintf(stderr,"FAIL: compilation error %d\n", rc);
       exit(-2);
       }
-   
+
    printf("Step 7: invoke compiled code and print results\n");
    IterativeFibFunctionType *iter_fib2=(IterativeFibFunctionType *)entry;
    for (int32_t n=0;n < 20;n++) {
@@ -151,4 +151,4 @@ main(int argc, char *argv[])
    shutdownJit();
 
    printf("PASS\n");
-   }
+}

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2016 IBM Corp. and others
+ * Copyright (c) 2000, 2018 IBM Corp. and others
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which accompanies this
@@ -54,7 +54,7 @@ OMR::TransformUtil::scalarizeArrayCopy(
    didTransformArrayCopyNode = false;
 
    if ((comp->getOptLevel() == noOpt) ||
-       !comp->getOptions()->getOption(TR_ScalarizeSSOps) ||
+       !comp->getOption(TR_ScalarizeSSOps) ||
        node->getOpCodeValue() != TR::arraycopy ||
        node->getNumChildren() != 3 ||
        comp->requiresSpineChecks() ||
@@ -385,4 +385,12 @@ void
 OMR::TransformUtil::removeTree(TR::Compilation *comp, TR::TreeTop * tt)
    {
    comp->getJittedMethodSymbol()->removeTree(tt);
+   }
+
+void
+OMR::TransformUtil::transformCallNodeToPassThrough(TR::Optimization* opt, TR::Node* node, TR::TreeTop * anchorTree, TR::Node* child)
+   {
+   opt->anchorAllChildren(node, anchorTree);
+   node->removeAllChildren();
+   node = TR::Node::recreateWithoutProperties(node, TR::PassThrough, 1, child);
    }

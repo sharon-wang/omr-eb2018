@@ -205,7 +205,7 @@ enum TR_CompilationOptions
    TR_DisableAsyncCompilation             = 0x00004000 + 3,
    TR_DisableCompilationThread            = 0x00008000 + 3,
    TR_EnableCompilationThread             = 0x00010000 + 3,
-   TR_Enable390AccessRegs                 = 0x00020000 + 3,
+   // Available                           = 0x00020000 + 3,
    TR_SoftFailOnAssume                    = 0x00040000 + 3,
    TR_DisableNewBlockOrdering             = 0x00080000 + 3,
    TR_DisableZNext                        = 0x00100000 + 3,
@@ -234,7 +234,7 @@ enum TR_CompilationOptions
    TR_TraceMarkingOfHotFields             = 0x00001000 + 4,
    TR_EnableAnnotations                   = 0x00002000 + 4, // change to disable when on by default
    TR_UnresolvedAreNotColdAtCold          = 0x00004000 + 4, // cold block marker marks unresolved blocks as cold at hotness cold or less
-   TR_DisableVMThreadGRA                  = 0x00008000 + 4,
+   // AVAILABLE                           = 0x00008000 + 4,
    TR_EnablePIDExtension                  = 0x00010000 + 4,
    TR_GenerateCompleteInlineRanges        = 0x00020000 + 4,
    TR_DisableInliningOfNatives            = 0x00040000 + 4,
@@ -264,7 +264,7 @@ enum TR_CompilationOptions
    TR_enableProfiledDevirtualization      = 0x00001000 + 5,
    TR_EnableValueTracing                  = 0x00002000 + 5, // run-time value tracing
    TR_IgnoreAssert                        = 0x00004000 + 5, // ignore failing assertions
-   TR_Enable390FreeVMThreadReg            = 0x00008000 + 5,
+   // AVAILABLE                           = 0x00008000 + 5,
    TR_EnableNewAllocationProfiling        = 0x00010000 + 5, // enable tracing of fields load and store
    TR_IgnoreIEEERestrictions              = 0x00020000 + 5, // enable more aggressive, nonIEEE compliant xforms
    TR_ProcessHugeMethods                  = 0x00040000 + 5, // allow processing of huge methods
@@ -309,16 +309,16 @@ enum TR_CompilationOptions
    TR_DisableNewLoopTransfer              = 0x10000000 + 6, // loop versioning for virtual guards
    TR_UseSamplingJProfilingForDLT                 = 0x20000000 + 6,
    TR_UseSamplingJProfilingForInterpSampledMethods= 0x40000000 + 6,
-   TR_EnableObjectFileGeneration          = 0x80000000 + 6,
+   TR_EmitRelocatableELFFile              = 0x80000000 + 6,
 
    // Option word 7
    //
    TR_DisableCodeCacheSnippets            = 0x00000020 + 7,
    TR_EnableReassociation                 = 0x00000040 + 7,
    TR_DisableSSOpts                       = 0x00000080 + 7,
-   TR_TraceObjectFileGeneration           = 0x00000100 + 7,
+   //Available                            = 0x00000100 + 7,
    TR_DisableDelayRelocationForAOTCompilations   = 0x00000200 + 7,
-   // Available                           = 0x00000400 + 7,
+   TR_DisableRecompDueToInlinedMethodRedefinition = 0x00000400 + 7,
    TR_DisableLoopReplicatorColdSideEntryCheck = 0x00000800 + 7,
    TR_TraceVFPSubstitution                = 0x00001000 + 7,
    TR_DontDowgradeToColdDuringGracePeriod = 0x00002000 + 7,
@@ -347,7 +347,7 @@ enum TR_CompilationOptions
                                           = 0x00000020 + 8,
    TR_DisableDirectToJNI                  = 0x00000040 + 8,
    TR_OldJVMPI                            = 0x00000080 + 8,
-   // Available                           = 0x00000100 + 8,
+   TR_EmitExecutableELFFile               = 0x00000100 + 8,
    // Available                           = 0x00000200 + 8,
    // Available                           = 0x00000800 + 8,
    TR_DisableLinkageRegisterAllocation    = 0x00001000 + 8,
@@ -1150,8 +1150,8 @@ enum TR_VerboseFlags
    TR_VerboseHookDetailsClassLoading,
    TR_VerboseHookDetailsClassUnloading,
    TR_VerboseSampleDensity,
-
    TR_VerboseProfiling,
+   TR_VerboseJITaaS,
 
    //If adding new options add an entry to _verboseOptionNames as well
    TR_NumVerboseOptions        // Must be the last one;
@@ -1578,7 +1578,6 @@ public:
    int32_t   getNumInterfaceCallCacheSlots()     {return _numInterfaceCallCacheSlots;}
    int32_t   getNumInterfaceCallStaticSlots()    {return _numInterfaceCallStaticSlots;}
    int32_t   getStoreSinkingLastOpt()          {return _storeSinkingLastOpt;}
-   int32_t   getNumRestrictedGPRs()            {return _numRestrictedGPRs;}
    int32_t   getFirstOptTransformationIndex()  {return _firstOptTransformationIndex;}
    int32_t   getLastOptTransformationIndex()   {return _lastOptTransformationIndex;}
    int32_t   getMinFirstOptTransformationIndex()  {return -1;}
@@ -1948,6 +1947,12 @@ public:
 
    int32_t getJitMethodEntryAlignmentBoundary(TR::CodeGenerator *cg);
    void setJitMethodEntryAlignmentBoundary(int32_t boundary) { _jitMethodEntryAlignmentBoundary = boundary; }
+/**   \brief Returns a threshold on the profiling method invocations to trip recompilation
+ */
+   int32_t getJProfilingMethodRecompThreshold() { return _jProfilingMethodRecompThreshold; }
+/**   \brief Returns a base threshold for loop to trip recompilation
+ */
+   int32_t getJProfilingLoopRecompThreshold() { return _jProfilingLoopRecompThreshold; }
 
    inline static float getMinProfiledCheckcastFrequency() { return _minProfiledCheckcastFrequency/((float)100.0); }
    static bool isQuickstartDetected() { return _quickstartDetected; }
@@ -2026,9 +2031,11 @@ private:
    static void     safelyCloseLogs(TR::Options *options, TR_MCTLogs * &closedLogs, TR_FrontEnd * fe);
    static void     closeLogsForOtherCompilationThreads(TR_FrontEnd * fe);
 
+protected:
    void  openLogFile (int32_t idSuffix = -1);
    static void  closeLogFile(TR_FrontEnd *fe, TR::FILE * file);
 
+private:
    // Standard option processing methods
 
    // Set bit(s) defined by "mask" at offset "offset" from the base
@@ -2216,6 +2223,7 @@ private:
    void setDefaultsForDeterministicMode();
    void setMoreAggressiveInlining();
 
+protected:
    static bool           _optionsTablesValidated;
    static TR::OptionTable _jitOptions[];
    static TR::OptionTable _feOptions[];
@@ -2344,7 +2352,6 @@ private:
    char *                      _osVersionString;
    bool                        _allowRecompilation;
    bool                        _anOptionSetContainsACountValue;
-   int32_t                     _numRestrictedGPRs;
    int32_t                     _numInterfaceCallCacheSlots;
    int32_t                     _numInterfaceCallStaticSlots;
    int32_t                     _storeSinkingLastOpt;
@@ -2420,6 +2427,8 @@ private:
    bool                        _isAOTCompile;
 
    int32_t                     _jitMethodEntryAlignmentBoundary; /* Alignment boundary for JIT method entry */
+   int32_t                     _jProfilingMethodRecompThreshold;
+   int32_t                     _jProfilingLoopRecompThreshold;
    char *                      _blockShufflingSequence;
    int32_t                     _randomSeed;
    TR_MCTLogs *                _logListForOtherCompThreads;
@@ -2442,7 +2451,7 @@ private:
 
    int32_t                     _loopyAsyncCheckInsertionMaxEntryFreq;
 
-   char *                      _objectFileName;
+   char *                      _objectFileName; //Name of the relocatable ELF file *.o if one is to be generated
 
    }; // TR::Options
 

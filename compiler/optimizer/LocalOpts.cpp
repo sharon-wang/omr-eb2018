@@ -2276,7 +2276,7 @@ bool TR_CompactNullChecks::replaceNullCheckIfPossible(TR::Node *cursorNode, TR::
       if (isEquivalent)
          {
          bool canBeRemoved = true; //comp()->cg()->canNullChkBeImplicit(cursorNode);
-         if (TR::comp()->getOptions()->getOption(TR_DisableTraps) ||
+         if (TR::comp()->getOption(TR_DisableTraps) ||
              TR::Compiler->om.offsetOfObjectVftField() >= comp()->cg()->getNumberBytesReadInaccessible())
            canBeRemoved = false;
 
@@ -3436,11 +3436,14 @@ int32_t TR_EliminateRedundantGotos::process(TR::TreeTop *startTree, TR::TreeTop 
          continue;
 
       TR::Block *destBlock = block->getSuccessors().front()->getTo()->asBlock();
+      if (destBlock == block)
+         continue; // No point trying to "update" predecessors
+
       TR::CFGEdgeList fixablePreds(comp()->trMemory()->currentStackRegion());
       auto preds = block->getPredecessors();
       for (auto inEdge = preds.begin(); inEdge != preds.end(); ++inEdge)
          {
-         if (((*inEdge)->getFrom() == cfg->getStart()) || ((*inEdge)->getFrom() == block))
+         if ((*inEdge)->getFrom() == cfg->getStart())
             continue;
 
          TR::Block *pred = toBlock((*inEdge)->getFrom());
@@ -5306,18 +5309,14 @@ bool TR_Rematerialization::examineNode(TR::TreeTop *treeTop, TR::Node *parent, T
 
     if (!shouldOnlyRunLongRegHeuristic())
        {
-       // need to consider restricted registers pressure
-       int8_t restrictedGPRNum = 0;
-
-
        if (trace() && !shouldOnlyRunLongRegHeuristic())
           {
-          traceMsg(comp(), "At node %p parent %p GPR pressure is %d (child adjust %d parent adjust %d) limit is %d\n", node, parent, numRegisters + childAdjustment + adjustments.adjustmentFromParent +restrictedGPRNum, childAdjustment, adjustments.adjustmentFromParent, (cg()->getMaximumNumbersOfAssignableGPRs()-1));
+          traceMsg(comp(), "At node %p parent %p GPR pressure is %d (child adjust %d parent adjust %d) limit is %d\n", node, parent, numRegisters + childAdjustment + adjustments.adjustmentFromParent, childAdjustment, adjustments.adjustmentFromParent, (cg()->getMaximumNumbersOfAssignableGPRs()-1));
           traceMsg(comp(), "candidate nodes size %d candidate loads size %d\n", state->_currentlyCommonedCandidates.getSize(), state->_currentlyCommonedLoads.getSize());
           }
 
        if ((!considerRegPressure ||
-           ((state->_currentlyCommonedNodes.getSize() + childAdjustment + adjustments.adjustmentFromParent + restrictedGPRNum) > (cg()->getMaximumNumbersOfAssignableGPRs() /* -1 */ ))) &&
+           ((state->_currentlyCommonedNodes.getSize() + childAdjustment + adjustments.adjustmentFromParent) > (cg()->getMaximumNumbersOfAssignableGPRs() /* -1 */ ))) &&
            (!state->_currentlyCommonedCandidates.isEmpty() || !state->_currentlyCommonedLoads.isEmpty()))
           {
           //_counter++;
@@ -5984,7 +5983,7 @@ int8_t TR_Rematerialization::getLoopNestingLevel(int32_t weight)
 
 void TR_Rematerialization::makeEarlyLongRegDecision()
    {
-   if (comp()->getOptions()->getOption(TR_Disable64BitRegsOn32Bit) ||
+   if (comp()->getOption(TR_Disable64BitRegsOn32Bit) ||
        !cg()->supportsLongRegAllocation() ||
        !comp()->getJittedMethodSymbol()->mayHaveLongOps())
       {
@@ -5994,8 +5993,8 @@ void TR_Rematerialization::makeEarlyLongRegDecision()
       return;
       }
 
-   if (!comp()->getOptions()->getOption(TR_Disable64BitRegsOn32Bit) &&
-        comp()->getOptions()->getOption(TR_Disable64BitRegsOn32BitHeuristic))
+   if (!comp()->getOption(TR_Disable64BitRegsOn32Bit) &&
+        comp()->getOption(TR_Disable64BitRegsOn32BitHeuristic))
        {
        comp()->setUseLongRegAllocation(true);
        setLongRegDecision(true);
@@ -7439,9 +7438,15 @@ int32_t TR_InvariantArgumentPreexistence::perform()
 
                parmInfo.setSymbol(p);
                TR_OpaqueClassBlock *clazz = arg->getClass();
-               if (clazz)
+               TR_OpaqueClassBlock *clazzFromMethod = fe()->getClassFromSignature(sig, len, feMethod);
+               TR_ASSERT(!clazz ||
+                         !clazzFromMethod ||
+                         clazz == clazzFromMethod ||
+                         fe()->isInstanceOf(clazz, clazzFromMethod, true, true, true) == TR_yes,
+                         "Type from argInfo should be more specific clazz %p clazzFromMethod %p", clazz, clazzFromMethod);
+
+               if (classIsFixed)
                   {
-                  TR_ASSERT(classIsFixed, "assertion failure");
                   parmInfo.setClassIsFixed();
                   parmInfo.setClass(clazz);
                   parmInfo.setClassIsCurrentlyFinal();
@@ -7450,7 +7455,7 @@ int32_t TR_InvariantArgumentPreexistence::perform()
                      char *clazzSig = TR::Compiler->cls.classSignature(comp(), clazz, trMemory());
                      traceMsg(comp(), "PREX:        Parm %d class %p is currently final %s\n", index, clazz, clazzSig);
                      }
-                  if (clazz != fe()->getClassFromSignature(sig, len, feMethod))
+                  if (clazz != clazzFromMethod)
                      {
                      parmInfo.setClassIsRefined();
                      if (trace())
@@ -7459,18 +7464,12 @@ int32_t TR_InvariantArgumentPreexistence::perform()
                   }
                else
                   {
-                  clazz = fe()->getClassFromSignature(sig, len, feMethod);
+                  clazz = clazz ? clazz : clazzFromMethod;
                   if (clazz)
                      {
                      if (trace())
                         traceMsg(comp(), "PREX:        Parm %d class %p is %.*s\n", index, clazz, len, sig);
-                     if (classIsFixed)
-                        {
-                        parmInfo.setClassIsFixed();
-                        if (trace())
-                           traceMsg(comp(), "PREX:            Parm %d class is fixed\n", index);
-                        }
-                     if (classIsFixed || !fe()->classHasBeenExtended(clazz))
+                     if (!fe()->classHasBeenExtended(clazz))
                         {
                         parmInfo.setClassIsCurrentlyFinal();
                         if (trace())
@@ -7793,6 +7792,7 @@ void TR_InvariantArgumentPreexistence::processIndirectCall(TR::Node *node, TR::T
       TR::SymbolReference *symRef = node->getSymbolReference();
       int32_t offset = symRef->getOffset();
       TR_ResolvedMethod *refinedMethod = symRef->getOwningMethod(comp())->getResolvedVirtualMethod(comp(), receiverInfo.getClass(), offset);
+
 
       if (refinedMethod)
          {

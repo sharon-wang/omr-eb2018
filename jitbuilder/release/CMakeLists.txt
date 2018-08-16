@@ -43,7 +43,6 @@ create_jitbuilder_test(mandelbrot      src/Mandelbrot.cpp)
 create_jitbuilder_test(pow2            src/Pow2.cpp)
 create_jitbuilder_test(matmul          src/MatMult.cpp)
 create_jitbuilder_test(simple          src/Simple.cpp)
-create_jitbuilder_test(toiltype        src/ToIlType.cpp)
 create_jitbuilder_test(worklist        src/Worklist.cpp)
 
 # Additional Tests: These may not run properly on all platforms
@@ -60,6 +59,7 @@ if(OMR_JITBUILDER_ADDITIONAL)
 	create_jitbuilder_test(pointer           src/Pointer.cpp)
 	create_jitbuilder_test(structArray       src/StructArray.cpp)
 	create_jitbuilder_test(switch            src/Switch.cpp)
+	create_jitbuilder_test(toiltype          src/ToIlType.cpp)
 	create_jitbuilder_test(union             src/Union.cpp)
 endif()
 

@@ -269,11 +269,6 @@ public:
 
    void changeRegisterKind(TR::Register * temp, TR_RegisterKinds rk);
 
-
-   TR::SymbolReference * _ARSaveAreaForTM;
-   void setARSaveAreaForTM(TR::SymbolReference * symRef) {_ARSaveAreaForTM = symRef;}
-   TR::SymbolReference * getARSaveAreaForTM() {return _ARSaveAreaForTM;}
-
    void beginInstructionSelection();
    void endInstructionSelection();
 
@@ -315,7 +310,8 @@ public:
    void recordRegisterAssignment(TR::Register *assignedReg, TR::Register *virtualReg);
 
    void doBinaryEncoding();
-   void doPeephole();
+   void doPreRAPeephole();
+   void doPostRAPeephole();
    void setUseDefRegisters(bool resetRegs);
 
    void AddFoldedMemRefToStack(TR::MemoryReference * mr);
@@ -353,8 +349,6 @@ public:
 
    virtual TR_GlobalRegisterNumber getGlobalRegisterNumber(uint32_t realRegNum);
 
-   TR::RegisterPair* allocateArGprPair(TR::Register* lowRegister, TR::Register* highRegister);
-   void splitBaseRegisterPairsForRRMemoryInstructions(TR::Node *node, TR::RegisterPair * sourceReg, TR::RegisterPair * targetReg);
    TR::RegisterDependencyConditions* createDepsForRRMemoryInstructions(TR::Node *node, TR::RegisterPair * sourceReg, TR::RegisterPair * targetReg, uint8_t extraDeps=0);
 
    // Allocate a pair with inherent consecutive association
@@ -400,7 +394,14 @@ public:
 
    bool isCompressedClassPointerOfObjectHeader(TR::Node * node);
 
-
+   /**
+    * @brief Create a literal pool entry for the given value.
+    *
+    * @details
+    *    This function must be implemented and will assert if called.
+    *    See issue eclipse/omr#2180 for details.
+    */
+   size_t findOrCreateLiteral(void *value, size_t len);
 
    bool usesImplicit64BitGPRs(TR::Node *node);
    bool nodeMayCauseException(TR::Node *node);
@@ -462,10 +463,6 @@ public:
    void setCurrentBlockIndex(int32_t blockIndex) { _currentBlockIndex = blockIndex; }
    int32_t getCurrentBlockIndex() { return _currentBlockIndex; }
    int32_t arrayInitMinimumNumberOfBytes() {return 16;}
-
-   bool isStackBased(TR::MemoryReference *mr);
-
-   TR::Register* copyRestrictedVirtual(TR::Register * virtReg, TR::Node *node, TR::Instruction ** preced=NULL);
 
    bool directLoadAddressMatch(TR::Node *load1, TR::Node *load2, bool trace);
    bool isOutOf32BitPositiveRange(int64_t value, bool trace);
@@ -627,13 +624,6 @@ public:
    void ensure64BitRegister(TR::Register *reg);
 
    virtual bool isAddMemoryUpdate(TR::Node * node, TR::Node * valueChild);
-
-   bool globalAccessRegistersSupported();
-
-   // AR mode
-   bool getRAPassAR() {return false;}
-   void setRAPassAR();
-   void resetRAPassAR();
 
 #ifdef DEBUG
    void dumpPreGPRegisterAssignment(TR::Instruction *);
@@ -874,14 +864,6 @@ public:
 
    void deleteInst(TR::Instruction* old);
 
-   /** For using VM Thread Register as assignable register */
-   bool needsVMThreadDependency();
-
-   TR::RegisterDependencyConditions *addVMThreadPreCondition(TR::RegisterDependencyConditions *deps, TR::Register *reg);
-   TR::RegisterDependencyConditions *addVMThreadPostCondition(TR::RegisterDependencyConditions *deps, TR::Register *reg);
-   TR::RegisterDependencyConditions *addVMThreadDependencies(TR::RegisterDependencyConditions *deps, TR::Register *reg);
-   virtual void setVMThreadRequired(bool v); //override TR::CodeGenerator::setVMThreadRequired
-
    bool ilOpCodeIsSupported(TR::ILOpCodes);
 
    void setUsesZeroBasePtr( bool v = true );
@@ -1045,92 +1027,6 @@ private:
 }
 
 }
-
-
-class TR_S390Peephole
-   {
-public:
-   TR_S390Peephole(TR::Compilation* comp, TR::CodeGenerator *cg);
-
-   void perform();
-
-private:
-   void printInfo(const char* info)
-      {
-      if (_outFile)
-         {
-         if ( !( !comp()->getOption(TR_TraceCG) && comp()->getOptions()->getTraceCGOption(TR_TraceCGPostBinaryEncoding) && comp()->getOptions()->getTraceCGOption(TR_TraceCGMixedModeDisassembly) )  )
-            {
-            trfprintf(_outFile, info);
-            }
-         }
-      }
-
-   void printInst()
-      {
-      if (_outFile)
-         {
-         if ( !( !comp()->getOption(TR_TraceCG) && comp()->getOptions()->getTraceCGOption(TR_TraceCGPostBinaryEncoding) && comp()->getOptions()->getTraceCGOption(TR_TraceCGMixedModeDisassembly) )  )
-            {
-            comp()->getDebug()->print(_outFile, _cursor);
-            }
-         }
-      }
-
-   bool LLCReduction();
-   bool LGFRReduction();
-   bool AGIReduction();
-   bool ICMReduction();
-   bool replaceGuardedLoadWithSoftwareReadBarrier();
-   bool LAReduction();
-   bool NILHReduction();
-   bool duplicateNILHReduction();
-   bool unnecessaryNILHReduction();
-   bool clearsHighBitOfAddressInReg(TR::Instruction *inst, TR::Register *reg);
-   bool branchReduction();
-   bool forwardBranchTarget();
-   bool seekRegInFutureMemRef(int32_t ,TR::Register *);
-   bool LRReduction();
-   bool ConditionalBranchReduction(TR::InstOpCode::Mnemonic branchOPReplacement);
-   bool CompareAndBranchReduction();
-   bool LoadAndMaskReduction(TR::InstOpCode::Mnemonic LZOpCode);
-   bool removeMergedNullCHK();
-   bool trueCompEliminationForCompareAndBranch();
-   bool trueCompEliminationForCompare();
-   bool trueCompEliminationForLoadComp();
-   bool attemptZ7distinctOperants();
-   bool DeadStoreToSpillReduction();
-   bool tryMoveImmediate();
-   bool isBarrierToPeepHoleLookback(TR::Instruction *current);
-
-   /** \brief
-    *     Attempts to reduce LHI R,0 instructions to XR R,R instruction to save 2 bytes of icache.
-    *
-    *  \return
-    *     true if the reduction was successful; false otherwise.
-    */
-   bool ReduceLHIToXR();
-
-   // DAA related Peephole optimizations
-   bool DAARemoveOutlinedLabelNop   (bool hasPadding);
-   bool DAARemoveOutlinedLabelNopCVB(bool hasPadding);
-
-   bool DAAHandleMemoryReferenceSpill(bool hasPadding);
-
-   bool revertTo32BitShift();
-   bool inlineEXtargetHelper(TR::Instruction *, TR::Instruction *);
-   bool inlineEXtarget();
-   void markBlockThatModifiesRegister(TR::Instruction *, TR::Register *);
-   void reloadLiteralPoolRegisterForCatchBlock();
-
-   TR::Compilation * comp() { return TR::comp(); }
-
-private:
-   TR_FrontEnd * _fe;
-   TR::FILE *_outFile;
-   TR::Instruction *_cursor;
-   TR::CodeGenerator *_cg;
-};
 
 class TR_S390ScratchRegisterManager : public TR_ScratchRegisterManager
    {

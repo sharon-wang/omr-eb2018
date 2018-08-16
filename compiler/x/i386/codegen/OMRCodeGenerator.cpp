@@ -76,7 +76,7 @@ OMR::X86::I386::CodeGenerator::CodeGenerator() :
 
    if (TR::Compiler->target.isWindows())
       {
-      if (self()->comp()->getOptions()->getOption(TR_DisableTraps))
+      if (self()->comp()->getOption(TR_DisableTraps))
          {
          _numberBytesReadInaccessible = 0;
          _numberBytesWriteInaccessible = 0;
@@ -109,7 +109,7 @@ OMR::X86::I386::CodeGenerator::CodeGenerator() :
       }
    else if (TR::Compiler->target.isLinux())
       {
-      if (self()->comp()->getOptions()->getOption(TR_DisableTraps))
+      if (self()->comp()->getOption(TR_DisableTraps))
          {
          _numberBytesReadInaccessible = 0;
          _numberBytesWriteInaccessible = 0;
@@ -168,7 +168,7 @@ OMR::X86::I386::CodeGenerator::pickRegister(
       TR_GlobalRegisterNumber &highRegisterNumber,
       TR_LinkHead<TR_RegisterCandidate> *candidates)
    {
-   if (!self()->comp()->getOptions()->getOption(TR_DisableRegisterPressureSimulation))
+   if (!self()->comp()->getOption(TR_DisableRegisterPressureSimulation))
       {
       if (self()->comp()->getOption(TR_AssignEveryGlobalRegister))
          {
@@ -301,15 +301,15 @@ OMR::X86::I386::CodeGenerator::pickRegister(
 
          maxRegisterPressure = self()->estimateRegisterPressure(block, visitCount, maxStaticFrequency, maxFrequency, vmThreadUsed, numAssignedGlobalRegs, _assignedGlobalRegisters, rc->getSymbolReference(), assigningEDX);
 
-         if (maxRegisterPressure >= self()->comp()->cg()->getMaximumNumbersOfAssignableGPRs())
+         if (maxRegisterPressure >= self()->getMaximumNumbersOfAssignableGPRs())
             break;
          }
 
       // Determine if we can spare any extra registers for this candidate without spilling
       // in any hot (critical) blocks
       //
-      if (maxRegisterPressure < self()->comp()->cg()->getMaximumNumbersOfAssignableGPRs())
-         numExtraRegs = self()->comp()->cg()->getMaximumNumbersOfAssignableGPRs() - maxRegisterPressure;
+      if (maxRegisterPressure < self()->getMaximumNumbersOfAssignableGPRs())
+         numExtraRegs = self()->getMaximumNumbersOfAssignableGPRs() - maxRegisterPressure;
 
       //dumpOptDetails("For global register candidate %d reg pressure is %d maxRegs %d numExtraRegs %d\n", rc->getSymbolReference()->getReferenceNumber(), maxRegisterPressure, comp()->cg()->getMaximumNumbersOfAssignableGPRs(), numExtraRegs);
 

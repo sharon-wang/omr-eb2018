@@ -231,6 +231,19 @@ class TR_ClobberEvalData
 
    };
 
+namespace TR
+   {
+   enum ExternalRelocationPositionRequest
+      {
+      ExternalRelocationAtFront,
+      ExternalRelocationAtBack,
+      };
+   enum AOTRelocationPositionRequest
+      {
+      AOTRelocationAtFront = ExternalRelocationAtFront,
+      AOTRelocationAtBack = ExternalRelocationAtBack,
+      };
+   }
 
 TR::Node* generatePoisonNode(TR::Compilation *comp, TR::Block *currentBlock, TR::SymbolReference *liveAutoSymRef);
 
@@ -481,6 +494,15 @@ class OMR_EXTENSIBLE CodeGenerator
 
 
    TR::Recompilation *allocateRecompilationInfo() { return NULL; }
+
+   /**
+    * @brief This determines if it is necessary to emit a prefetch instruction.
+    *        If so, it also emits the prefetch instruction.
+    *
+    * @param node The node being evaluated.
+    * @param targetRegister A register holding the address where the prefetch location is generated from.
+    */
+   void insertPrefetchIfNecessary(TR::Node *node, TR::Register *targetRegister);
 
    // --------------------------------------------------------------------------
    // Capabilities
@@ -801,9 +823,6 @@ class OMR_EXTENSIBLE CodeGenerator
    TR::RealRegister *getRealVMThreadRegister() {return _realVMThreadRegister;}
    void setRealVMThreadRegister(TR::RealRegister *defvmtr) {_realVMThreadRegister = defvmtr;}
 
-   TR::Instruction *getVMThreadSpillInstruction() {return _vmThreadSpillInstr;}
-   void setVMThreadSpillInstruction(TR::Instruction *i);
-
    // --------------------------------------------------------------------------
    // GRA
    //
@@ -838,11 +857,6 @@ class OMR_EXTENSIBLE CodeGenerator
    TR_GlobalRegisterNumber setFirstOverlappedGlobalFPR(TR_GlobalRegisterNumber n) { return _firstOverlappedGlobalFPR = n;}
    TR_GlobalRegisterNumber getLastOverlappedGlobalFPR()                           { return _lastOverlappedGlobalFPR     ;}
    TR_GlobalRegisterNumber setLastOverlappedGlobalFPR(TR_GlobalRegisterNumber n)  { return _lastOverlappedGlobalFPR = n ;}
-
-   TR_GlobalRegisterNumber getFirstGlobalAR() {return _firstGlobalAR;}
-   TR_GlobalRegisterNumber setFirstGlobalAR(TR_GlobalRegisterNumber n) {return (_firstGlobalAR = n);}
-   TR_GlobalRegisterNumber getLastGlobalAR() {return _lastGlobalAR;}
-   TR_GlobalRegisterNumber setLastGlobalAR(TR_GlobalRegisterNumber n) {return (_lastGlobalAR = n);}
 
    TR_GlobalRegisterNumber getFirstGlobalVRF() {return _firstGlobalVRF;}
    TR_GlobalRegisterNumber setFirstGlobalVRF(TR_GlobalRegisterNumber n) {return (_firstGlobalVRF = n);}
@@ -996,7 +1010,6 @@ class OMR_EXTENSIBLE CodeGenerator
    TR::list<TR::Register*> *getFirstTimeLiveOOLRegisterList() {return _firstTimeLiveOOLRegisterList;}
    TR::list<TR::Register*> *setFirstTimeLiveOOLRegisterList(TR::list<TR::Register*> *r) {return _firstTimeLiveOOLRegisterList = r;}
 
-   TR_BackingStore * allocateVMThreadSpill();
    TR_BackingStore *allocateSpill(bool containsCollectedReference, int32_t *offset, bool reuse=true);
    TR_BackingStore *allocateSpill(int32_t size, bool containsCollectedReference, int32_t *offset, bool reuse=true);
    TR_BackingStore *allocateInternalPointerSpill(TR::AutomaticSymbol *pinningArrayPointer);
@@ -1037,12 +1050,15 @@ class OMR_EXTENSIBLE CodeGenerator
    // Relocations
    //
    TR::list<TR::Relocation*>& getRelocationList() {return _relocationList;}
-   TR::list<TR::Relocation*>& getAOTRelocationList() {return _aotRelocationList;}
+   TR::list<TR::Relocation*>& getAOTRelocationList() {return _externalRelocationList;}
+   TR::list<TR::Relocation*>& getExternalRelocationList() {return _externalRelocationList;}
    TR::list<TR::StaticRelocation>& getStaticRelocations() { return _staticRelocationList; }
 
    void addRelocation(TR::Relocation *r);
-   void addAOTRelocation(TR::Relocation *r, const char *generatingFileName, uintptr_t generatingLineNumber, TR::Node *node);
-   void addAOTRelocation(TR::Relocation *r, TR::RelocationDebugInfo *info);
+   void addAOTRelocation(TR::Relocation *r, const char *generatingFileName, uintptr_t generatingLineNumber, TR::Node *node, TR::AOTRelocationPositionRequest where = TR::AOTRelocationAtBack);
+   void addAOTRelocation(TR::Relocation *r, TR::RelocationDebugInfo *info, TR::AOTRelocationPositionRequest where = TR::AOTRelocationAtBack);
+   void addExternalRelocation(TR::Relocation *r, const char *generatingFileName, uintptr_t generatingLineNumber, TR::Node *node, TR::ExternalRelocationPositionRequest where = TR::ExternalRelocationAtBack);
+   void addExternalRelocation(TR::Relocation *r, TR::RelocationDebugInfo *info, TR::ExternalRelocationPositionRequest where = TR::ExternalRelocationAtBack);
    void addStaticRelocation(const TR::StaticRelocation &relocation);
 
    void addProjectSpecializedRelocation(uint8_t *location,
@@ -1082,6 +1098,8 @@ class OMR_EXTENSIBLE CodeGenerator
 
    bool needClassAndMethodPointerRelocations() { return false; }
    bool needRelocationsForStatics() { return false; }
+   bool needRelocationsForBodyInfoData() { return false; }
+   bool needRelocationsForPersistentInfoData() { return false; }
 
    // --------------------------------------------------------------------------
    // Snippets
@@ -1348,7 +1366,6 @@ class OMR_EXTENSIBLE CodeGenerator
    static bool treeContainsCall(TR::TreeTop * treeTop);
 
    // IA32 only?
-   int32_t getVMThreadGlobalRegisterNumber() {return -1;} // no virt
    int32_t arrayInitMinimumNumberOfBytes() {return 8;} // no virt
 
    TR::Instruction *saveOrRestoreRegisters(TR_BitVector *regs, TR::Instruction *cursor, bool doSaves);
@@ -1379,10 +1396,6 @@ class OMR_EXTENSIBLE CodeGenerator
 
    bool getDisableFpGRA() {return _flags2.testAny(DisableFpGRA);}
    void setDisableFpGRA() {_flags2.set(DisableFpGRA);}
-
-   bool getSupportsVMThreadGRA() {return _flags2.testAny(SupportsVMThreadGRA);}
-   void setSupportsVMThreadGRA() {_flags2.set(SupportsVMThreadGRA);}
-   void resetSupportsVMThreadGRA() {_flags2.reset(SupportsVMThreadGRA);}
 
    bool usesRegisterMaps() {return _flags1.testAny(UsesRegisterMaps);}
    void setUsesRegisterMaps() {_flags1.set(UsesRegisterMaps);}
@@ -1522,9 +1535,6 @@ class OMR_EXTENSIBLE CodeGenerator
    bool getSupportsPartialInlineOfMethodHooks() {return _flags1.testAny(SupportsPartialInlineOfMethodHooks);}
    void setSupportsPartialInlineOfMethodHooks() {_flags1.set(SupportsPartialInlineOfMethodHooks);}
 
-   bool getVMThreadRequired() {return _flags1.testAny(VMThreadRequired);}
-   void setVMThreadRequired(bool v);
-
    bool getSupportsMergedAllocations() {return _flags1.testAny(SupportsMergedAllocations);}
    void setSupportsMergedAllocations() {_flags1.set(SupportsMergedAllocations);}
 
@@ -1663,7 +1673,7 @@ class OMR_EXTENSIBLE CodeGenerator
       SupportsReferenceArrayCopy                         = 0x00000200,
       SupportsJavaFloatSemantics                         = 0x00000400,
       SupportsInliningOfTypeCoersionMethods              = 0x00000800,
-      VMThreadRequired                                   = 0x00001000,
+      // AVAILABLE                                       = 0x00001000,
       SupportsVectorRegisters                            = 0x00002000,
       SupportsGlRegDepOnFirstBlock                       = 0x00004000,
       SupportsRemAsThirdChildOfDiv                       = 0x00008000,
@@ -1701,7 +1711,7 @@ class OMR_EXTENSIBLE CodeGenerator
       SupportsArrayTranslateAndTest                       = 0x00000800,
       // AVAILABLE                                        = 0x00001000,
       // AVAILABLE                                        = 0x00002000,
-      SupportsVMThreadGRA                                 = 0x00004000,
+      // AVAILABLE                                        = 0x00004000,
       SupportsPostProcessArrayCopy                        = 0x00008000,
       //                                                  = 0x00010000,   AVAILABLE FOR USE!!!
       SupportsCurrentTimeMaxPrecision                     = 0x00020000,
@@ -1764,7 +1774,7 @@ class OMR_EXTENSIBLE CodeGenerator
       //                                                  = 0x00000002,  AVAILABLE FOR USE!
       //                                                  = 0x00000004,  AVAILABLE FOR USE!
       OptimizationPhaseIsComplete                         = 0x00000008,
-      RequireRAPassAR                                     = 0x00000010,
+      // Available                                        = 0x00000010,
       IsInOOLSection                                      = 0x00000020,
       SupportsBCDToDFPReduction                           = 0x00000040,
       GRACompleted                                        = 0x00000080,
@@ -1818,7 +1828,6 @@ class OMR_EXTENSIBLE CodeGenerator
    TR::Linkage *_bodyLinkage;
    TR::Register *_vmThreadRegister;
    TR::RealRegister *_realVMThreadRegister;
-   TR::Instruction *_vmThreadSpillInstr;
    TR::GCStackAtlas *_stackAtlas;
    TR_GCStackMap *_methodStackMap;
    TR::list<TR::Block*> _counterBlocks;
@@ -1850,7 +1859,7 @@ class OMR_EXTENSIBLE CodeGenerator
    TR::list<TR_BackingStore*> _collectedSpillList;
    TR::list<TR_BackingStore*> _allSpillList;
    TR::list<TR::Relocation *> _relocationList;
-   TR::list<TR::Relocation *> _aotRelocationList;
+   TR::list<TR::Relocation *> _externalRelocationList;
    TR::list<TR::StaticRelocation> _staticRelocationList;
    TR::list<uint8_t*> _breakPointList;
 
@@ -1906,8 +1915,6 @@ class OMR_EXTENSIBLE CodeGenerator
    TR_GlobalRegisterNumber _lastGlobalFPR;
    TR_GlobalRegisterNumber _firstOverlappedGlobalFPR;
    TR_GlobalRegisterNumber _lastOverlappedGlobalFPR;
-   TR_GlobalRegisterNumber _firstGlobalAR;
-   TR_GlobalRegisterNumber _lastGlobalAR;
    TR_GlobalRegisterNumber _last8BitGlobalGPR;
    TR_GlobalRegisterNumber _firstGlobalVRF;
    TR_GlobalRegisterNumber _lastGlobalVRF;

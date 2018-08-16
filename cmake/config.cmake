@@ -1,5 +1,5 @@
 ###############################################################################
-# Copyright (c) 2017, 2017 IBM Corp. and others
+# Copyright (c) 2017, 2018 IBM Corp. and others
 #
 # This program and the accompanying materials are made available under
 # the terms of the Eclipse Public License 2.0 which accompanies this
@@ -36,12 +36,28 @@ set(OMR_COMPILER OFF CACHE BOOL "Enable the compiler")
 set(OMR_DDR OFF CACHE BOOL "Enable DDR")
 set(OMR_FVTEST ON CACHE BOOL "Enable the FV Testing.")
 set(OMR_GC ON CACHE BOOL "Enable the GC")
+set(OMR_JIT OFF CACHE BOOL "Enable building the JIT compiler")
 set(OMR_JITBUILDER OFF CACHE BOOL "Enable building JitBuilder")
 set(OMR_OMRSIG ON CACHE BOOL "Enable the OMR signal compatibility library")
 set(OMR_PORT ON CACHE BOOL "Enable portability library")
 set(OMR_TEST_COMPILER OFF CACHE BOOL "Enable building the test compiler")
 set(OMR_THREAD ON CACHE BOOL "Enable thread library")
 set(OMR_TOOLS ON CACHE BOOL "Enable the native build tools")
+set(OMR_RAS_TDF_TRACE ON CACHE BOOL "Enable trace engine")
+
+## OMR_JIT is required for OMR_JITBUILDER and OMR_TEST_COMPILER
+if(OMR_JITBUILDER OR OMR_TEST_COMPILER)
+	set(OMR_JIT ON CACHE BOOL "" FORCE)
+endif()
+
+## Enable OMR_JITBUILDER_TEST if OMR_JITBUILDER AND OMR_ENV_DATA64 are enabled.
+## Do NOT force it since it is explicitly disabled on Windows for now.
+if(OMR_JITBUILDER)
+	set(OMR_JITBUILDER_TEST ON CACHE BOOL "")
+else()
+    # if JitBuilder isn't enabled, the tests can't be built
+    set(OMR_JITBUILDER_TEST OFF CACHE BOOL "" FORCE)
+endif()
 
 ###
 ### Tooling
@@ -108,8 +124,6 @@ set(OMR_INTERP_HAS_SEMAPHORES ON CACHE BOOL "TODO: Document")
 set(OMR_INTERP_COMPRESSED_OBJECT_HEADER OFF CACHE BOOL "TODO: Document")
 set(OMR_INTERP_SMALL_MONITOR_SLOT OFF CACHE BOOL "TODO: Document")
 
-set(OMR_RAS_TDF_TRACE ON CACHE BOOL "TODO: Document")
-
 set(OMR_THR_ADAPTIVE_SPIN ON CACHE BOOL "TODO: Document")
 set(OMR_THR_JLM ON CACHE BOOL "TODO: Document")
 set(OMR_THR_JLM_HOLD_TIMES ON CACHE BOOL "TODO: Document")
@@ -157,4 +171,4 @@ set(OMR_ENV_GCC OFF CACHE BOOL "TODO: Document")
 
 set(OMR_OPT_CUDA OFF CACHE BOOL "TODO: Document")
 
-set(OMR_SANITIZE OFF CACHE STRING "Sanitizer selection. Only has an effect on GNU or Clang") 
+set(OMR_SANITIZE OFF CACHE STRING "Sanitizer selection. Only has an effect on GNU or Clang")

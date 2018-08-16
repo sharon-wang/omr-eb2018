@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2017 IBM Corp. and others
+ * Copyright (c) 2000, 2018 IBM Corp. and others
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which accompanies this
@@ -19,59 +19,10 @@
  * SPDX-License-Identifier: EPL-2.0 OR Apache-2.0 OR GPL-2.0 WITH Classpath-exception-2.0 OR LicenseRef-GPL-2.0 WITH Assembly-exception
  *******************************************************************************/
 
-#ifndef BYTECODE_BUILDER_INCL
-#define BYTECODE_BUILDER_INCL
+#ifndef TR_BYTECODEBUILDER_INCL
+#define TR_BYTECODEBUILDER_INCL
 
-#ifndef TR_BYTECODEBUILDER_DEFINED
-#define TR_BYTECODEBUILDER_DEFINED
-#define PUT_OMR_BYTECODEBUILDER_INTO_TR
-#endif // !defined(TR_BYTECODEBUILDER_DEFINED)
-
-#include "ilgen/BytecodeBuilderRecorder.hpp"
-
-namespace TR { class BytecodeBuilder; }
-namespace TR { class MethodBuilder; }
-namespace OMR { class VirtualMachineState; }
-
-namespace OMR
-{
-
-class BytecodeBuilder : public TR::BytecodeBuilderRecorder
-   {
-public:
-   TR_ALLOC(TR_Memory::IlGenerator)
-
-   BytecodeBuilder(TR::MethodBuilder *methodBuilder, int32_t bcIndex, char *name=NULL);
-   TR::BytecodeBuilder *self();
-
-   /* @brief after calling this, all IL nodes created will have this BytecodeBuilder's _bcIndex */
-   void SetCurrentIlGenerator();
-
-   void AddFallThroughBuilder(TR::BytecodeBuilder *ftb);
-   void AddSuccessorBuilders(uint32_t numBuilders, ...);
-   void AddSuccessorBuilder(TR::BytecodeBuilder **b) { AddSuccessorBuilders(1, b); }
-
-   void initialize(TR::IlGeneratorMethodDetails * details,
-                   TR::ResolvedMethodSymbol     * methodSymbol,
-                   TR::FrontEnd                 * fe,
-                   TR::SymbolReferenceTable     * symRefTab); 
-   virtual uint32_t countBlocks();
-
-protected:
-   TR::BytecodeBuilder       * _fallThroughBuilder;
-   List<TR::BytecodeBuilder> * _successorBuilders;
-
-   virtual void appendBlock(TR::Block *block = 0, bool addEdge=true);
-   void addAllSuccessorBuildersToWorklist();
-   bool connectTrees();
-   virtual void setHandlerInfo(uint32_t catchType);
-   void transferVMState(TR::BytecodeBuilder **b);
-   };
-
-} // namespace OMR
-
-
-#if defined(PUT_OMR_BYTECODEBUILDER_INTO_TR)
+#include "ilgen/OMRBytecodeBuilder.hpp"
 
 namespace TR
 {
@@ -85,6 +36,4 @@ namespace TR
 
 } // namespace TR
 
-#endif // defined(PUT_OMR_BYTECODEBUILDER_INTO_TR)
-
-#endif // !defined(OMR_ILBUILDER_INCL)
+#endif // !defined(TR_BYTECODEBUILDER_INCL)

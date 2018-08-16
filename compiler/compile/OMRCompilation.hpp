@@ -65,11 +65,8 @@ namespace OMR { typedef OMR::Compilation CompilationConnector; }
 #include "infra/ThreadLocal.h"                // for tlsSet
 #include "optimizer/Optimizations.hpp"        // for Optimizations, etc
 #include "ras/Debug.hpp"                      // for TR_DebugBase
-#include "ras/DebugCounter.hpp"               // for TR_DebugCounter, etc
+#include "ras/DebugCounter.hpp"               // for TR::DebugCounter, etc
 #include "ras/ILValidationStrategies.hpp"
-
-
-#include "omr.h"
 
 #include "il/symbol/ResolvedMethodSymbol.hpp"
 
@@ -425,6 +422,8 @@ public:
    TR::ResolvedMethodSymbol *getMethodSymbol();
    TR_ResolvedMethod *getCurrentMethod();
 
+   TR_ResolvedMethod *getMethodBeingCompiled() { return _method; }
+
    TR::PersistentInfo *getPersistentInfo();
 
    int32_t getCompThreadID() const { return _compThreadID; }
@@ -676,6 +675,32 @@ public:
    void verifyCFG(TR::ResolvedMethodSymbol *s = 0);
 
    void setIlVerifier(TR::IlVerifier *ilVerifier) { _ilVerifier = ilVerifier; }
+
+   typedef std::pair<const void * const, TR::DebugCounterBase *> DebugCounterEntry;
+   typedef TR::typed_allocator<DebugCounterEntry, TR::Allocator> DebugCounterMapAllocator;
+   typedef std::map<const void *, TR::DebugCounterBase *, std::less<const void *>, DebugCounterMapAllocator> DebugCounterMap;
+
+   /**
+    * @brief mapStaticAddressToCounter
+    * @param symRef the symref containing the static address of the memory used to
+    *               store the count value of the debug counter
+    * @param counter pointer to the debug counter
+    *
+    * Maps the staticAddress of the symRef to the debug counter. The map has to be between the static address
+    * and the debug counter, instead of the symref of the static address and the debug counter, because sometimes,
+    * transformations can create a new symref that will not exist in this map; however because the static
+    * address is constant, it is guaranteed to exist in the map.
+    */
+   void mapStaticAddressToCounter(TR::SymbolReference *symRef, TR::DebugCounterBase *counter);
+
+   /**
+    * @brief getCounterFromStaticAddress
+    * @param symRef the symref containingthe static address of the memory used to
+    *               store the count value of the debug counter
+    * @return the debug counter associated with the static address
+    */
+   TR::DebugCounterBase *getCounterFromStaticAddress(TR::SymbolReference *symRef);
+
 
 #ifdef DEBUG
    void dumpMethodGraph(int index, TR::ResolvedMethodSymbol * = 0);
@@ -944,6 +969,12 @@ public:
       ~CompilationPhaseScope();
       };
 
+   /**
+    * @brief getDebugCounterMap
+    * @return reference to the TR::DebugCounterMap map
+    */
+   DebugCounterMap &getDebugCounterMap() { return _debugCounterMap; }
+
 
 public:
 #ifdef J9_PROJECT_SPECIFIC
@@ -1132,6 +1163,14 @@ private:
    ToNumberMap    _toNumberMap; // maps TR::LabelSymbol, etc. objects to numbers
    ToStringMap    _toStringMap; // maps TR_SymbolReference, etc. objects to strings
    ToCommentMap   _toCommentMap; // maps list of strings, etc. objects to list of strings
+
+   /**
+    * @brief _debugCounterMap
+    *
+    * A map between the static address of the memory used to store the count value of
+    * the debug counter and the debug counter
+    */
+   DebugCounterMap _debugCounterMap;
 
 
 

@@ -92,10 +92,22 @@ OMR::Node::operator new(size_t s, TR::NodePool& nodes)
    return (void *) nodes.allocate();
    }
 
+void
+OMR::Node::operator delete(void *node, TR::NodePool& nodes)
+   {
+   nodes.deallocate((TR::Node *) node);
+   }
+
 void *
 OMR::Node::operator new(size_t s, void *ptr) throw()
    {
    return ::operator new(s, ptr);
+   }
+
+void
+OMR::Node::operator delete(void *node, void *ptr) throw()
+   {
+   ::operator delete(node, ptr);
    }
 
 OMR::Node::Node()
@@ -1460,7 +1472,7 @@ TR::Node *
 OMR::Node::createConstOne(TR::Node *originatingByteCodeNode, TR::DataType dt)
    {
    TR::Node *constOne = NULL;
-   char buf[20];
+
    switch (dt)
       {
       case TR::Int8:

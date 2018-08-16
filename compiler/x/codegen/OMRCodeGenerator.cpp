@@ -324,7 +324,7 @@ OMR::X86::CodeGenerator::initialize(TR::Compilation *comp)
 
    self()->setGlobalRegisterTable(self()->machine()->getGlobalRegisterTable(*_linkageProperties));
 
-   self()->machine()->initialiseRegisterFile(*_linkageProperties);
+   self()->machine()->initializeRegisterFile(*_linkageProperties);
 
    self()->getLinkage()->copyLinkageInfoToParameterSymbols();
 
@@ -628,9 +628,7 @@ int32_t OMR::X86::CodeGenerator::getMaximumNumbersOfAssignableGPRs()
 
 /*
  * This method returns TRUE for all the cases we decide NOT to replace the call to CAS
- * with inline assembly.
- * It checks the same condition as inlineCompareAndSwapNative in tr.source/trj9/x/codegen/J9TreeEvaluator.cpp
- * so that GRA and Evaluator should be consistent about whether to inline CAS natives
+ * with inline assembly. The GRA and Evaluator should be consistent about whether to inline CAS natives.
  */
 static bool willNotInlineCompareAndSwapNative(TR::Node *node,
       int8_t size,
@@ -732,7 +730,7 @@ void OMR::X86::CodeGenerator::removeLiveDiscardableRegister(TR::Register * reg)
 
 bool OMR::X86::CodeGenerator::canNullChkBeImplicit(TR::Node * node)
    {
-   return self()->comp()->cg()->canNullChkBeImplicit(node, true);
+   return self()->canNullChkBeImplicit(node, true);
    }
 
 void OMR::X86::CodeGenerator::clobberLiveDiscardableRegisters(
@@ -968,16 +966,6 @@ bool OMR::X86::CodeGenerator::supportsXMMRRematerialization()            { stati
 bool OMR::X86::CodeGenerator::supportsIndirectMemoryRematerialization()  { static bool b = ALLOWED_TO_REMATERIALIZE("indirect"); return !CANT_REMATERIALIZE_ADDRESSES && b;}
 bool OMR::X86::CodeGenerator::supportsAddressRematerialization()         { static bool b = ALLOWED_TO_REMATERIALIZE("address"); return !CANT_REMATERIALIZE_ADDRESSES && b; }
 
-bool OMR::X86::CodeGenerator::allowVMThreadRematerialization()
-   {
-   return false;
-   }
-
-bool OMR::X86::CodeGenerator::supportsFS0VMThreadRematerialization()
-   {
-   return false;
-   }
-
 #undef ALLOWED_TO_REMATERIALIZE
 #undef CAN_REMATERIALIZE
 
@@ -1055,14 +1043,14 @@ bool
 OMR::X86::CodeGenerator::getSupportsEncodeUtf16LittleWithSurrogateTest()
    {
    return TR::CodeGenerator::getX86ProcessorInfo().supportsSSE4_1() &&
-          !self()->comp()->getOptions()->getOption(TR_DisableSIMDUTF16LEEncoder);
+          !self()->comp()->getOption(TR_DisableSIMDUTF16LEEncoder);
    }
 
 bool
 OMR::X86::CodeGenerator::getSupportsEncodeUtf16BigWithSurrogateTest()
    {
    return TR::CodeGenerator::getX86ProcessorInfo().supportsSSE4_1() &&
-          !self()->comp()->getOptions()->getOption(TR_DisableSIMDUTF16BEEncoder);
+          !self()->comp()->getOption(TR_DisableSIMDUTF16BEEncoder);
    }
 
 bool
@@ -1334,7 +1322,7 @@ OMR::X86::CodeGenerator::performNonLinearRegisterAssignmentAtBranch(
       TR::Instruction *ins =
          generateLabelInstruction(oi->getFirstInstruction(), LABEL, generateLabelSymbol(self()), deps, self());
 
-      if (self()->comp()->getOptions()->getOption(TR_TraceNonLinearRegisterAssigner))
+      if (self()->comp()->getOption(TR_TraceNonLinearRegisterAssigner))
          {
          traceMsg(self()->comp(), "creating LABEL instruction %p for dependencies\n", ins);
          }
@@ -1680,6 +1668,13 @@ bool OMR::X86::CodeGenerator::isAlignmentInstruction(TR::Instruction *instr)
    return (instr->getKind() == TR::Instruction::IsAlignment);
    }
 
+struct DescendingSortIA32DataSnippetByDataSize
+   {
+   inline bool operator()(TR::IA32DataSnippet* const& a, TR::IA32DataSnippet* const& b)
+      {
+      return a->getDataSize() > b->getDataSize();
+      }
+   };
 void OMR::X86::CodeGenerator::doBinaryEncoding()
    {
    LexicalTimer pt1("code generation", self()->comp()->phaseTimer());
@@ -1733,6 +1728,10 @@ void OMR::X86::CodeGenerator::doBinaryEncoding()
    else
       interpreterEntryInstruction = procEntryInstruction;
 
+   // Sort data snippets before encoding to compact spaces
+   //
+   std::sort(_dataSnippetList.begin(), _dataSnippetList.end(), DescendingSortIA32DataSnippetByDataSize());
+
    /////////////////////////////////////////////////////////////////
    //
    // Pass 1: Binary length estimation and prologue creation
@@ -1762,24 +1761,6 @@ void OMR::X86::CodeGenerator::doBinaryEncoding()
       }
    else
       self()->setPreJitMethodEntrySize(estimate);
-
-   // Emit the spill instruction to set up the vmThread reloads if needed
-   // (i.e., if the vmThread was ever spilled to make room for another register)
-   //
-   TR::Instruction *vmThreadSpillCursor = self()->getVMThreadSpillInstruction();
-   if (vmThreadSpillCursor && self()->getVMThreadRegister()->getBackingStorage())
-      {
-      if (vmThreadSpillCursor == (TR::Instruction *)0xffffffff ||
-         self()->comp()->mayHaveLoops())
-         {
-         vmThreadSpillCursor = estimateCursor;
-         }
-
-      new (self()->trHeapMemory()) TR::X86MemRegInstruction(vmThreadSpillCursor,
-                                 SMemReg(),
-                                 generateX86MemoryReference(self()->getVMThreadRegister()->getBackingStorage()->getSymbolReference(), self()),
-                                 self()->machine()->getX86RealRegister(_linkageProperties->getMethodMetaDataRegister()), self());
-      }
 
    // Create prologue
    //
@@ -1968,15 +1949,7 @@ void OMR::X86::CodeGenerator::doBinaryEncoding()
    //
    self()->setPrePrologueSize(self()->getBinaryBufferLength());
 
-#ifdef J9_PROJECT_SPECIFIC
-   if ((!self()->comp()->getOptions()->getOption(TR_DisableGuardedCountingRecompilations) && TR::Options::getCmdLineOptions()->allowRecompilation()) ||
-       (self()->comp()->getOptions()->getEnableGPU(TR_EnableGPU) && self()->comp()->hasIntStreamForEach()) ||
-       self()->comp()->isJProfilingCompilation())
-#else
-   if (!self()->comp()->getOptions()->getOption(TR_DisableGuardedCountingRecompilations) &&
-       TR::Options::getCmdLineOptions()->allowRecompilation())
-#endif
-      self()->comp()->getSymRefTab()->findOrCreateStartPCSymbolRef()->getSymbol()->getStaticSymbol()->setStaticAddress(self()->getBinaryBufferCursor());
+   self()->comp()->getSymRefTab()->findOrCreateStartPCSymbolRef()->getSymbol()->getStaticSymbol()->setStaticAddress(self()->getBinaryBufferCursor());
 
    // Generate binary for the rest of the instructions
    //
@@ -2018,19 +1991,15 @@ void OMR::X86::CodeGenerator::doBinaryEncoding()
 
    // Create exception table entries for outlined instructions.
    //
-   auto oiIterator = self()->getOutlinedInstructionsList().begin();
-   while (oiIterator != self()->getOutlinedInstructionsList().end())
+   for(auto oiIterator = self()->getOutlinedInstructionsList().begin(); oiIterator != self()->getOutlinedInstructionsList().end(); ++oiIterator)
       {
       uint32_t startOffset = (*oiIterator)->getFirstInstruction()->getBinaryEncoding() - self()->getCodeStart();
       uint32_t endOffset   = (*oiIterator)->getAppendInstruction()->getBinaryEncoding() - self()->getCodeStart();
 
-      TR::Block * block = (*oiIterator)->getBlock();
-      bool      needsETE = (*oiIterator)->getCallNode() && (*oiIterator)->getCallNode()->getSymbolReference()->canCauseGC();
-
-      if (needsETE && block && !block->getExceptionSuccessors().empty())
+      TR::Block* block = (*oiIterator)->getBlock();
+      TR::Node*  node  = (*oiIterator)->getCallNode();
+      if (block && node && !block->getExceptionSuccessors().empty() && node->canGCandExcept())
          block->addExceptionRangeForSnippet(startOffset, endOffset);
-
-      ++oiIterator;
       }
 
 #ifdef J9_PROJECT_SPECIFIC
@@ -2214,175 +2183,96 @@ TR_OutlinedInstructions * OMR::X86::CodeGenerator::findOutlinedInstructionsFromM
    return NULL;
    }
 
-
-
-TR::IA32ConstantDataSnippet * OMR::X86::CodeGenerator::findOrCreateConstant(TR::Node * n, void * c, uint8_t size)
+TR::IA32DataSnippet * OMR::X86::CodeGenerator::createDataSnippet(TR::Node * n, void * c, uint8_t s)
    {
+   auto snippet = new (self()->trHeapMemory()) TR::IA32DataSnippet(self(), n, c, s);
+   _dataSnippetList.push_back(snippet);
+   return snippet;
+   }
 
-    TR::IA32DataSnippet * cursor;
-
-   // A simple linear search should suffice for now since the number of FP constants
+TR::IA32ConstantDataSnippet * OMR::X86::CodeGenerator::findOrCreateConstantDataSnippet(TR::Node * n, void * c, uint8_t s)
+   {
+   // A simple linear search should suffice for now since the number of data constants
    // produced is typically very small.  Eventually, this should be implemented as an
    // ordered list or a hash table.
    for (auto iterator = _dataSnippetList.begin(); iterator != _dataSnippetList.end(); ++iterator)
       {
       if ((*iterator)->getKind() == TR::Snippet::IsConstantData &&
-          ((TR::IA32ConstantDataSnippet*)(*iterator))->getConstantSize() == size)
+          (*iterator)->getDataSize() == s)
          {
-         switch (size)
+         if (!memcmp((*iterator)->getRawData(), c, s))
             {
-            case 4:
-               if ((*iterator)->getDataAs4Bytes() == *((int32_t *)c))
-                  {
-                  return (TR::IA32ConstantDataSnippet*)(*iterator);
-                  }
-               break;
-
-            case 8:
-               if ((*iterator)->getDataAs8Bytes() == *((int64_t *)c))
-                  {
-                  return (TR::IA32ConstantDataSnippet*)(*iterator);
-                  }
-               break;
-
-            case 2:
-               if ((*iterator)->getDataAs2Bytes() == *((int16_t *)c))
-                  {
-                  return (TR::IA32ConstantDataSnippet*)(*iterator);
-                  }
-               break;
-
-            case 16:
-               if (!memcmp((*iterator)->getValue(), c, 16))
-                  {
-                  return (TR::IA32ConstantDataSnippet*)(*iterator);
-                  }
-               break;
-
-            default:
-               // Currently, only 2, 4, and 8 byte constants can be created.
-               //
-               TR_ASSERT( 0, "findOrCreateConstant ==> unexpected constant size" );
-               break;
+            return (TR::IA32ConstantDataSnippet*)(*iterator);
             }
          }
       }
 
    // Constant was not found: create a new snippet for it and add it to the constant list.
    //
-   cursor = new (self()->trHeapMemory()) TR::IA32ConstantDataSnippet(self(), n, c, size);
-   _dataSnippetList.push_front(cursor);
-
-   return (TR::IA32ConstantDataSnippet*)cursor;
+   auto snippet = new (self()->trHeapMemory()) TR::IA32ConstantDataSnippet(self(), n, c, s);
+   _dataSnippetList.push_back(snippet);
+   return snippet;
    }
 
 int32_t OMR::X86::CodeGenerator::setEstimatedLocationsForDataSnippetLabels(int32_t estimatedSnippetStart)
    {
-   bool                                     first;
-   int32_t                                  size;
-
-   // Assume constants will be emitted in order of decreasing size.  Constants should be aligned
-   // according to their size.
-   for (int exp=4; exp > 0; exp--)
+   // Assume constants should be aligned according to their size.
+   for (auto iterator = _dataSnippetList.begin(); iterator != _dataSnippetList.end(); ++iterator)
       {
-      size = 1 << exp;
-      first = true;
-      for (auto iterator = _dataSnippetList.begin(); iterator != _dataSnippetList.end(); ++iterator)
-         {
-         if ((*iterator)->getDataSize() == size)
-            {
-            if (first)
-               {
-               first = false;
-               estimatedSnippetStart = ((estimatedSnippetStart+size-1)/size) * size;
-               }
-            (*iterator)->getSnippetLabel()->setEstimatedCodeLocation(estimatedSnippetStart);
-            estimatedSnippetStart += (*iterator)->getLength(estimatedSnippetStart);
-            }
-         }
+      auto size = (*iterator)->getDataSize();
+      estimatedSnippetStart = ((estimatedSnippetStart+size-1)/size) * size;
+      (*iterator)->getSnippetLabel()->setEstimatedCodeLocation(estimatedSnippetStart);
+      estimatedSnippetStart += (*iterator)->getLength(estimatedSnippetStart);
       }
-
    return estimatedSnippetStart;
    }
 
 void OMR::X86::CodeGenerator::emitDataSnippets()
    {
-
-   TR::IA32DataSnippet              * cursor;
-   uint8_t                                 * codeOffset;
-   bool                                     first;
-   int32_t                                  size;
-
-   // Emit constants in order of decreasing size.  Constants will be aligned according to
-   // their size.
-   //
-   for (int exp=4; exp > 0; exp--)
+   for (auto iterator = _dataSnippetList.begin(); iterator != _dataSnippetList.end(); ++iterator)
       {
-      size = 1 << exp;
-      first = true;
-      for (auto iterator = _dataSnippetList.begin(); iterator != _dataSnippetList.end(); ++iterator)
-         {
-         if ((*iterator)->getDataSize() == size)
-            {
-            if (first)
-               {
-               first = false;
-               self()->setBinaryBufferCursor( (uint8_t *)(((uintptrj_t)(self()->getBinaryBufferCursor()+size-1)/size) * size) );
-               }
-            codeOffset = (*iterator)->emitSnippetBody();
-            if (codeOffset != NULL)
-               self()->setBinaryBufferCursor(codeOffset);
-            }
-         }
+      self()->setBinaryBufferCursor((*iterator)->emitSnippetBody());
       }
    }
 
 TR::IA32ConstantDataSnippet *OMR::X86::CodeGenerator::findOrCreate2ByteConstant(TR::Node * n, int16_t c)
    {
-   return self()->findOrCreateConstant(n, &c, 2);
+   return self()->findOrCreateConstantDataSnippet(n, &c, 2);
    }
 
 TR::IA32ConstantDataSnippet *OMR::X86::CodeGenerator::findOrCreate4ByteConstant(TR::Node * n, int32_t c)
    {
-   return self()->findOrCreateConstant(n, &c, 4);
+   return self()->findOrCreateConstantDataSnippet(n, &c, 4);
    }
 
 TR::IA32ConstantDataSnippet *OMR::X86::CodeGenerator::findOrCreate8ByteConstant(TR::Node * n, int64_t c)
    {
-   return self()->findOrCreateConstant(n, &c, 8);
+   return self()->findOrCreateConstantDataSnippet(n, &c, 8);
    }
 
 TR::IA32ConstantDataSnippet *OMR::X86::CodeGenerator::findOrCreate16ByteConstant(TR::Node * n, void *c)
    {
-   return self()->findOrCreateConstant(n, c, 16);
+   return self()->findOrCreateConstantDataSnippet(n, c, 16);
    }
 
 TR::IA32DataSnippet *OMR::X86::CodeGenerator::create2ByteData(TR::Node *n, int16_t c)
    {
-   TR::IA32DataSnippet *cursor = new (self()->trHeapMemory()) TR::IA32DataSnippet(self(), n, &c, 2);
-   _dataSnippetList.push_front(cursor);
-   return cursor;
+   return self()->createDataSnippet(n, &c, 2);
    }
 
 TR::IA32DataSnippet *OMR::X86::CodeGenerator::create4ByteData(TR::Node *n, int32_t c)
    {
-   TR::IA32DataSnippet *cursor = new (self()->trHeapMemory()) TR::IA32DataSnippet(self(), n, &c, 4);
-   _dataSnippetList.push_front(cursor);
-   return cursor;
+   return self()->createDataSnippet(n, &c, 4);
    }
 
 TR::IA32DataSnippet *OMR::X86::CodeGenerator::create8ByteData(TR::Node *n, int64_t c)
    {
-   TR::IA32DataSnippet *cursor = new (self()->trHeapMemory()) TR::IA32DataSnippet(self(), n, &c, 8);
-   _dataSnippetList.push_front(cursor);
-   return cursor;
+   return self()->createDataSnippet(n, &c, 8);
    }
 
 TR::IA32DataSnippet *OMR::X86::CodeGenerator::create16ByteData(TR::Node *n, void *c)
    {
-   TR::IA32DataSnippet *cursor = new (self()->trHeapMemory()) TR::IA32DataSnippet(self(), n, c, 16);
-   _dataSnippetList.push_front(cursor);
-   return cursor;
+   return self()->createDataSnippet(n, c, 16);
    }
 
 static uint32_t registerBitMask(int32_t reg)
@@ -2635,41 +2525,6 @@ bool OMR::X86::CodeGenerator::processInstruction(TR::Instruction *instr, TR_BitV
                traceMsg(self()->comp(), "instr [%p] USES mr no addressRegister\n", x86Instr);
          return true;
          }
-      case TR::Instruction::IsMemRegReg:
-         {
-         // get sourceRegister, sourceRightRegister and memoryReference: baseRegister, indexRegister
-         //
-         int32_t srcRegNum = ((TR::RealRegister*)x86Instr->getSourceRegister())->getRegisterNumber();
-         if (traceIt)
-            traceMsg(self()->comp(), "instr [%p] USES register [%d]\n", x86Instr, srcRegNum);
-
-         int32_t srcRightRegNum = ((TR::RealRegister*)x86Instr->getSourceRightRegister())->getRegisterNumber();
-         if (traceIt)
-            traceMsg(self()->comp(), "instr [%p] USES register [%d]\n", x86Instr, srcRightRegNum);
-
-         TR::MemoryReference *mr = x86Instr->getMemoryReference();
-         if (mr->getBaseRegister())
-            {
-            if (traceIt)
-               traceMsg(self()->comp(), "instr [%p] USES mr baseRegister [%d]\n", x86Instr, ((TR::RealRegister*)mr->getBaseRegister())->getRegisterNumber());
-            }
-         if (mr->getIndexRegister())
-            {
-            if (traceIt)
-               traceMsg(self()->comp(), "instr [%p] USES mr indexRegister [%d]\n", x86Instr, ((TR::RealRegister*)mr->getIndexRegister())->getRegisterNumber());
-            ////registerUsageInfo[blockNum]->set(((TR::RealRegister*)mr->getIndexRegister())->getRegisterNumber());
-            }
-         if (TR::Compiler->target.is64Bit() && mr->getAddressRegister())
-            {
-            if (traceIt)
-               traceMsg(self()->comp(), "instr [%p] USES mr addressRegister [%d]\n", x86Instr, ((TR::RealRegister*)mr->getAddressRegister())->getRegisterNumber());
-            registerUsageInfo[blockNum]->set(((TR::RealRegister*)mr->getAddressRegister())->getRegisterNumber());
-            }
-         else if (traceIt)
-               traceMsg(self()->comp(), "instr [%p] USES mr no addressRegister\n", x86Instr);
-
-         return true;
-         }
       default:
          {
          if (traceIt)
@@ -2857,7 +2712,7 @@ int32_t OMR::X86::CodeGenerator::computeRegisterSaveDescription(TR_BitVector *re
    // metadata for the method
    //
    if (populateInfo)
-      self()->comp()->cg()->setLowestSavedRegister(rsd & 0xFFFF);
+      self()->setLowestSavedRegister(rsd & 0xFFFF);
 
    return rsd;
    }
@@ -3598,23 +3453,12 @@ void OMR::X86::CodeGenerator::removeUnavailableRegisters(TR_RegisterCandidate * 
 
 void OMR::X86::CodeGenerator::dumpDataSnippets(TR::FILE *outFile)
    {
-
    if (outFile == NULL)
       return;
 
-   TR::IA32DataSnippet              * cursor;
-   int32_t                                  size;
-
-   for (int exp=4; exp > 0; exp--)
+   for (auto iterator = _dataSnippetList.begin(); iterator != _dataSnippetList.end(); ++iterator)
       {
-      size = 1 << exp;
-      for (auto iterator = _dataSnippetList.begin(); iterator != _dataSnippetList.end(); ++iterator)
-         {
-         if ((*iterator)->getDataSize() == size)
-            {
-            self()->getDebug()->print(outFile, *iterator);
-            }
-         }
+      (*iterator)->print(outFile, self()->getDebug());
       }
    }
 
@@ -3691,7 +3535,7 @@ void OMR::X86::CodeGenerator::dumpPreGPRegisterAssignment(TR::Instruction * inst
 
       if (debug("dumpGPRegStatus"))
          {
-         self()->machine()->printGPRegisterStatus(self()->fe(), self()->machine()->getRegisterFile(), self()->comp()->getOutFile());
+         self()->machine()->printGPRegisterStatus(self()->fe(), self()->machine()->registerFile(), self()->comp()->getOutFile());
          }
       }
    }
@@ -3721,7 +3565,7 @@ void OMR::X86::CodeGenerator::dumpPostGPRegisterAssignment(TR::Instruction * ins
 
       if (debug("dumpGPRegStatus"))
          {
-         self()->machine()->printGPRegisterStatus(self()->fe(), self()->machine()->getRegisterFile(), self()->comp()->getOutFile());
+         self()->machine()->printGPRegisterStatus(self()->fe(), self()->machine()->registerFile(), self()->comp()->getOutFile());
          }
       }
    }

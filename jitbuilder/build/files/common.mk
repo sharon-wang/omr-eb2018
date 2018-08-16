@@ -209,7 +209,7 @@ JIT_PRODUCT_BACKEND_SOURCES+=\
     $(JIT_OMR_DIRTY_DIR)/codegen/OMRRealRegister.cpp \
     $(JIT_OMR_DIRTY_DIR)/codegen/OMRRegisterPair.cpp \
     $(JIT_OMR_DIRTY_DIR)/codegen/OMRInstruction.cpp \
-    $(JIT_OMR_DIRTY_DIR)/codegen/ELFObjectFileGenerator.cpp \
+    $(JIT_OMR_DIRTY_DIR)/codegen/ELFGenerator.cpp \
     $(JIT_OMR_DIRTY_DIR)/codegen/OMRELFRelocationResolver.cpp \
     $(JIT_OMR_DIRTY_DIR)/env/FEBase.cpp \
     $(JIT_OMR_DIRTY_DIR)/env/JitConfig.cpp \
@@ -225,21 +225,31 @@ JIT_PRODUCT_BACKEND_SOURCES+=\
     $(JIT_OMR_DIRTY_DIR)/ilgen/JitBuilderRecorderBinaryBuffer.cpp \
     $(JIT_OMR_DIRTY_DIR)/ilgen/JitBuilderRecorderBinaryFile.cpp \
     $(JIT_OMR_DIRTY_DIR)/ilgen/JitBuilderRecorderTextFile.cpp \
-		$(JIT_OMR_DIRTY_DIR)/ilgen/JitBuilderReplay.cpp \
-		$(JIT_OMR_DIRTY_DIR)/ilgen/JitBuilderReplayTextFile.cpp \
+	 $(JIT_OMR_DIRTY_DIR)/ilgen/JitBuilderReplay.cpp \
+	 $(JIT_OMR_DIRTY_DIR)/ilgen/JitBuilderReplayTextFile.cpp \
     $(JIT_OMR_DIRTY_DIR)/ilgen/IlValue.cpp \
-    $(JIT_OMR_DIRTY_DIR)/ilgen/IlInjector.cpp \
     $(JIT_OMR_DIRTY_DIR)/ilgen/IlBuilder.cpp \
     $(JIT_OMR_DIRTY_DIR)/ilgen/IlBuilderRecorder.cpp \
     $(JIT_OMR_DIRTY_DIR)/ilgen/MethodBuilder.cpp \
     $(JIT_OMR_DIRTY_DIR)/ilgen/MethodBuilderRecorder.cpp \
-		$(JIT_OMR_DIRTY_DIR)/ilgen/MethodBuilderReplay.cpp \
+	 $(JIT_OMR_DIRTY_DIR)/ilgen/MethodBuilderReplay.cpp \
     $(JIT_OMR_DIRTY_DIR)/ilgen/ThunkBuilder.cpp \
     $(JIT_OMR_DIRTY_DIR)/ilgen/BytecodeBuilder.cpp \
     $(JIT_OMR_DIRTY_DIR)/ilgen/BytecodeBuilderRecorder.cpp \
     $(JIT_OMR_DIRTY_DIR)/ilgen/TypeDictionary.cpp \
     $(JIT_OMR_DIRTY_DIR)/ilgen/VirtualMachineOperandArray.cpp \
     $(JIT_OMR_DIRTY_DIR)/ilgen/VirtualMachineOperandStack.cpp \
+    $(JIT_OMR_DIRTY_DIR)/ilgen/IlInjector.cpp \
+    $(JIT_OMR_DIRTY_DIR)/ilgen/OMRBytecodeBuilder.cpp \
+    $(JIT_OMR_DIRTY_DIR)/ilgen/OMRIlBuilder.cpp \
+    $(JIT_OMR_DIRTY_DIR)/ilgen/OMRIlType.cpp \
+    $(JIT_OMR_DIRTY_DIR)/ilgen/OMRIlValue.cpp \
+    $(JIT_OMR_DIRTY_DIR)/ilgen/OMRMethodBuilder.cpp \
+    $(JIT_OMR_DIRTY_DIR)/ilgen/OMRThunkBuilder.cpp \
+    $(JIT_OMR_DIRTY_DIR)/ilgen/OMRTypeDictionary.cpp \
+    $(JIT_OMR_DIRTY_DIR)/ilgen/OMRVirtualMachineState.cpp \
+    $(JIT_OMR_DIRTY_DIR)/ilgen/OMRVirtualMachineOperandArray.cpp \
+    $(JIT_OMR_DIRTY_DIR)/ilgen/OMRVirtualMachineOperandStack.cpp \
     $(JIT_OMR_DIRTY_DIR)/runtime/Alignment.cpp \
     $(JIT_OMR_DIRTY_DIR)/runtime/CodeCacheTypes.cpp \
     $(JIT_OMR_DIRTY_DIR)/runtime/OMRCodeCache.cpp \

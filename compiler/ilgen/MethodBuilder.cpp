@@ -543,14 +543,15 @@ OMR::MethodBuilder::DefineFunction(const char* const name,
    {
    TR::MethodBuilderRecorder::DefineFunction(name, fileName, lineNumber, entryPoint, returnType, numParms, parmTypes);
 
-   TR::ResolvedMethod *method = new (PERSISTENT_NEW) TR::ResolvedMethod((char*)fileName,
-                                                                        (char*)lineNumber,
-                                                                        (char*)name,
-                                                                        numParms,
-                                                                        parmTypes,
-                                                                        returnType,
-                                                                        entryPoint,
-                                                                        0);
+   TR::ResolvedMethod *method = new (PERSISTENT_NEW) TR::ResolvedMethod(
+                                                         (char*)fileName,
+                                                         (char*)lineNumber,
+                                                         (char*)name,
+                                                         numParms,
+                                                         parmTypes,
+                                                         returnType,
+                                                         entryPoint,
+                                                         0);
 
    _functions->insert(std::make_pair(name, method));
    }

@@ -1055,7 +1055,7 @@ OMR::IlBuilder::ConvertTo(TR::IlType *t, TR::IlValue *v)
       TraceIL("IlBuilder[ %p ]::%d is ConvertTo (already has type %s) %d\n", this, v->getID(), t->getName(), v->getID());
       return v;
       }
-   
+
    convertTo(convertedValue, t, v, false);
    TraceIL("IlBuilder[ %p ]::%d is ConvertTo(%s) %d\n", this, convertedValue->getID(), t->getName(), v->getID());
    return convertedValue;
@@ -1978,7 +1978,7 @@ OMR::IlBuilder::genCall(TR::IlValue *returnValue, TR::SymbolReference *methodSym
    TR::DataType returnType = methodSymRef->getSymbol()->castToMethodSymbol()->getMethod()->returnType();
    TR::Node *callNode = TR::Node::createWithSymRef(isDirectCall? TR::ILOpCode::getDirectCall(returnType): TR::ILOpCode::getIndirectCall(returnType), numArgs, methodSymRef);
 
-   // Do not record the loopContinue 
+   // Do not record the loopContinue
    TR::JitBuilderRecorder *savedRecorder = clearRecorder();
 
    // TODO: should really verify argument types here
@@ -2639,7 +2639,7 @@ OMR::IlBuilder::ForLoop(bool countsUp,
    TR_ASSERT(loopCode != NULL, "ForLoop needs to have loopCode builder");
    *loopCode = createBuilderIfNeeded(*loopCode);
 
-   // Do not record the loopContinue 
+   // Do not record the loopContinue
    TR::JitBuilderRecorder *savedRecorder = clearRecorder();
 
    TR::IlBuilder *bBreak = NULL;

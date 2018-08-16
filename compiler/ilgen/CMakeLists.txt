@@ -24,7 +24,6 @@ compiler_library(ilgen
 	${CMAKE_CURRENT_LIST_DIR}/IlBuilder.cpp
 	${CMAKE_CURRENT_LIST_DIR}/IlBuilderRecorder.cpp
 	${CMAKE_CURRENT_LIST_DIR}/IlValue.cpp
-	${CMAKE_CURRENT_LIST_DIR}/IlInjector.cpp
 	${CMAKE_CURRENT_LIST_DIR}/MethodBuilder.cpp
 	${CMAKE_CURRENT_LIST_DIR}/MethodBuilderRecorder.cpp
 	${CMAKE_CURRENT_LIST_DIR}/MethodBuilderReplay.cpp
@@ -39,4 +38,15 @@ compiler_library(ilgen
 	${CMAKE_CURRENT_LIST_DIR}/TypeDictionary.cpp
 	${CMAKE_CURRENT_LIST_DIR}/ThunkBuilder.cpp
 	${CMAKE_CURRENT_LIST_DIR}/VirtualMachineOperandStack.cpp
+	${CMAKE_CURRENT_LIST_DIR}/IlInjector.cpp
+	${CMAKE_CURRENT_LIST_DIR}/OMRBytecodeBuilder.cpp
+	${CMAKE_CURRENT_LIST_DIR}/OMRIlBuilder.cpp
+	${CMAKE_CURRENT_LIST_DIR}/OMRIlType.cpp
+	${CMAKE_CURRENT_LIST_DIR}/OMRIlValue.cpp
+	${CMAKE_CURRENT_LIST_DIR}/OMRMethodBuilder.cpp
+	${CMAKE_CURRENT_LIST_DIR}/OMRThunkBuilder.cpp
+	${CMAKE_CURRENT_LIST_DIR}/OMRTypeDictionary.cpp
+	${CMAKE_CURRENT_LIST_DIR}/OMRVirtualMachineOperandArray.cpp
+	${CMAKE_CURRENT_LIST_DIR}/OMRVirtualMachineOperandStack.cpp
+	${CMAKE_CURRENT_LIST_DIR}/OMRVirtualMachineState.cpp
 )

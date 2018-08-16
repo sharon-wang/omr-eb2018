@@ -1,4 +1,4 @@
-﻿/*******************************************************************************
+/*******************************************************************************
  * Copyright (c) 2018, 2018 IBM Corp. and others
  *
  * This program and the accompanying materials are made available under
@@ -29,10 +29,9 @@
 #include "infra/Assert.hpp"
 
 OMR::ARM64::Machine::Machine(TR::CodeGenerator *cg) :
-   OMR::Machine(cg, NUM_ARM64_GPR, NUM_ARM64_FPR)
+      OMR::Machine(cg)
    {
-   _registerFile = (TR::RealRegister **)cg->trMemory()->allocateMemory(sizeof(TR::RealRegister *)*TR::RealRegister::NumRegisters, heapAlloc);
-   self()->initialiseRegisterFile();
+   self()->initializeRegisterFile();
    }
 
 TR::RealRegister *OMR::ARM64::Machine::findBestFreeRegister(TR_RegisterKinds rk,
@@ -132,7 +131,7 @@ void OMR::ARM64::Machine::coerceRegisterAssignment(TR::Instruction *currentInstr
    TR_ASSERT(false, "Not implemented yet.");
    }
 
-void OMR::ARM64::Machine::initialiseRegisterFile()
+void OMR::ARM64::Machine::initializeRegisterFile()
    {
    _registerFile[TR::RealRegister::NoReg] = NULL;
    _registerFile[TR::RealRegister::SpilledReg] = NULL;
@@ -385,7 +384,7 @@ void OMR::ARM64::Machine::initialiseRegisterFile()
                                                  TR::RealRegister::Free,
                                                  TR::RealRegister::v9,
                                                  self()->cg());
- 
+
    _registerFile[TR::RealRegister::v10] = new (self()->cg()->trHeapMemory()) TR::RealRegister(TR_FPR,
                                                  0,
                                                  TR::RealRegister::Free,

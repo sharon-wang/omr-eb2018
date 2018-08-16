@@ -30,7 +30,6 @@
 namespace TR { class BytecodeBuilder; }
 namespace TR { class BytecodeBuilderRecorder; }
 namespace TR { class MethodBuilderRecorder; }
-namespace OMR { class VirtualMachineState; }
 
 namespace OMR
 {
@@ -60,11 +59,11 @@ public:
    void AddSuccessorBuilders(uint32_t numBuilders, ...);
    void AddSuccessorBuilder(TR::BytecodeBuilder **b) { AddSuccessorBuilders(1, b); }
 
-   OMR::VirtualMachineState *initialVMState()                { return _initialVMState; }
-   OMR::VirtualMachineState *vmState()                       { return _vmState; }
-   void setVMState(OMR::VirtualMachineState *vmState)        { _vmState = vmState; }
+   TR::VirtualMachineState *initialVMState()                { return _initialVMState; }
+   TR::VirtualMachineState *vmState()                       { return _vmState; }
+   void setVMState(TR::VirtualMachineState *vmState)        { _vmState = vmState; }
 
-   void propagateVMState(OMR::VirtualMachineState *fromVMState);
+   void propagateVMState(TR::VirtualMachineState *fromVMState);
 
    // The following control flow services are meant to hide the similarly named services
    // provided by the IlBuilder class. The reason these implementations exist is to
@@ -101,8 +100,8 @@ public:
 protected:
    int32_t                             _bcIndex;
    char                              * _name;
-   OMR::VirtualMachineState          * _initialVMState;
-   OMR::VirtualMachineState          * _vmState;
+   TR::VirtualMachineState          * _initialVMState;
+   TR::VirtualMachineState          * _vmState;
 
    void transferVMState(TR::BytecodeBuilder **b);
    void addSuccessorBuilder(TR::BytecodeBuilder **b);

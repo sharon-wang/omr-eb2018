@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2017 IBM Corp. and others
+ * Copyright (c) 2000, 2018 IBM Corp. and others
  *
  * This program and the accompanying materials are made available under
  * the terms of the Eclipse Public License 2.0 which accompanies this
@@ -2651,13 +2651,6 @@ OMR::Z::Linkage::buildArgs(TR::Node * callNode, TR::RegisterDependencyConditions
       dependencies->addPostCondition(reg, TR::RealRegister::KillVolHighRegs);
       }
 
-
-   //VMThread work
-   if (self()->comp()->getOption(TR_Enable390FreeVMThreadReg))
-      {
-      dependencies = self()->cg()->addVMThreadPostCondition(dependencies, NULL);
-      }
-
    // Adjust largest outgoing argument area
    int32_t argumentAreaSize;
    if (!self()->isFirstParmAtFixedOffset())
@@ -2897,18 +2890,14 @@ OMR::Z::Linkage::setupBuildArgForLinkage(TR::Node * callNode, TR_DispatchType di
       for(int i = 0; i < glRegDeps->getAddCursorForPre(); i++)
          {
          regDep = glRegDeps->getPreConditions()->getRegisterDependency(i);
-         deps->addPreConditionIfNotAlreadyInserted(regDep->getRegister(self()->cg()), regDep->getRealRegister());
-//         TR_ASSERTC(deps->addPreConditionIfNotAlreadyInserted(regDep->getRegister(cg()), regDep->getRealRegister()), cg()->comp(),
-//                     "Duplicate precondition found while merging call deps with global reg deps");
+         deps->addPreConditionIfNotAlreadyInserted(regDep->getRegister(), regDep->getRealRegister());
          }
 
       //Add postconditions
       for(int i = 0; i < glRegDeps->getAddCursorForPost(); i++)
          {
          regDep = glRegDeps->getPostConditions()->getRegisterDependency(i);
-         deps->addPostConditionIfNotAlreadyInserted(regDep->getRegister(self()->cg()), regDep->getRealRegister());
-//         TR_ASSERTC(deps->addPostConditionIfNotAlreadyInserted(regDep->getRegister(cg()), regDep->getRealRegister()), cg()->comp(),
-//                     "Duplicate postcondition found while merging call deps with global reg deps");
+         deps->addPostConditionIfNotAlreadyInserted(regDep->getRegister(), regDep->getRealRegister());
          }
       }
    }
@@ -3005,17 +2994,6 @@ TR::Register * OMR::Z::Linkage::buildSystemLinkageDispatch(TR::Node * callNode)
 ////////////////////////////////////////////////////////////////////////////////
 
 void
-OMR::Z::Linkage::lockAccessRegisters()
-   {
-   // AR0/AR1 are used by gclibs, for now don't use them
-   if ( TR::Compiler->target.isLinux() )
-      {
-      self()->cg()->machine()->getS390RealRegister(TR::RealRegister::AR0)->setState(TR::RealRegister::Locked);
-      self()->cg()->machine()->getS390RealRegister(TR::RealRegister::AR1)->setState(TR::RealRegister::Locked);
-      }
-   }
-
-void
 OMR::Z::Linkage::lockRegister(TR::RealRegister * lpReal)
    {
    // literal pool register
@@ -3047,53 +3025,6 @@ OMR::Z::Linkage::unlockRegister(TR::RealRegister * lpReal)
       lpRealHigh->setAssignedRegister(NULL);
       lpRealHigh->setHasBeenAssignedInMethod(false);
       }
-   }
-
-void
-OMR::Z::Linkage::lockGPR(int32_t registerNo)
-   {
-      // +1 beacuse TR::RealRegister::GPR0 is 1
-   TR::RealRegister * tempRegister=self()->cg()->machine()->getS390RealRegister(REGNUM(registerNo+1));
-
-   tempRegister->setAssignedRegister(tempRegister);
-   tempRegister->setState(TR::RealRegister::Locked);
-   tempRegister->setHasBeenAssignedInMethod(true);
-
-   }
-
-void
-OMR::Z::Linkage::unlockGPR(int32_t registerNo)
-   {
-     // +1 beacuse TR::RealRegister::GPR0 is 1
-   TR::RealRegister * tempRegister=self()->cg()->machine()->getS390RealRegister(REGNUM(registerNo+1));
-
-   tempRegister->resetState(TR::RealRegister::Free);
-   tempRegister->setHasBeenAssignedInMethod(false);
-   tempRegister->setAssignedRegister(NULL);
-   }
-
-void
-OMR::Z::Linkage::lockAR(int32_t registerNo)
-   {
-   // registerNo is 1 less than the ARxx number.  i.e. AR05, registerNo = 4
-   TR::RealRegister * tempRegister=self()->cg()->machine()->getS390RealRegister(REGNUM(registerNo + TR::RealRegister::FirstAR));
-
-   tempRegister->setAssignedRegister(tempRegister);
-   tempRegister->setState(TR::RealRegister::Locked);
-   tempRegister->setHasBeenAssignedInMethod(true);
-   }
-
-// registerNo is the number from S390Register.hpp that corresponds to this AR
-// i.e. AR05, registerNo=38
-void
-OMR::Z::Linkage::unlockAR(int32_t registerNo)
-   {
-   // registerNo is 1 less than the ARxx number.  i.e. AR05, registerNo = 4
-   TR::RealRegister * tempRegister=self()->cg()->machine()->getS390RealRegister(REGNUM(registerNo + TR::RealRegister::FirstAR));
-
-   tempRegister->resetState(TR::RealRegister::Free);
-   tempRegister->setHasBeenAssignedInMethod(false);
-   tempRegister->setAssignedRegister(NULL);
    }
 
 bool OMR::Z::Linkage::needsAlignment(TR::DataType dt, TR::CodeGenerator * cg)

@@ -705,7 +705,7 @@ bool CheckForRegisterDependencyConditionsRealRegisterMergeConflict( TR_S390Regis
             }
 
          if(( conds1_real == conds2_real ) &&
-             ( conds1->getRegisterDependency( i )->getRegister(cg) != conds2->getRegisterDependency( j )->getRegister(cg) ))
+             ( conds1->getRegisterDependency(i)->getRegister() != conds2->getRegisterDependency(j)->getRegister() ))
             {
             // Conflict found
             if( conflict1 && conflict2 )
@@ -2131,23 +2131,40 @@ TR::Instruction * generateVSIInstruction(
    }
 
 /************************************************************ Misc Instructions ************************************************************/
-TR::Instruction *
-generateS390PseudoInstruction(TR::CodeGenerator * cg, TR::InstOpCode::Mnemonic op, TR::Node * n, TR::Node * fenceNode, TR::Instruction * preced)
+TR::Instruction*
+generateS390PseudoInstruction(TR::CodeGenerator* cg, TR::InstOpCode::Mnemonic op, TR::Node* n, TR::Node* fenceNode, TR::Instruction* preced)
    {
-   TR::S390PseudoInstruction *instr;
-   TR::Compilation *comp = cg->comp();
+   TR::Instruction* cursor;
+
+   switch (op)
+      {
+      case TR::InstOpCode::PROC:
+         {
+         if (cg->comp()->getOption(TR_EntryBreakPoints))
+            {
+            if (preced)
+               {
+               preced = new (INSN_HEAP) TR::S390EInstruction(TR::InstOpCode::BREAK, n, preced, cg);
+               }
+            else
+               {
+               preced = new (INSN_HEAP) TR::S390EInstruction(TR::InstOpCode::BREAK, n, cg);
+               }
+            }
+         }
+         break;
+      }
 
    if (preced)
-   {
-     instr= new (INSN_HEAP) TR::S390PseudoInstruction(op, n, fenceNode, preced, cg);
-   }
+      {
+      cursor = new (INSN_HEAP) TR::S390PseudoInstruction(op, n, fenceNode, preced, cg);
+      }
    else
-   {
-     instr= new (INSN_HEAP) TR::S390PseudoInstruction(op, n, fenceNode, cg);
-   }
+      {
+      cursor = new (INSN_HEAP) TR::S390PseudoInstruction(op, n, fenceNode, cg);
+      }
 
-
-   return instr;
+   return cursor;
    }
 
 TR::Instruction *
@@ -3104,70 +3121,6 @@ generateSerializationInstruction(TR::CodeGenerator *cg, TR::Node *node, TR::Inst
       instr = new (INSN_HEAP) TR::S390RegInstruction(TR::InstOpCode::BCR, node, cond, gpr0, cg);
 
    return instr;
-   }
-
-// detecting case of SS instructions
-// with AR base register
-// with the same GPR, but different AR registers
-// For example:
-// MVC      0(5,GPR_1968:AR_1920(GPR_1968:AR_1920)), 0(GPR_1968:AR_1888(GPR_1968:AR_1888))
-//
-// also need to take care of the reverse, i.e different GPR's but the same AR's, i.e:
-// MVC      0(1,GPR64_8472:AR_8455(GPR64_8472:AR_8455)), 0(GPR64_8450:AR_8455(GPR64_8450:AR_8455))
-
-
-TR::Instruction *
-splitBaseRegisterIfNeeded(TR::MemoryReference *mf1, TR::MemoryReference *mf2, TR::CodeGenerator *cg, TR::Node *node, TR::Instruction *preced)
-   {
-   TR::Instruction * instr = preced;
-
-   if (mf1) return instr;
-   if (mf2) return instr;
-
-   if (!mf1->getBaseRegister()->isArGprPair())  return instr;
-   if (!mf2->getBaseRegister()->isArGprPair())  return instr;
-
-   if (mf1->getBaseRegister()->getGPRofArGprPair() == mf2->getBaseRegister()->getGPRofArGprPair())
-      {
-      // same GPR's and same AR's - all good
-      if (mf1->getBaseRegister()->getARofArGprPair() == mf2->getBaseRegister()->getARofArGprPair()) return instr;
-
-      TR::Register * baseGPRmf2 = mf2->getBaseRegister()->getGPRofArGprPair();
-      TR::Register * baseARmf2 = mf2->getBaseRegister()->getARofArGprPair();
-
-      TR::Register * tempReg = cg->allocateRegister(baseGPRmf2->getKind());
-
-      TR::InstOpCode::Mnemonic copyOp = TR::InstOpCode::LR;
-
-      if (baseGPRmf2->getKind() == TR_GPR64) copyOp = TR::InstOpCode::LGR;
-
-      instr = generateRRInstruction(cg, copyOp, node, tempReg, baseGPRmf2, preced);
-
-      TR::RegisterPair *regpair = cg->allocateArGprPair(baseARmf2, tempReg);
-      mf2->setBaseRegister(regpair, cg);
-      cg->stopUsingRegister(regpair);
-      cg->stopUsingRegister(tempReg);
-    }
-   else
-      {
-      // different GPR's and different AR's - all good
-      if (mf1->getBaseRegister()->getARofArGprPair() != mf2->getBaseRegister()->getARofArGprPair()) return instr;
-
-      TR::Register * baseGPRmf2 = mf2->getBaseRegister()->getGPRofArGprPair();
-      TR::Register * baseARmf2 = mf2->getBaseRegister()->getARofArGprPair();
-
-      TR::Register * tempReg = cg->allocateRegister(baseARmf2->getKind());
-
-      instr = generateRRInstruction(cg, TR::InstOpCode::CPYA, node, tempReg, baseARmf2, preced);
-
-      TR::RegisterPair *regpair = cg->allocateArGprPair(tempReg, baseGPRmf2);
-      mf2->setBaseRegister(regpair, cg);
-      cg->stopUsingRegister(regpair);
-      cg->stopUsingRegister(tempReg);
-      }
-
-   return instr;
-
    }
 
 /**

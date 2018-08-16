@@ -61,7 +61,7 @@ public:
 		omrobjectptr_t objectPtr = (omrobjectptr_t)allocatedBytes;
 
 		if (NULL != objectPtr) {
-			env->getExtensions()->objectModel.setObjectSize(objectPtr, getAllocateDescription()->getBytesRequested());
+			objectPtr->header.sizeInBytes((ObjectSize)getAllocateDescription()->getBytesRequested());
 		}
 
 		return objectPtr;

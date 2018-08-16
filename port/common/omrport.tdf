@@ -623,7 +623,7 @@ TraceExit=Trc_PRT_signal_omrsig_set_async_signal_handler_exiting Group=signal Ov
 TraceEvent=Trc_PRT_signal_omrsig_shutdown_empty_routine Group=signal Overhead=1 Level=1 NoEnv Template="omrsig_shutdown: ERROR, empty shutdown routine indicates omrsig_startup failed, portLibrary=%p"
 TraceEvent=Trc_PRT_signal_omrsig_set_options Group=signal Overhead=1 Level=1 NoEnv Template="omrsig_set_options: options=0x%X"
 TraceEvent=Trc_PRT_signal_omrsig_set_options_too_late_handlers_installed Group=signal Overhead=1 Level=1 NoEnv Template="omrsig_set_options too late, handlers already installed: options=0x%X"
-TraceEvent=Trc_PRT_signal_mapPortLibSignalToUnix_ERROR_unknown_signal Group=signal Overhead=1 Level=1 NoEnv Template="omrsignal: mapPortLibSignalToUnix: ERROR, unknown signal, portLibSignal=0x%X"
+TraceEvent=Trc_PRT_signal_mapPortLibSignalToUnix_ERROR_unknown_signal Obsolete Group=signal Overhead=1 Level=1 NoEnv Template="omrsignal: mapPortLibSignalToUnix: ERROR, unknown signal, portLibSignal=0x%X"
 
 TraceEvent=Trc_PRT_signal_omrsig_asynchSignalReporterThread_going_to_sleep Group=signal Overhead=1 Level=1 NoEnv Template="asynchSignalReporter: going to sleep"
 TraceEvent=Trc_PRT_signal_omrsig_asynchSignalReporter_woken_up Group=signal Overhead=1 Level=1 NoEnv Template="asynchSignalReporter: woken up"
@@ -863,8 +863,8 @@ TraceException=Trc_PRT_sysinfo_get_number_CPUs_by_type_invalidType Group=sysinfo
 TraceEvent=Trc_PRT_sysinfo_get_number_CPUs_by_type_platformNotSupported Group=sysinfo Overhead=1 Level=5 NoEnv Template="omrsysinfo_get_number_CPUs_by_type: Platform not supported."
 TraceEntry=Trc_PRT_sysinfo_get_number_CPUs_by_type_Entered Group=sysinfo Overhead=1 Level=5 NoEnv Template="omrsysinfo_get_number_CPUs_by_type: Function entered."
 TraceExit=Trc_PRT_sysinfo_get_number_CPUs_by_type_Exit Group=sysinfo Overhead=1 Level=5 NoEnv Template="omrsysinfo_get_number_CPUs_by_type: Exiting function - Type %d returned %d."
-TraceEntry=Trc_PRT_sysinfo_set_number_entitled_CPUs_Entered Group=sysinfo Overhead=1 Level=5 NoEnv Template="omrsysinfo_set_number_entitled_CPUs: Function entered."
-TraceExit=Trc_PRT_sysinfo_set_number_entitled_CPUs_Exit Group=sysinfo Overhead=1 Level=5 NoEnv Template="omrsysinfo_set_number_entitled_CPUs: Exiting function. Entitled CPUs set to %d."
+TraceEntry=Trc_PRT_sysinfo_set_number_user_specified_CPUs_Entered Group=sysinfo Overhead=1 Level=5 NoEnv Template="omrsysinfo_set_number_user_specified_CPUs: Function entered."
+TraceExit=Trc_PRT_sysinfo_set_number_user_specified_CPUs_Exit Group=sysinfo Overhead=1 Level=5 NoEnv Template="omrsysinfo_set_number_user_specified_CPUs: Exiting function. User-specified CPUs set to %d."
 TraceException=Trc_PRT_sysinfo_get_number_CPUs_by_type_failedOnline Group=sysinfo Overhead=1 Level=1 NoEnv Template="omrsysinfo_get_number_CPUs_by_type: Error: Could not get online CPUs - %s%d"
 
 TraceEntry=Trc_PRT_sysinfo_get_limit_Entered Group=sysinfo Overhead=1 Level=5 NoEnv Template="omrsysinfo_get_limit: resourceID = %d"
@@ -1069,3 +1069,14 @@ TraceException=Trc_PRT_signal_mapOSSignalToPortLib_ERROR_unknown_signal Group=si
 TraceEntry=Trc_PRT_signal_omrsig_register_os_handler_entered Group=signal Overhead=1 Level=1 NoEnv Template="omrsig_register_os_handler: Entered, portLibrarySignalFlag=0x%X, newOSHandler=%p"
 TraceExit=Trc_PRT_signal_omrsig_register_os_handler_exiting Group=signal Overhead=1 Level=1 NoEnv Template="omrsig_register_os_handler: Exiting, rc=%d, portLibrarySignalFlag=0x%X, newOSHandler=%p, oldOSHandler=%p"
 TraceException=Trc_PRT_signal_omrsig_register_os_handler_invalid_portlibSignalFlag Group=signal Overhead=1 Level=1 NoEnv Template="omrsig_register_os_handler: ERROR, portlibSignalFlag=0x%X is either zero or has multiple signal bits set."
+
+TraceEntry=Trc_PRT_signal_omrsig_is_master_signal_handler_entered Group=signal Overhead=1 Level=3 NoEnv Template="omrsig_is_master_signal_handler: Entered, osHandler=%p"
+TraceExit=Trc_PRT_signal_omrsig_is_master_signal_handler_exiting Group=signal Overhead=1 Level=3 NoEnv Template="omrsig_is_master_signal_handler: Exiting, rc=%d"
+
+TraceException=Trc_PRT_readCgroupFile_fgets_failed Group=sysinfo Overhead=1 Level=3 NoEnv Template="readCgroupFile: fgets failed for %s with errno=%d"
+TraceException=Trc_PRT_isRunningInContainer_fgets_failed Group=sysinfo Overhead=1 Level=3 NoEnv Template="isRunningInContainer: unexpected format of file %s with errno=%d"
+
+TraceException=Trc_PRT_signal_mapPortLibSignalToOSSignal_ERROR_unknown_signal Group=signal Overhead=1 Level=3 NoEnv Template="omrsignal: mapPortLibSignalToOSSignal: ERROR, unknown signal, portLibSignal=0x%X" 
+
+TraceException=Trc_PRT_retrieveLinuxCgroupMemoryStats_invalidValue Group=sysinfo Overhead=1 Level=1 NoEnv Template="retrieveLinuxCgroupMemoryStats: Value of field \"%s\" in file %s is invalid"
+TraceEvent=Trc_PRT_retrieveLinuxMemoryStats_CgroupMemoryStatsFailed Group=sysinfo Overhead=1 Level=1 NoEnv Template="retrieveLinuxMemoryStats: Failed to retrieve memory stats of cgroup with error code=%d"

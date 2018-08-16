@@ -441,10 +441,9 @@ public:
 	
 	/**
 	 * Give up exclusive access in preparation for transferring it to a collaborating thread (i.e. main-to-master or master-to-main)
-	 * @deferredVMAccessRelease Set to true if caller wants to defer releasing VM access (for the calling thread) at a later point (to be done explicitly by the caller). The method may set it back to false, if unable to obey the request.
 	 * @return the exclusive count of the current thread before relinquishing 
 	 */
-	uintptr_t relinquishExclusiveVMAccess(bool *deferredVMAccessRelease = NULL);
+	uintptr_t relinquishExclusiveVMAccess();
 
 	/**
 	 * Assume exclusive access from a collaborating thread i.e. main-to-master or master-to-main)
@@ -520,11 +519,6 @@ public:
 	 */
 	bool isInlineTLHAllocateEnabled() { return _delegate.isInlineTLHAllocateEnabled(); }
 #endif /* OMR_GC_THREAD_LOCAL_HEAP */
-
-	/* When a GC thread is created _workUnitIndex is initialized to 0, when a task is started _workUnitIndex is reset to 1.
-	 * _workUnitIndex can be used to check if a GC thread has done any work since it was created.
-	 */
-	MMINLINE bool isGCSlaveThreadActivated() { return _workUnitIndex != 0; }
 
 	MMINLINE uintptr_t getWorkUnitIndex() { return _workUnitIndex; }
 	MMINLINE uintptr_t getWorkUnitToHandle() { return _workUnitToHandle; }

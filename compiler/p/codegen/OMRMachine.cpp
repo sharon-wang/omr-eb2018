@@ -137,13 +137,10 @@ static bool boundNext(TR::Instruction *currentInstruction, int32_t realNum, TR::
    return true;
    }
 
-OMR::Power::Machine::Machine(TR::CodeGenerator *cg): OMR::Machine(cg, NUM_PPC_GPR, NUM_PPC_FPR),
-numLockedGPRs(-1),
-numLockedFPRs(-1),
-numLockedVRFs(-1)
+OMR::Power::Machine::Machine(TR::CodeGenerator *cg) :
+      OMR::Machine(cg)
    {
-   _registerFile = (TR::RealRegister **)cg->trMemory()->allocateMemory(sizeof(TR::RealRegister *)*TR::RealRegister::NumRegisters, heapAlloc);
-   self()->initialiseRegisterFile();
+   self()->initializeRegisterFile();
    memset( _registerAssociations, 0, sizeof(TR::Register*)*TR::RealRegister::NumRegisters );
    }
 
@@ -1318,7 +1315,7 @@ void OMR::Power::Machine::coerceRegisterAssignment(TR::Instruction              
    }
 
 
-void OMR::Power::Machine::initialiseRegisterFile()
+void OMR::Power::Machine::initializeRegisterFile()
    {
 
    _registerFile[TR::RealRegister::NoReg] = NULL;
