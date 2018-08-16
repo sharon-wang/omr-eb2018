@@ -30,7 +30,7 @@ namespace TR
       {
       public:
          MethodBuilder(TR::TypeDictionary *types)
-            : TestCompiler::MethodBuilder(types)
+            : TestCompiler::MethodBuilder(types, NULL)
             { }
 
          MethodBuilder(TR::TypeDictionary *types, TestCompiler::TestDriver *test)

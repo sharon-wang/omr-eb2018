@@ -92,10 +92,10 @@ OMR::BytecodeBuilderRecorder::AddSuccessorBuilders(uint32_t numExits, ...)
    }
 
 void
-OMR::BytecodeBuilderRecorder::propagateVMState(OMR::VirtualMachineState *fromVMState)
+OMR::BytecodeBuilderRecorder::propagateVMState(TR::VirtualMachineState *fromVMState)
    {
-   _initialVMState = (OMR::VirtualMachineState *) fromVMState->MakeCopy();
-   _vmState = (OMR::VirtualMachineState *) fromVMState->MakeCopy();
+   _initialVMState = (TR::VirtualMachineState *) fromVMState->MakeCopy();
+   _vmState = (TR::VirtualMachineState *) fromVMState->MakeCopy();
    }
 
 // transferVMState needs to be called before the actual transfer operation (Goto, IfCmp,

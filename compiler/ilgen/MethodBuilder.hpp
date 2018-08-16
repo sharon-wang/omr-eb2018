@@ -32,9 +32,6 @@ namespace TR
          MethodBuilder(TR::TypeDictionary *types, TR::JitBuilderRecorder *recorder=NULL, OMR::VirtualMachineState *vmState=NULL, bool isCompiling=true)
             : OMR::MethodBuilder(types, recorder, vmState, isCompiling)
             { }
-         MethodBuilder(TR::TypeDictionary *types)
-            : OMR::MethodBuilder(types)
-            { }
          MethodBuilder(TR::TypeDictionary *types, TR::VirtualMachineState *vmState)
             : OMR::MethodBuilder(types, vmState)
             { }

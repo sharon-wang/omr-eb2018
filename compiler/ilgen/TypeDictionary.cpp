@@ -599,7 +599,7 @@ TypeDictionary::TypeDictionary() :
 
    if (TR::Compiler->target.is64Bit())
       {
-      Word =  _primitiveType[TR::Int64]; 
+      Word =  _primitiveType[TR::Int64];
       pWord =  _pointerToPrimitiveType[TR::Int64];
       }
    else
@@ -686,7 +686,7 @@ TR::IlType *
 TypeDictionary::DefineUnion(const char *unionName)
    {
    TR_ASSERT_FATAL(_unionsByName.find(unionName) == _unionsByName.end(), "Union '%s' already exists", unionName);
-   
+
    UnionType *newType = new (PERSISTENT_NEW) UnionType(unionName, _trMemory);
    _unionsByName.insert(std::make_pair(unionName, newType));
 
