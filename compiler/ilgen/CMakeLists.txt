@@ -36,7 +36,6 @@ compiler_library(ilgen
 	${CMAKE_CURRENT_LIST_DIR}/JitBuilderRecorderTextFile.cpp
 	${CMAKE_CURRENT_LIST_DIR}/JitBuilderReplayTextFile.cpp
 	${CMAKE_CURRENT_LIST_DIR}/TypeDictionary.cpp
-	${CMAKE_CURRENT_LIST_DIR}/ThunkBuilder.cpp
 	${CMAKE_CURRENT_LIST_DIR}/VirtualMachineOperandStack.cpp
 	${CMAKE_CURRENT_LIST_DIR}/IlInjector.cpp
 	${CMAKE_CURRENT_LIST_DIR}/OMRBytecodeBuilder.cpp

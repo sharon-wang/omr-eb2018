@@ -31,6 +31,7 @@ class TR_Memory;
 
 
 namespace TR { class IlType; }
+namespace TR { class JitBuilderRecorder; }
 
 namespace OMR
 {
@@ -62,6 +63,9 @@ public:
    virtual bool isUnion() { return false; }
 
    virtual size_t getSize();
+
+   void RecordFirstTime(TR::JitBuilderRecorder *recorder);
+   virtual void Record(TR::JitBuilderRecorder *recorder);
 
 protected:
    const char *_name;
