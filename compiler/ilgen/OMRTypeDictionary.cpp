@@ -348,7 +348,7 @@ OMR::StructType::clearSymRefs()
    }
 
 void
-StructType::Record(TR::JitBuilderRecorder *recorder)
+OMR::StructType::Record(TR::JitBuilderRecorder *recorder)
    {
    recorder->BeginStatement(recorder->STATEMENT_DEFINESTRUCT);
    recorder->Type(self());
@@ -456,7 +456,7 @@ OMR::UnionType::clearSymRefs()
    }
 
 void
-UnionType::Record(TR::JitBuilderRecorder *recorder)
+OMR::UnionType::Record(TR::JitBuilderRecorder *recorder)
    {
    recorder->BeginStatement(recorder->STATEMENT_DEFINEUNION);
    recorder->Type(self());

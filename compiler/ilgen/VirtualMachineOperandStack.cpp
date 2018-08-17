@@ -32,7 +32,7 @@ namespace OMR
 {
 
    VirtualMachineOperandStack::VirtualMachineOperandStack(TR::MethodBuilder *mb, int32_t sizeHint,
-   TR::IlType *elementType, OMR::VirtualMachineRegister *stackTopRegister, bool growsUp, int32_t stackInitialOffset)
+   TR::IlType *elementType, TR::VirtualMachineRegister *stackTopRegister, bool growsUp, int32_t stackInitialOffset)
    : VirtualMachineState(),
    _mb(mb),
    _stackTopRegister(stackTopRegister),
@@ -51,7 +51,7 @@ namespace OMR
    mb->Store("OperandStack_base", stackTopRegister->Load(mb));
    }
 
-VirtualMachineOperandStack::VirtualMachineOperandStack(OMR::VirtualMachineOperandStack *other)
+VirtualMachineOperandStack::VirtualMachineOperandStack(TR::VirtualMachineOperandStack *other)
    : VirtualMachineState(),
    _mb(other->_mb),
    _stackTopRegister(other->_stackTopRegister),
@@ -115,7 +115,7 @@ VirtualMachineOperandStack::Reload(TR::IlBuilder* b)
    }
 
 void
-VirtualMachineOperandStack::MergeInto(OMR::VirtualMachineOperandStack* other, TR::IlBuilder* b)
+VirtualMachineOperandStack::MergeInto(TR::VirtualMachineOperandStack* other, TR::IlBuilder* b)
    {
    TR_ASSERT(_stackTop == other->_stackTop, "stacks are not same size");
    for (int32_t i=_stackTop;i >= 0;i--)
@@ -144,11 +144,11 @@ VirtualMachineOperandStack::UpdateStack(TR::IlBuilder *b, TR::IlValue *stack)
 
 // Allocate a new operand stack and copy everything in this state
 // If VirtualMachineOperandStack is subclassed, this function *must* also be implemented in the subclass!
-VirtualMachineState *
+TR::VirtualMachineState *
 VirtualMachineOperandStack::MakeCopy()
    {
    VirtualMachineOperandStack *copy = (VirtualMachineOperandStack *) TR::comp()->trMemory()->allocateHeapMemory(sizeof(VirtualMachineOperandStack));
-   new (copy) VirtualMachineOperandStack(this);
+   new (copy) VirtualMachineOperandStack(static_cast<TR::VirtualMachineOperandStack *>(this));
 
    return copy;
    }
@@ -157,7 +157,7 @@ void
 VirtualMachineOperandStack::Push(TR::IlBuilder *b, TR::IlValue *value)
    {
    checkSize();
-   _stack[++_stackTop] = value; 
+   _stack[++_stackTop] = value;
    }
 
 TR::IlValue *
@@ -170,7 +170,7 @@ VirtualMachineOperandStack::Top()
 TR::IlValue *
 VirtualMachineOperandStack::Pop(TR::IlBuilder *b)
    {
-   TR_ASSERT(_stackTop >= 0, "stack underflow"); 
+   TR_ASSERT(_stackTop >= 0, "stack underflow");
    return _stack[_stackTop--];
    }
 
@@ -185,7 +185,7 @@ void
 VirtualMachineOperandStack::Drop(TR::IlBuilder *b, int32_t depth)
    {
    TR_ASSERT(_stackTop >= depth-1, "stack underflow");
-   _stackTop-=depth; 
+   _stackTop-=depth;
    }
 
 void
@@ -197,7 +197,7 @@ VirtualMachineOperandStack::Dup(TR::IlBuilder *b)
    }
 
 void
-VirtualMachineOperandStack::copyTo(VirtualMachineOperandStack *copy)
+VirtualMachineOperandStack::copyTo(TR::VirtualMachineOperandStack *copy)
    {
    }
 

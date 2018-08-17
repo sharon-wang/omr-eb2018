@@ -136,9 +136,6 @@ OMR::MethodBuilder::MethodBuilder(TR::TypeDictionary *types, TR::JitBuilderRecor
    // have to do it explicitly in the MethodBuilder destructor. And since C++ destroys the other members *after* executing the user defined
    // destructor, we need to make sure that any members (and their contents) that are allocated in _memoryRegion are explicitly destroyed
    // and deallocated *before* _memoryRegion in the MethodBuilder destructor.
-   _segmentProvider(new(TR::Compiler->persistentAllocator()) TR::SystemSegmentProvider(MEM_SEGMENT_SIZE, TR::Compiler->rawAllocator)),
-   _memoryRegion(new(TR::Compiler->persistentAllocator()) TR::Region(*_segmentProvider, TR::Compiler->rawAllocator)),
-   _trMemory(new(TR::Compiler->persistentAllocator()) TR_Memory(*::trPersistentMemory, *_memoryRegion)),
    _methodName("NoName"),
    _returnType(NoType),
    _numParameters(0),

@@ -52,6 +52,7 @@ public:
 
    const char *getName() { return _name; }
    virtual char *getSignatureName();
+   const TR::IlType * self();
 
    virtual TR::DataType getPrimitiveType() { return TR::NoType; }
 

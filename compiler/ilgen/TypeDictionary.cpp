@@ -559,11 +559,11 @@ TypeDictionary::TypeDictionary() :
    // have to do it explicitly in the TypeDictionary destructor. And since C++ destroys the other members *after* executing the user defined
    // destructor, we need to make sure that any members (and their contents) that are allocated in _memoryRegion are explicitly destroyed
    // and deallocated *before* _memoryRegion in the TypeDictionary destructor.
-   _segmentProvider( new(TR::Compiler->persistentAllocator()) TR::SystemSegmentProvider(1 << 16, TR::Compiler->rawAllocator) ),
-   _memoryRegion( new(TR::Compiler->persistentAllocator()) TR::Region(*_segmentProvider, TR::Compiler->rawAllocator) ),
-   _trMemory( new(TR::Compiler->persistentAllocator()) TR_Memory(*::trPersistentMemory, *_memoryRegion) ),
-   _structsByName(str_comparator, _trMemory->heapMemoryRegion()),
-   _unionsByName(str_comparator, _trMemory->heapMemoryRegion())
+   // memoryManager._segmentProvider( new(TR::Compiler->persistentAllocator()) TR::SystemSegmentProvider(1 << 16, TR::Compiler->rawAllocator) ),
+   // memoryManager._memoryRegion( new(TR::Compiler->persistentAllocator()) TR::Region(*memoryManager._segmentProvider, TR::Compiler->rawAllocator) ),
+   // memoryManager._trMemory( new(TR::Compiler->persistentAllocator()) TR_Memory(*::trPersistentMemory, *memoryManager._memoryRegion) ),
+   _structsByName(str_comparator, memoryManager._trMemory->heapMemoryRegion()),
+   _unionsByName(str_comparator, memoryManager._trMemory->heapMemoryRegion())
    {
    // primitive types
    NoType       = _primitiveType[TR::NoType]                = new (PERSISTENT_NEW) OMR::PrimitiveType("NoType", TR::NoType);
@@ -615,12 +615,12 @@ TypeDictionary::~TypeDictionary() throw()
    _structsByName.clear();
    _unionsByName.clear();
 
-   _trMemory->~TR_Memory();
-   ::operator delete(_trMemory, TR::Compiler->persistentAllocator());
-   _memoryRegion->~Region();
-   ::operator delete(_memoryRegion, TR::Compiler->persistentAllocator());
-   static_cast<TR::SystemSegmentProvider *>(_segmentProvider)->~SystemSegmentProvider();
-   ::operator delete(_segmentProvider, TR::Compiler->persistentAllocator());
+   memoryManager._trMemory->~TR_Memory();
+   ::operator delete(memoryManager._trMemory, TR::Compiler->persistentAllocator());
+   memoryManager._memoryRegion->~Region();
+   ::operator delete(memoryManager._memoryRegion, TR::Compiler->persistentAllocator());
+   static_cast<TR::SystemSegmentProvider *>(memoryManager._segmentProvider)->~SystemSegmentProvider();
+   ::operator delete(memoryManager._segmentProvider, TR::Compiler->persistentAllocator());
    }
 
 TR::IlType *
@@ -687,7 +687,7 @@ TypeDictionary::DefineUnion(const char *unionName)
    {
    TR_ASSERT_FATAL(_unionsByName.find(unionName) == _unionsByName.end(), "Union '%s' already exists", unionName);
 
-   UnionType *newType = new (PERSISTENT_NEW) UnionType(unionName, _trMemory);
+   UnionType *newType = new (PERSISTENT_NEW) UnionType(unionName, memoryManager._trMemory);
    _unionsByName.insert(std::make_pair(unionName, newType));
 
    return newType;
