@@ -29,7 +29,7 @@ namespace TR
    class MethodBuilder : public TestCompiler::MethodBuilder
       {
       public:
-         MethodBuilder(TR::TypeDictionary *types)
+         MethodBuilder(TR::TypeDictionary *types, TR::JitBuilderRecorder *recorder = NULL)
             : TestCompiler::MethodBuilder(types, NULL)
             { }
 
