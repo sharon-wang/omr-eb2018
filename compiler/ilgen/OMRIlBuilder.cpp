@@ -2066,6 +2066,67 @@ OMR::IlBuilder::Call(TR::MethodBuilder *calleeMB, int32_t numArgs, ...)
  * coming in a subsequent commit).
  */
 TR::IlValue *
+OMR::IlBuilder::Call(TR::MethodBuilder *calleeMB, int32_t numArgs, TR::IlValue **argValues)
+   {
+   TraceIL("IlBuilder[ %p ]::Call %s\n", this, calleeMB->getMethodName());
+
+   // set up callee's inline site index
+   calleeMB->setInlineSiteIndex(_methodBuilder->getNextInlineSiteIndex());
+
+   // set up callee's return builder for return control flows
+   TR::IlBuilder *returnBuilder = OrphanBuilder();
+   calleeMB->setReturnBuilder(returnBuilder);
+
+   // get calleeMB ready to be part of this compilation
+   // MUST be the OMR::IlBuilder implementation, not the OMR::MethodBuilder one
+   calleeMB->OMR::IlBuilder::setupForBuildIL();
+
+   // store arguments into parameter values
+   for (int32_t a=0;a < numArgs;a++)
+      {
+      calleeMB->Store(calleeMB->getSymbolName(a), argValues[a]);
+      }
+
+   // propagate vm state into the callee
+   if (vmState() != NULL)
+      calleeMB->setVMState(vmState());
+
+   // now flow control into the callee
+   AppendBuilder(calleeMB);
+
+   bool rc = calleeMB->buildIL();
+   TraceIL("callee's buildIL() returned %d\n", rc);
+   if (!rc)
+      return NULL;
+
+   // there shouldn't be any fall-through, but if there is it should go to the return block and we need to put it somewhere anyway
+   AppendBuilder(returnBuilder);
+
+   setVMState(returnBuilder->vmState());
+
+   // if no return value, then we're done
+   const char *returnSymbol = calleeMB->returnSymbol();
+   if (!returnSymbol)
+      return NULL;
+
+   // otherwise, return callee's return value
+   TR::IlValue *returnValue = returnBuilder->Load(returnSymbol);
+   TraceIL("IlBuilder[ %p ]::Call callee return value is %d loaded from %s\n", this, returnValue->getID(), returnSymbol);
+   return returnValue;
+}
+
+/*
+ * This service takes a MethodBuilder object as the target and will, for
+ * now, inline the code for that MethodBuilder into the current builder
+ * object. Really, this API does not promise to inline the provided
+ * MethodBuilder object, but this current implementation will inline.
+ * In future, as inlining support moves deeper into the OMR compiler,
+ * this service may or may not inline the provided MethodBuilder.
+ * This particular implementation does not handle VirtualMachineState
+ * propagation well, but does work for simpler examples (code sample
+ * coming in a subsequent commit).
+ */
+TR::IlValue *
 OMR::IlBuilder::Call(const char *functionName, int32_t numArgs, ...)
    {
    TraceIL("IlBuilder[ %p ]::Call %s\n", this, functionName);

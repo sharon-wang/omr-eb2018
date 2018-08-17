@@ -107,3 +107,9 @@ OMR::IlType::Record(TR::JitBuilderRecorder *recorder)
    {
    TR_ASSERT(0, "This type cannot be written\n");
    }
+
+const TR::IlType *
+OMR::IlType::self()
+   {
+   return static_cast<const TR::IlType *>(this);
+   }
