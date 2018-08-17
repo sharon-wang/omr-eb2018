@@ -32,6 +32,7 @@
 #include "infra/Assert.hpp"
 #include "infra/BitVector.hpp"
 #include "infra/STLUtils.hpp"
+#include "ilgen/JitBuilderRecorder.hpp"
 
 #include "ilgen/IlType.hpp"
 
@@ -92,4 +93,17 @@ OMR::IlType::getSize()
    {
    TR_ASSERT(0, "The input type does not have a defined size\n");
    return 0;
+   }
+
+void
+OMR::IlType::RecordFirstTime(TR::JitBuilderRecorder *recorder)
+   {
+   if (!recorder->EnsureAvailableID(self()))
+      Record(recorder);
+   }
+
+void
+OMR::IlType::Record(TR::JitBuilderRecorder *recorder)
+   {
+   TR_ASSERT(0, "This type cannot be written\n");
    }
