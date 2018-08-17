@@ -97,7 +97,7 @@ OMR::MethodBuilder::MemoryManager::~MemoryManager()
    }
 
 OMR::MethodBuilder::MethodBuilder(TR::TypeDictionary *types, TR::VirtualMachineState *vmState)
-   : TR::IlBuilder(asMethodBuilder(), types),
+   : TR::MethodBuilderRecorder(types),
    _methodName("NoName"),
    _returnType(NoType),
    _numParameters(0),
@@ -142,7 +142,7 @@ OMR::MethodBuilder::MethodBuilder(TR::TypeDictionary *types, TR::JitBuilderRecor
    _symbols(0),
    _parameterSlot(0),
    _symbolTypes(0),
-   _symbolNameFromSlot(0),
+   // _symbolNameFromSlot(0),
    _symbolIsArray(0),
    _memoryLocations(0),
    _functions(0),
@@ -161,7 +161,7 @@ OMR::MethodBuilder::MethodBuilder(TR::TypeDictionary *types, TR::JitBuilderRecor
 
 // used when inlining:
 OMR::MethodBuilder::MethodBuilder(TR::MethodBuilder *callerMB, TR::VirtualMachineState *vmState)
-   : TR::IlBuilder(asMethodBuilder(), callerMB->typeDictionary()),
+   : TR::MethodBuilderRecorder(callerMB->typeDictionary()),
    _methodName("NoName"),
    _returnType(NoType),
    _numParameters(0),
