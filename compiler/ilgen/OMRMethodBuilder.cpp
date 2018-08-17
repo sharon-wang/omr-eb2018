@@ -660,6 +660,7 @@ OMR::MethodBuilder::DefineMemory(const char *name, TR::IlType *dt, void *locatio
    _memoryLocations.insert(std::make_pair(name, location));
    }
 
+void
 OMR::MethodBuilder::DefineFunction(const char* const name,
                               const char* const fileName,
                               const char* const lineNumber,
