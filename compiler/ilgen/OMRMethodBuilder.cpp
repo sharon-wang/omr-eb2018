@@ -130,29 +130,31 @@ OMR::MethodBuilder::MethodBuilder(TR::TypeDictionary *types, TR::VirtualMachineS
 // TODO: Merge this constructor with above
 OMR::MethodBuilder::MethodBuilder(TR::TypeDictionary *types, TR::JitBuilderRecorder  *recorder, TR::VirtualMachineState *vmState, bool isCompiling)
    : TR::MethodBuilderRecorder(types, recorder, vmState),
-   // Note: _memoryRegion and the corresponding TR::SegmentProvider and TR::Memory instances are stored as pointers within MethodBuilder
-   // in order to avoid increasing the number of header files needed to compile against the JitBuilder library. Because we are storing
-   // them as pointers, we cannot rely on the default C++ destruction semantic to destruct and deallocate the memory region, but rather
-   // have to do it explicitly in the MethodBuilder destructor. And since C++ destroys the other members *after* executing the user defined
-   // destructor, we need to make sure that any members (and their contents) that are allocated in _memoryRegion are explicitly destroyed
-   // and deallocated *before* _memoryRegion in the MethodBuilder destructor.
    _methodName("NoName"),
    _returnType(NoType),
    _numParameters(0),
-   _symbols(0),
-   _parameterSlot(0),
-   _symbolTypes(0),
-   // _symbolNameFromSlot(0),
-   _symbolIsArray(0),
-   _memoryLocations(0),
-   _functions(0),
+   _symbols(str_comparator, trMemory()->heapMemoryRegion()),
+   _parameterSlot(str_comparator, trMemory()->heapMemoryRegion()),
+   _symbolTypes(str_comparator, trMemory()->heapMemoryRegion()),
+   _symbolNameFromSlot(std::less<int32_t>(), trMemory()->heapMemoryRegion()),
+   _symbolIsArray(str_comparator, trMemory()->heapMemoryRegion()),
+   _memoryLocations(str_comparator, trMemory()->heapMemoryRegion()),
+   _functions(str_comparator, trMemory()->heapMemoryRegion()),
    _cachedParameterTypes(0),
    _definingFile(""),
    _newSymbolsAreTemps(false),
-   _allBytecodeBuilders(NULL),
-   _numBlocksBeforeWorklist(0),
+   _nextValueID(0),
+   _useBytecodeBuilders(false),
    _countBlocksWorklist(0),
    _connectTreesWorklist(0),
+   _allBytecodeBuilders(0),
+   _vmState(vmState),
+   _bytecodeWorklist(NULL),
+   _bytecodeHasBeenInWorklist(NULL),
+   _inlineSiteIndex(-1),
+   _nextInlineSiteIndex(0),
+   _returnBuilder(NULL),
+   _returnSymbolName(NULL),
    _isCompiling(true)
    {
    _definingLine[0] = '\0';
