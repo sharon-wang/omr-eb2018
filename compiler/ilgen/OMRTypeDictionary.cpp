@@ -189,6 +189,7 @@ public:
    virtual size_t getSize() { return _size; }
 
    void clearSymRefs();
+   void Record(TR::JitBuilderRecorder *recorder);
 
 protected:
    FieldInfo * findField(const char *fieldName);

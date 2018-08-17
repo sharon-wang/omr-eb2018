@@ -107,7 +107,7 @@ OMR::BytecodeBuilderRecorder::propagateVMState(TR::VirtualMachineState *fromVMSt
 void
 OMR::BytecodeBuilderRecorder::transferVMState(TR::BytecodeBuilder **b)
    {
-   TR_ASSERT(_vmState != NULL, "asked to transfer a NULL vmState from builder %p [ bci %d ]", this, _bcIndex);
+   TR_ASSERT(_vmState != NULL, "asked to transfer a NULL vmState from builder %p [ bci %d ]", this, bcIndex());
    TR::BytecodeBuilder *bcb = *b;
    if (bcb->initialVMState())
       {
@@ -115,7 +115,7 @@ OMR::BytecodeBuilderRecorder::transferVMState(TR::BytecodeBuilder **b)
       // so we need to synchronize this builder's vm state with the target builder's vm state
       // for example, the local variables holding the elements on the operand stack may not match
       // create an intermediate builder object to do that work
-      TR::BytecodeBuilder *intermediateBuilder = _methodBuilder->OrphanBytecodeBuilder(bcb->_bcIndex, bcb->_name);
+      TR::BytecodeBuilder *intermediateBuilder = _methodBuilder->OrphanBytecodeBuilder(bcb->bcIndex(), bcb->name());
 
       _vmState->MergeInto(bcb->initialVMState(), intermediateBuilder);
 

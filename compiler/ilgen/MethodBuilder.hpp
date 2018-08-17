@@ -29,7 +29,7 @@ namespace TR
    class MethodBuilder : public OMR::MethodBuilder
       {
       public:
-         MethodBuilder(TR::TypeDictionary *types, TR::JitBuilderRecorder *recorder=NULL, OMR::VirtualMachineState *vmState=NULL, bool isCompiling=true)
+         MethodBuilder(TR::TypeDictionary *types, TR::JitBuilderRecorder *recorder=NULL, TR::VirtualMachineState *vmState=NULL, bool isCompiling=true)
             : OMR::MethodBuilder(types, recorder, vmState, isCompiling)
             { }
          MethodBuilder(TR::TypeDictionary *types, TR::VirtualMachineState *vmState)

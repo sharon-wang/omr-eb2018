@@ -53,7 +53,7 @@ class MethodBuilder : public TR::MethodBuilderRecorder
 
    MethodBuilder(TR::TypeDictionary *types, TR::VirtualMachineState *vmState);
    MethodBuilder(TR::MethodBuilder *callerMB, TR::VirtualMachineState *vmState = NULL);
-   MethodBuilder(TR::TypeDictionary *types, TR::JitBuilderRecorder *recorder=NULL, OMR::VirtualMachineState *vmState=NULL, bool isCompiling=true);
+   MethodBuilder(TR::TypeDictionary *types, TR::JitBuilderRecorder *recorder=NULL, TR::VirtualMachineState *vmState=NULL, bool isCompiling=true);
    virtual ~MethodBuilder();
 
    virtual void setupForBuildIL();

@@ -128,7 +128,7 @@ OMR::MethodBuilder::MethodBuilder(TR::TypeDictionary *types, TR::VirtualMachineS
    }
 
 // TODO: Merge this constructor with above
-OMR::MethodBuilder::MethodBuilder(TR::TypeDictionary *types, TR::JitBuilderRecorder  *recorder, OMR::VirtualMachineState *vmState, bool isCompiling)
+OMR::MethodBuilder::MethodBuilder(TR::TypeDictionary *types, TR::JitBuilderRecorder  *recorder, TR::VirtualMachineState *vmState, bool isCompiling)
    : TR::MethodBuilderRecorder(types, recorder, vmState),
    // Note: _memoryRegion and the corresponding TR::SegmentProvider and TR::Memory instances are stored as pointers within MethodBuilder
    // in order to avoid increasing the number of header files needed to compile against the JitBuilder library. Because we are storing

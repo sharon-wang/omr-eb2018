@@ -484,6 +484,8 @@ public:
 
    void defineSymbol(const char *name, TR::SymbolReference *v);
 
+   TR::MethodBuilder * methodBuilder() { return _methodBuilder;}
+
 protected:
 
    /**

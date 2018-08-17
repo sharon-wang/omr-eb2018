@@ -72,7 +72,7 @@ OMR::IlBuilderRecorder::IlBuilderRecorder(TR::MethodBuilder *methodBuilder, TR::
 
 OMR::IlBuilderRecorder::IlBuilderRecorder(TR::IlBuilder *source)
       : TR::IlInjector(source),
-      _methodBuilder(source->_methodBuilder)
+      _methodBuilder(source->methodBuilder())
    {
    }
 
@@ -2042,7 +2042,7 @@ OMR::IlBuilderRecorder::ForLoop(bool countsUp,
       if(countsUp)
          rec->Number(1); // True
       else
-         rec->Number(0); // False 
+         rec->Number(0); // False
       rec->String(indVar);
       rec->Builder(bLoop);
       rec->EnsureAvailableID(bBreak);
