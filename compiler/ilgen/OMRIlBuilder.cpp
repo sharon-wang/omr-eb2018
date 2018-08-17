@@ -816,9 +816,10 @@ OMR::IlBuilder::Load(const char *name)
         TR::SymbolReference *symRef = lookupSymbol(name);
         TR::Node *valueNode = TR::Node::createLoad(symRef);
         closeValue(returnValue, symRef->getSymbol()->getDataType(), valueNode);
+
+        TraceIL("IlBuilder[ %p ]::Load %s into %d from symref %d\n", this, name, returnValue->getID(), symRef->getReferenceNumber());
       }
 
-   TraceIL("IlBuilder[ %p ]::Load %s into %d from symref %d\n", this, name, returnValue->getID(), symRef->getReferenceNumber());
    return returnValue;
    }
 

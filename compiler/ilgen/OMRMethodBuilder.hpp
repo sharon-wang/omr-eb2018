@@ -88,7 +88,7 @@ class MethodBuilder : public TR::MethodBuilderRecorder
    const char *getDefiningLine()                             { return _definingLine; }
 
    const char *getMethodName()                               { return _methodName; }
-   void AllLocalsHaveBeenDefined()                           { _newSymbolsAreTemps = true; }
+   void AllLocalsHaveBeenDefined();
 
    TR::IlType *getReturnType()                               { return _returnType; }
    int32_t getNumParameters()                                { return _numParameters; }
@@ -115,7 +115,7 @@ class MethodBuilder : public TR::MethodBuilderRecorder
    // TODO: verify if above is correct or if below is correct
    // void AppendBuilder(TR::IlBuilder *b)    { this->OMR::IlBuilder::AppendBuilder(b); }
 
-   void DefineFile(const char *file)                         { _definingFile = file; }
+   void DefineFile(const char *file);
 
    void DefineLine(const char *line);
    void DefineLine(int line);
