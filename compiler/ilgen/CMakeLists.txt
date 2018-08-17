@@ -25,7 +25,6 @@ compiler_library(ilgen
 	${CMAKE_CURRENT_LIST_DIR}/IlValue.cpp
 	${CMAKE_CURRENT_LIST_DIR}/MethodBuilderRecorder.cpp
 	${CMAKE_CURRENT_LIST_DIR}/MethodBuilderReplay.cpp
-	${CMAKE_CURRENT_LIST_DIR}/BytecodeBuilder.cpp
 	${CMAKE_CURRENT_LIST_DIR}/BytecodeBuilderRecorder.cpp
 	${CMAKE_CURRENT_LIST_DIR}/JitBuilderRecorder.cpp
 	${CMAKE_CURRENT_LIST_DIR}/JitBuilderReplay.cpp
