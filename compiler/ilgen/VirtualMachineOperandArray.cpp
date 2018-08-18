@@ -32,7 +32,7 @@
 
 namespace OMR
 {
-VirtualMachineOperandArray::VirtualMachineOperandArray(TR::MethodBuilder *mb, int32_t numOfElements, TR::IlType *elementType, VirtualMachineRegister *arrayBaseRegister)
+VirtualMachineOperandArray::VirtualMachineOperandArray(TR::MethodBuilder *mb, int32_t numOfElements, TR::IlType *elementType, TR::VirtualMachineRegister *arrayBaseRegister)
    : VirtualMachineState(),
    _mb(mb),
    _numberOfElements(numOfElements),
@@ -48,7 +48,7 @@ VirtualMachineOperandArray::VirtualMachineOperandArray(TR::MethodBuilder *mb, in
    mb->Store("OperandArray_base", arrayBaseRegister->Load(mb));
    }
 
-VirtualMachineOperandArray::VirtualMachineOperandArray(OMR::VirtualMachineOperandArray *other)
+VirtualMachineOperandArray::VirtualMachineOperandArray(TR::VirtualMachineOperandArray *other)
    : VirtualMachineState(),
    _mb(other->_mb),
    _numberOfElements(other->_numberOfElements),
@@ -103,7 +103,7 @@ VirtualMachineOperandArray::Reload(TR::IlBuilder* b)
    }
 
 void
-VirtualMachineOperandArray::MergeInto(OMR::VirtualMachineState *o, TR::IlBuilder *b)
+VirtualMachineOperandArray::MergeInto(TR::VirtualMachineState *o, TR::IlBuilder *b)
    {
    VirtualMachineOperandArray *other = (VirtualMachineOperandArray *)o;
    TR_ASSERT(_numberOfElements == other->_numberOfElements, "array are not same size");

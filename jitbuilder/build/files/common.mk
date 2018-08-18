@@ -231,8 +231,6 @@ JIT_PRODUCT_BACKEND_SOURCES+=\
     $(JIT_OMR_DIRTY_DIR)/ilgen/IlBuilderRecorder.cpp \
     $(JIT_OMR_DIRTY_DIR)/ilgen/MethodBuilderRecorder.cpp \
 	 $(JIT_OMR_DIRTY_DIR)/ilgen/MethodBuilderReplay.cpp \
-    $(JIT_OMR_DIRTY_DIR)/ilgen/ThunkBuilder.cpp \
-    $(JIT_OMR_DIRTY_DIR)/ilgen/BytecodeBuilder.cpp \
     $(JIT_OMR_DIRTY_DIR)/ilgen/BytecodeBuilderRecorder.cpp \
     $(JIT_OMR_DIRTY_DIR)/ilgen/VirtualMachineOperandArray.cpp \
     $(JIT_OMR_DIRTY_DIR)/ilgen/VirtualMachineOperandStack.cpp \
