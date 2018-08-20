@@ -323,7 +323,7 @@ OMR::JitBuilderReplayTextFile::handleServiceIlBuilder(uint32_t mbID, char * toke
       else if(strcmp(serviceString, STATEMENT_MUL) == 0)
          {
          handleMul(ilmb, tokens);
-         }      
+         }
       else if(strcmp(serviceString, STATEMENT_DIV) == 0)
          {
          handleDiv(ilmb, tokens);
@@ -340,22 +340,22 @@ OMR::JitBuilderReplayTextFile::handleServiceIlBuilder(uint32_t mbID, char * toke
          {
          handleXor(ilmb, tokens);
          }
-      else if (strcmp(serviceString, STATEMENT_LESSTHAN) == 0) 
+      else if (strcmp(serviceString, STATEMENT_LESSTHAN) == 0)
          {
          handleLessThan(ilmb, tokens);
          }
-      else if (strcmp(serviceString, STATEMENT_GREATERTHAN) == 0) 
+      else if (strcmp(serviceString, STATEMENT_GREATERTHAN) == 0)
          {
          handleGreaterThan(ilmb, tokens);
          }
-      else if (strcmp(serviceString, STATEMENT_NOTEQUALTO) == 0) 
+      else if (strcmp(serviceString, STATEMENT_NOTEQUALTO) == 0)
          {
          handleNotEqualTo(ilmb, tokens);
          }
-      else if(strcmp(serviceString, STATEMENT_NEWILBUILDER) == 0) 
+      else if(strcmp(serviceString, STATEMENT_NEWILBUILDER) == 0)
          {
          handleNewIlBuilder(ilmb, tokens);
-         } 
+         }
       else if(strcmp(serviceString, STATEMENT_IFTHENELSE) == 0)
          {
          handleIfThenElse(ilmb, tokens);
@@ -494,8 +494,8 @@ OMR::JitBuilderReplayTextFile::handleDefineParameter(TR::MethodBuilder * mb, cha
 void
 OMR::JitBuilderReplayTextFile::handleDefineArrayParameter(TR::MethodBuilder * mb, char * tokens)
    {
-    // Def S13 "20 [DefineArrayParameter]" 
-    // B2 S13 T10 "6 [buffer]" 
+    // Def S13 "20 [DefineArrayParameter]"
+    // B2 S13 T10 "6 [buffer]"
 
     #ifdef DEBUG
     std::cout << "JitBuilderReplayTextFile: Calling handleDefineArrayParameter helper." << '\n';
@@ -519,7 +519,7 @@ void OMR::JitBuilderReplayTextFile::handlePrimitiveType(TR::IlBuilder * mb, char
     // Key: 7, Value: IlValue(3)
     #ifdef DEBUG
     std::cout << "JitBuilderReplayTextFile: Calling handlePrimitiveType helper." << '\n';
-    #endif   
+    #endif
 
     uint32_t ID = getNumberFromToken(tokens);
     tokens = std::strtok(NULL, SPACE);
@@ -536,8 +536,8 @@ OMR::JitBuilderReplayTextFile::handleDefineReturnType(TR::MethodBuilder * mb, ch
    {
      #ifdef DEBUG
      std::cout << "JitBuilderReplayTextFile: Calling handleDefineReturnType helper." << '\n';
-     #endif        
-     
+     #endif
+
      uint32_t ID = getNumberFromToken(tokens);
 
      TR::IlType * returnTypeParam = static_cast<TR::IlType *>(lookupPointer(ID));
@@ -553,7 +553,7 @@ OMR::JitBuilderReplayTextFile::handleDefineFunction(TR::MethodBuilder * mb, char
 
    #ifdef DEBUG
    std::cout << "JitBuilderReplayTextFile: Calling handleDefineFunction helper." << '\n';
-   #endif        
+   #endif
 
    uint32_t strLen = getNumberFromToken(tokens);
    tokens = std::strtok(NULL, SPACE);
@@ -602,7 +602,7 @@ OMR::JitBuilderReplayTextFile::handleDefineLocal(TR::MethodBuilder *mb, char *to
    {
    #ifdef DEBUG
    std::cout << "JitBuilderReplayTextFile: Calling handleDefineLocal helper - mb." << '\n';
-   #endif  
+   #endif
 
    uint32_t typeID = getNumberFromToken(tokens);
    TR::IlType *type = static_cast<TR::IlType *>(lookupPointer(typeID));
@@ -620,7 +620,7 @@ OMR::JitBuilderReplayTextFile::handleDefineLocal(TR::IlBuilder *ilmb, char *toke
    {
    #ifdef DEBUG
    std::cout << "JitBuilderReplayTextFile: Calling handleDefineLocal helper - ilmb." << '\n';
-   #endif  
+   #endif
 
    TR::MethodBuilder *mb = static_cast<TR::MethodBuilder *>(ilmb);
    handleDefineLocal(mb, tokens);
@@ -631,7 +631,7 @@ OMR::JitBuilderReplayTextFile::handleAllLocalsHaveBeenDefined(TR::MethodBuilder 
    {
      #ifdef DEBUG
      std::cout << "JitBuilderReplayTextFile: Calling handleAllLocalsHaveBeenDefined helper." << '\n';
-     #endif  
+     #endif
 
      mb->AllLocalsHaveBeenDefined();
    }
@@ -641,7 +641,7 @@ OMR::JitBuilderReplayTextFile::handleConstInt8(TR::IlBuilder * ilmb, char * toke
    {
      #ifdef DEBUG
      std::cout << "JitBuilderReplayTextFile: Calling handleConstInt8 helper." << '\n';
-     #endif  
+     #endif
 
      uint32_t ID = getNumberFromToken(tokens);
      tokens = std::strtok(NULL, SPACE);
@@ -656,7 +656,7 @@ OMR::JitBuilderReplayTextFile::handleConstInt32(TR::IlBuilder * ilmb, char * tok
    {
    #ifdef DEBUG
    std::cout << "JitBuilderReplayTextFile: Calling handleConstInt32 helper." << '\n';
-   #endif  
+   #endif
 
    uint32_t ID = getNumberFromToken(tokens);
    tokens = std::strtok(NULL, SPACE);
@@ -671,7 +671,7 @@ OMR::JitBuilderReplayTextFile::handleConstInt64(TR::IlBuilder * ilmb, char * tok
    {
    #ifdef DEBUG
    std::cout << "JitBuilderReplayTextFile: Calling handleConstInt64 helper." << '\n';
-   #endif  
+   #endif
 
    uint32_t ID = getNumberFromToken(tokens);
    tokens = std::strtok(NULL, SPACE);
@@ -686,7 +686,7 @@ OMR::JitBuilderReplayTextFile::handleConstDouble(TR::IlBuilder * ilmb, char * to
    {
    #ifdef DEBUG
    std::cout << "JitBuilderReplayTextFile: Calling handleConstDouble helper." << '\n';
-   #endif  
+   #endif
 
    uint32_t ID = getNumberFromToken(tokens);
    tokens = std::strtok(NULL, SPACE);
@@ -699,12 +699,12 @@ OMR::JitBuilderReplayTextFile::handleConstDouble(TR::IlBuilder * ilmb, char * to
 void
 OMR::JitBuilderReplayTextFile::handleConstAddress(TR::IlBuilder * ilmb, char * tokens)
    {
-   // Def S20 "12 [ConstAddress]" 
-   // B2 S20 V18 {0x7ffeeb656d30} 
+   // Def S20 "12 [ConstAddress]"
+   // B2 S20 V18 {0x7ffeeb656d30}
 
    #ifdef DEBUG
    std::cout << "JitBuilderReplayTextFile: Calling handleConstAddress helper." << '\n';
-   #endif  
+   #endif
 
    uint32_t ID = getNumberFromToken(tokens);
    tokens = std::strtok(NULL, SPACE);
@@ -724,7 +724,7 @@ OMR::JitBuilderReplayTextFile::handleLoad(TR::IlBuilder * ilmb, char * tokens)
 
    #ifdef DEBUG
    std::cout << "JitBuilderReplayTextFile: Calling handleLoad helper." << '\n';
-   #endif  
+   #endif
 
    uint32_t ID = getNumberFromToken(tokens);
    tokens = std::strtok(NULL, SPACE);
@@ -740,8 +740,8 @@ OMR::JitBuilderReplayTextFile::handleLoad(TR::IlBuilder * ilmb, char * tokens)
 void
 OMR::JitBuilderReplayTextFile::handleLoadAt(TR::IlBuilder * ilmb, char * tokens)
    {
-   // Def S112 "6 [LoadAt]" 
-   // B104 S112 V111 T14 V110 
+   // Def S112 "6 [LoadAt]"
+   // B104 S112 V111 T14 V110
 
    #ifdef DEBUG
    std::cout << "JitBuilderReplayTextFile: Calling handleLoadAt helper." << '\n';
@@ -786,8 +786,8 @@ OMR::JitBuilderReplayTextFile::handleStore(TR::IlBuilder * ilmb, char * tokens)
 void
 OMR::JitBuilderReplayTextFile::handleStoreAt(TR::IlBuilder * ilmb, char * tokens)
   {
-  // Def S73 "7 [StoreAt]" 
-  // B52 S73 V60 V71 
+  // Def S73 "7 [StoreAt]"
+  // B52 S73 V60 V71
 
   #ifdef DEBUG
   std::cout << "JitBuilderReplayTextFile: Calling handleStoreAt helper." << '\n';
@@ -883,7 +883,7 @@ OMR::JitBuilderReplayTextFile::handleDiv(TR::IlBuilder * ilmb, char * tokens)
   #ifdef DEBUG
   std::cout << "JitBuilderReplayTextFile: Calling handleDiv helper." << '\n';
   #endif
-  
+
   uint32_t IDtoStore = getNumberFromToken(tokens);
   tokens = std::strtok(NULL, SPACE);
 
@@ -1010,11 +1010,11 @@ OMR::JitBuilderReplayTextFile::handleLessThan(TR::IlBuilder * ilmb, char * token
   StoreIDPointerPair(IDtoStore, lessThanResult);
 }
 
-void 
-OMR::JitBuilderReplayTextFile::handleCreateLocalArray(TR::IlBuilder * ilmb, char * tokens)  
+void
+OMR::JitBuilderReplayTextFile::handleCreateLocalArray(TR::IlBuilder * ilmb, char * tokens)
     {
-    // Def S22 "16 [CreateLocalArray]" 
-    // B2 S22 V21 8 T15 
+    // Def S22 "16 [CreateLocalArray]"
+    // B2 S22 V21 8 T15
 
     #ifdef DEBUG
     std::cout << "JitBuilderReplayTextFile: Calling handleCreateLocalArray helper." << '\n';
@@ -1086,7 +1086,7 @@ OMR::JitBuilderReplayTextFile::handleIfThenElse(TR::IlBuilder * ilmb, char * tok
   // B19 S18 "6 [result]" V24
   // B21 S15 V25 0
   // B21 S18 "6 [result]" V25
-  
+
   #ifdef DEBUG
   std::cout << "JitBuilderReplayTextFile: Calling handleIfThenElse helper." << '\n';
   #endif
@@ -1099,7 +1099,7 @@ OMR::JitBuilderReplayTextFile::handleIfThenElse(TR::IlBuilder * ilmb, char * tok
   uint32_t conditionID = getNumberFromToken(tokens);
 
   TR::IlBuilder * IfBlock   = static_cast<TR::IlBuilder *>(lookupPointer(IfID));
-  
+
   TR::IlValue * conditionValue = static_cast<TR::IlValue *>(lookupPointer(conditionID));
 
   if(ElseID == 0)
@@ -1107,7 +1107,7 @@ OMR::JitBuilderReplayTextFile::handleIfThenElse(TR::IlBuilder * ilmb, char * tok
   else {
     TR::IlBuilder * ElseBlock = static_cast<TR::IlBuilder *>(lookupPointer(ElseID));
     ilmb->IfThenElse(&IfBlock, &ElseBlock, conditionValue);
-  }   
+  }
   }
 
 void
@@ -1254,8 +1254,8 @@ OMR::JitBuilderReplayTextFile::handleConvertTo(TR::IlBuilder * ilmb, char * toke
 void
 OMR::JitBuilderReplayTextFile::handlePointerType(TR::IlBuilder * ilmb, char * tokens)
    {
-   // Def S12 "11 [PointerType]" 
-   // B2 S12 T10 T11 
+   // Def S12 "11 [PointerType]"
+   // B2 S12 T10 T11
 
    #ifdef DEBUG
    std::cout << "JitBuilderReplayTextFile: Calling handlePointerType helper." << '\n';
@@ -1321,8 +1321,8 @@ OMR::JitBuilderReplayTextFile::handleUnsignedShiftR(TR::IlBuilder * ilmb, char *
 void
 OMR::JitBuilderReplayTextFile::handleIfCmpEqualZero(TR::IlBuilder * ilmb, char * tokens)
    {
-   // Def S124 "14 [IfCmpEqualZero]" 
-   // B121 S124 B122 V123 
+   // Def S124 "14 [IfCmpEqualZero]"
+   // B121 S124 B122 V123
 
    #ifdef DEBUG
    std::cout << "JitBuilderReplayTextFile: Calling handleIfCmpEqualZero helper." << '\n';

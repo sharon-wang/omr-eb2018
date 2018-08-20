@@ -19,21 +19,36 @@
  * SPDX-License-Identifier: EPL-2.0 OR Apache-2.0 OR GPL-2.0 WITH Classpath-exception-2.0 OR LicenseRef-GPL-2.0 WITH Assembly-exception
  *******************************************************************************/
 
- #ifndef TR_METHODBUILDERREPLAY_INCL
- #define TR_METHODBUILDERREPLAY_INCL
+ #ifndef OMR_METHODBUILDERREPLAY_INCL
+ #define OMR_METHODBUILDERREPLAY_INCL
 
-#include "ilgen/OMRMethodBuilderReplay.hpp"
+ #include "ilgen/MethodBuilder.hpp"
 
-namespace TR
-{
-  class MethodBuilderReplay : public OMR::MethodBuilderReplay
-     {
-     public:
-        MethodBuilderReplay(TR::TypeDictionary *types, TR::JitBuilderReplay *replay=NULL,  TR::JitBuilderRecorder *recorder=NULL)
-           : OMR::MethodBuilderReplay(types, replay, recorder)
-           { }
-     };
+ // Maximum length of _definingLine string (including null terminator)
+ #define MAX_LINE_NUM_LEN 7
 
-} // namespace TR
+ class TR_BitVector;
+ namespace TR { class BytecodeBuilder; }
+ namespace OMR { class VirtualMachineState; }
 
- #endif // !defined(TR_METHODBUILDERREPLAY_INCL)
+ namespace OMR
+ {
+
+ class MethodBuilderReplay : public TR::MethodBuilder
+    {
+    public:
+
+    MethodBuilderReplay(TR::TypeDictionary *types, TR::JitBuilderReplay *replay, TR::JitBuilderRecorder *recorder);
+
+    void setReplay(TR::JitBuilderReplay *replay) { _replay = replay; }
+    virtual bool buildIL();
+
+    protected:
+
+    TR::JitBuilderReplay         * _replay;
+
+    };
+
+ } // namespace OMR
+
+ #endif // !defined(OMR_METHODBUILDERREPLAY_INCL)
