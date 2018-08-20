@@ -52,8 +52,8 @@ printInt32(int32_t value)
    fprintf(stderr, "%d", value);
    }
 
-RecursiveFibonacciMethod::RecursiveFibonacciMethod(TR::TypeDictionary *types)
-   : MethodBuilder(types)
+RecursiveFibonacciMethod::RecursiveFibonacciMethod(TR::TypeDictionary *types, TR::JitBuilderRecorder *recorder)
+   : MethodBuilder(types, recorder)
    {
    DefineLine(LINETOSTR(__LINE__));
    DefineFile(__FILE__);
@@ -139,9 +139,10 @@ main(int argc, char *argv[])
 
    printf("Step 2: define relevant types\n");
    TR::TypeDictionary types;
+   TR::JitBuilderRecorderTextFile recorder(NULL, "recFib.out");
 
    printf("Step 3: compile method builder\n");
-   RecursiveFibonacciMethod method(&types);
+   RecursiveFibonacciMethod method(&types, &recorder);
    uint8_t *entry=0;
    int32_t rc = recordMethodBuilder(&method);
    if (rc != 0)

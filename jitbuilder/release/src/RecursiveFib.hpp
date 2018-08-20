@@ -33,7 +33,7 @@ typedef int32_t (RecursiveFibFunctionType)(int32_t);
 class RecursiveFibonacciMethod : public TR::MethodBuilder
    {
    public:
-   RecursiveFibonacciMethod(TR::TypeDictionary *types);
+   RecursiveFibonacciMethod(TR::TypeDictionary *types, TR::JitBuilderRecorder *recorder);
    virtual bool buildIL();
    };
 
