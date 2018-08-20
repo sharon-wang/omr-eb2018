@@ -57,20 +57,7 @@ OMR::MethodBuilderRecorder::MethodBuilderRecorder(TR::TypeDictionary *types, TR:
    _bytecodeHasBeenInWorklist(NULL),
    _recorder(recorder)
    {
-   if (_recorder == NULL)
-      {
-      char *textFileName = TR::Options::getJITCmdLineOptions()->getJitBuilderRecordTextFile();
-      if (textFileName)
-         setRecorder(new (types->trMemory()->trHeapMemory()) TR::JitBuilderRecorderTextFile(asMethodBuilder(), textFileName));
-      else
-         {
-         char *binaryFileName = TR::Options::getJITCmdLineOptions()->getJitBuilderRecordBinaryFile();
-         if (binaryFileName)
-            setRecorder(new (types->trMemory()->trHeapMemory()) TR::JitBuilderRecorderBinaryFile(asMethodBuilder(), binaryFileName));
-         }
-      }
-   else
-      _recorder->setMethodBuilderRecorder(asMethodBuilder());
+   _recorder->setMethodBuilderRecorder(asMethodBuilder());
 
    TR::JitBuilderRecorder *rec = _recorder;
    if (rec)

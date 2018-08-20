@@ -27,14 +27,6 @@
 #include "ilgen/IlBuilder.hpp"
 #include "env/TypedAllocator.hpp"
 
-class TR_HashTabString;
-
-namespace TR { typedef TR::SymbolReference IlReference; }
-
-namespace TR { class SegmentProvider; }
-namespace TR { class Region; }
-namespace TR { class JitBuilderRecorder; }
-
 class TR_Memory;
 
 namespace OMR { class StructType; }
@@ -49,25 +41,25 @@ namespace OMR
 
 /**
  * @brief Convenience API for defining JitBuilder structs from C/C++ structs (PODs)
- *
+ * 
  * These macros simply allow the name of C/C++ structs and fields to be used to
  * define JitBuilder structs. This can help ensure a consistent API between a
  * VM struct and JitBuilder's representation of the same struct. Their definitions
  * expand to calls to `TR::TypeDictionary` methods that create a representation
  * corresponding to that specified type.
- *
+ * 
  * ## Usage
- *
+ * 
  * Given the following struct:
- *
+ * 
  * ```c++
  * struct MyStruct {
  *    int32_t id;
  *    int32_t* val;
  * };
- *
+ * 
  * a JitBuilder representation of this struct can be defined as follows:
- *
+ * 
  * ```c++
  * TR::TypeDictionary d;
  * d.DEFINE_STRUCT(MyStruct);
@@ -75,9 +67,9 @@ namespace OMR
  * d.DEFINE_FIELD(MyStruct, val, pInt32);
  * d.CLOSE_STRUCT(MyStruct);
  * ```
- *
+ * 
  * This definition will expand to the following:
- *
+ * 
  * ```c++
  * TR::TypeDictionary d;
  * d.DefineStruct("MyStruct");
@@ -110,7 +102,7 @@ public:
     * @brief Begin definition of a new structure type
     * @param structName the name of the new type
     * @return pointer to IlType instance of the new type being defined
-    *
+    * 
     * The name of the new type will have to be used when specifying
     * fields of the type. This method must be invoked once before any
     * calls to `DefineField()` and `CloseStruct()`.
@@ -123,14 +115,14 @@ public:
     * @param fieldName the name of the field
     * @param type the IlType instance representing the type of the field
     * @param offset the offset of the field within the structure (in bytes)
-    *
+    * 
     * Fields defined using this method must be defined in offset order.
     * Specifically, the `offset` on any call to this method must be greater
     * than or equal to the size of the new struct at the time of the call
     * (`getSize() <= offset`). Failure to meet this condition will result
     * in a runtime failure. This was done as an initial attempt to prevent
     * struct fields from overlapping in memory.
-    *
+    * 
     * This method can only be called after a call to `DefineStruct` and
     * before a call to `CloseStruct` with the same `structName`.
     */
@@ -141,13 +133,13 @@ public:
     * @param structName the name of the struct type on which to define the field
     * @param fieldName the name of the field
     * @param type the IlType instance representing the type of the field
-    *
+    * 
     * This is an overloaded method. Since no offset for the new struct field is
     * specified, it will be added to the end of the struct using alignment rules
     * internally defined by JitBuilder. These are not guaranteed match the rules
     * used by a C/C++ compiler as alignment rules are compiler specific. However,
     * the alignment should be the same in most cases.
-    *
+    * 
     * This method can only be called after a call to `DefineStruct` and
     * before a call to `CloseStruct` with the same `structName`.
     */
@@ -157,7 +149,7 @@ public:
     * @brief End definition of a new structure type
     * @param structName the name of the new type of which the definition is ended
     * @param finalSize the final size (in bytes) of the type
-    *
+    * 
     * The `finalSize` of the struct must be greater than or equal to the size of
     * the new struct at the time of the call (`getSize() <= finalSize`). If
     * `finalSize` is greater, the size of the struct will be adjusted. Failure to
@@ -170,7 +162,7 @@ public:
    /**
     * @brief End definition of a new structure type
     * @param structName the name of the new type of which the definition is ended
-    *
+    * 
     * This is an overloaded method. Since the final size of the struct is not
     * specified, the size of the new struct at the time of call to this method
     * will be the final size of the new struct type.
@@ -215,16 +207,16 @@ public:
     *
     * A type is considered supported iff JitBuilder directly provides, or can derive,
     * a type that corresponds, or that is equivalent, to the specified type.
-    *
+    * 
     * ## Usage
-    *
+    * 
     * `is_supported` can be used the same way as any type property check from
     * the C++11 type traits standard library. Eg:
-    *
+    * 
     * ```c++
     * static_assert(is_supported<int>::value, "int is not a supported type!");
     * ```
-    *
+    * 
     * ## Examples
     *
     * - `is_supported<int8_t>::value == true` because JitBuilder directly provides the corresponding type `Int8`
@@ -250,94 +242,94 @@ public:
     * @brief Given a C/C++ type, returns a corresponding TR::IlType, if available
     * @tparam C/C++ type
     * @return TR::IlType instance corresponding to the specified C/C++ type
-    *
+    * 
     * Given a C/C++ type, `toIlType<>` will attempt to match the type with a
     * corresponding TR::IlType instance that is usable with JitBuilder. If no
     * type is **known** to match the specified type (meaning the type is
     * unsupported), then the function call fails to compile.
-    *
+    * 
     * Currently, only the following types are supported:
-    *
+    * 
     * - all integral types (int, long, etc.)
     * - all floating point types (float, double)
     * - void
     * - pointers to all the above types
-    *
+    * 
     * Note that many user defined types (e.g. structs and arrays) are not
     * currently supported.
-    *
+    * 
     * For convenience, the template class `is_supported` can be used to determine
     * at compile time whether a particular type is supported.
-    *
+    * 
     * ## Usage
-    *
+    * 
     * Using this template function is as simple as:
-    *
+    * 
     * ```c++
     * auto d = TR::TypeDictionary{};
     * auto t = d.toIlType<int>();
     * ```
-    *
+    * 
     * If the type specified has no known corresponding TR::IlType, then the function
     * call simply fails to compile, reporting that there is "no matching function
     * call" (or some variation thereof).
-    *
+    * 
     * ## Design
-    *
+    * 
     * `toIlType<>()` is an overloaded template function. It uses SFINAE and the C++11
     * type traits library to enable a specific overload (function implementation)
     * that will return an instance of TR::IlType. Type traits are used to define
     * rules that a type must follow to match a given function implementation.
-    *
+    * 
     * For integer and floating point types, the type traits library is used to
     * identify the "family" of the specified type. For example, `std::is_integral<>`
     * is used to identify all the integer types. The `sizeof` operator is then used
     * to determine the size of the specified type. The combination of the type's
     * family and size is used to select the function that gets selected.
-    *
+    * 
     * For types that do not belong to a family (e.g. `void`), the size is not needed.
-    *
+    * 
     * For pointer types, `std::remove_pointer<>` is used to get the type being
     * pointed to. Iff `is_supported<>::value` evaluates to true for this type,
     * then `toIlType<>()` is recursively called on it.
-    *
+    * 
     * If `toIlType<>()` is called on a type that does not match any rule,
     * no implementation is instantiated and the call fails to compile.
-    *
+    * 
     * ### Rule definition
-    *
+    * 
     * The rules for enable a template overload (described above) are defined
     * using `std::enable_if<>`, where conditional enabling is achieved using
     * SFINAE. The field `std::enable_if<>::type` is used as the type of the
     * anonymous argument in `toIlType<>()`.
-    *
+    * 
     * All definitions take the following form:
-    *
+    * 
     * ```c++
     * template <typename T>
     * void toIlType(typename std::enable_if<THE CONDITION>::type* = 0) {...}
     * ```
-    *
+    * 
     * and have the same signature: `void(void*)`. Calls to `toIlType<>()`
     * **must** therefore specify a type parameter to avoid ambiguity.
-    *
+    * 
     * ### Design considerations
-    *
+    * 
     * Conceptually, `toIlType<>()` defines a mapping from C/C++ types to
     * `TR::IlType` instances.
-    *
+    * 
     * A more idiomatic implementation of `toIlType<>()` would have used a template
     * class (metafunction) instead of a template function. However, because instances
     * of `TR::IlType` are stored and returned as pointers, the "return" value of the
     * metafunction cannot be known at compile time. Therefore, a function returning
     * the correct instance must be used instead.
-    *
+    * 
     * For rule definitions, especially for integer types, although it may seem
     * feasible to simply specialize `toIlType<>()` for `int8_t`, `int16_t`, etc.
     * this approach does not take into consideration that multiple integer types
     * may have the same size (e.g. `int` and `long`). Using this approach would
     * cause `toIlType<>()` to only be implemented for one of those types.
-    *
+    * 
     * Another approach might be to attempt to specialize for all primitive types
     * (i.e. `int`, `float`, etc). However, in this approach, a specialization
     * would not only have to be provided for each type but also for all
@@ -346,7 +338,7 @@ public:
     * a size check would have to also be performed. This leads to the combinatorial
     * explosion of the number of template specializations that must be defined,
     * which is rather unmanageable.
-    *
+    * 
     * As a note, it's important that enabling rules be mutually exclusive so
     * that a type either enables a single template overload, or none at all.
     * Otherwise, calls to `toIlType<>()` can become ambiguous for some types.

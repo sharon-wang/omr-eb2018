@@ -158,7 +158,6 @@ OMR::MethodBuilder::MethodBuilder(TR::TypeDictionary *types, TR::JitBuilderRecor
    _isCompiling(true)
    {
    _definingLine[0] = '\0';
-   // initMaps(); // TODO: see todo in MethodBuilder.cpp
    }
 
 // used when inlining:
@@ -249,19 +248,6 @@ OMR::MethodBuilder::callerMethodBuilder()
       return NULL;
    return _returnBuilder->_methodBuilder;
    }
-
-// TODO: see todo in MethodBuilder.cpp
-// void
-// OMR::MethodBuilder::initMaps()
-//    {
-//    _symbols = new SymbolMap(str_comparator, *memoryManager._memoryRegion);
-//    _parameterSlot = new ParameterMap(str_comparator, *memoryManager._memoryRegion);
-//    _symbolTypes = new SymbolTypeMap(str_comparator, *memoryManager._memoryRegion);
-//    _symbolNameFromSlot = new SlotToSymNameMap(std::less<int32_t>(), *memoryManager._memoryRegion);
-//    _symbolIsArray = new ArrayIdentifierSet(str_comparator, *memoryManager._memoryRegion);
-//    _memoryLocations = new MemoryLocationMap(str_comparator, *memoryManager._memoryRegion);
-//    _functions = new FunctionMap(str_comparator, *memoryManager._memoryRegion);
-//    }
 
 void
 OMR::MethodBuilder::setupForBuildIL()

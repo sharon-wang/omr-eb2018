@@ -1478,9 +1478,6 @@ public:
    void            setLogFile(TR::FILE * f)  {_logFile = f;}
    char *          getLogFileName()      {return _logFileName;}
 
-   char *          getJitBuilderRecordBinaryFile() { return _jitbuilderRecordBinaryFile; }
-   char *          getJitBuilderRecordTextFile()   { return _jitbuilderRecordTextFile; }
-
    char *          getBlockShufflingSequence(){ return _blockShufflingSequence; }
 
    int32_t         getRandomSeed(){ return _randomSeed; }
@@ -2263,9 +2260,6 @@ protected:
    int32_t                     _customStrategySize; // In elements, including endOpts terminator
 
    TR::SimpleRegex *           _traceForCodeMining;
-
-   char                       *_jitbuilderRecordBinaryFile;
-   char                       *_jitbuilderRecordTextFile;
 
    // Optimization levels
    //

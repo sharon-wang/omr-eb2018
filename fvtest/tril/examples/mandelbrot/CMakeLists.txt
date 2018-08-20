@@ -19,20 +19,20 @@
 # SPDX-License-Identifier: EPL-2.0 OR Apache-2.0 OR GPL-2.0 WITH Classpath-exception-2.0 OR LicenseRef-GPL-2.0 WITH Assembly-exception
 ###############################################################################
 
-# cmake_minimum_required(VERSION 3.2 FATAL_ERROR)
-#
-# project(tril_mandelbrot LANGUAGES C CXX)
-#
-# set(CMAKE_CXX_STANDARD 11)
-# set(CMAKE_CXX_STANDARD_REQUIRED TRUE)
-# set(CMAKE_CXX_EXTENSIONS OFF)
-#
-# add_executable(mandelbrot
-# 	main.cpp
-# )
-#
-# target_link_libraries(mandelbrot
-# 	tril
-# )
-#
-# set_property(TARGET mandelbrot PROPERTY FOLDER fvtest/tril/examples)
+cmake_minimum_required(VERSION 3.2 FATAL_ERROR)
+
+project(tril_mandelbrot LANGUAGES C CXX)
+
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD_REQUIRED TRUE)
+set(CMAKE_CXX_EXTENSIONS OFF)
+
+add_executable(mandelbrot-tril
+	main.cpp
+)
+
+target_link_libraries(mandelbrot-tril
+	tril
+)
+
+set_property(TARGET mandelbrot-tril PROPERTY FOLDER fvtest/tril/examples)
