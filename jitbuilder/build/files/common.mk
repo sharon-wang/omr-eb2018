@@ -221,16 +221,16 @@ JIT_PRODUCT_BACKEND_SOURCES+=\
     $(JIT_OMR_DIRTY_DIR)/env/OMRIO.cpp \
     $(JIT_OMR_DIRTY_DIR)/env/OMRKnownObjectTable.cpp \
     $(JIT_OMR_DIRTY_DIR)/env/Globals.cpp \
-    $(JIT_OMR_DIRTY_DIR)/ilgen/JitBuilderRecorder.cpp \
-    $(JIT_OMR_DIRTY_DIR)/ilgen/JitBuilderRecorderBinaryBuffer.cpp \
-    $(JIT_OMR_DIRTY_DIR)/ilgen/JitBuilderRecorderBinaryFile.cpp \
-    $(JIT_OMR_DIRTY_DIR)/ilgen/JitBuilderRecorderTextFile.cpp \
+    $(JIT_OMR_DIRTY_DIR)/ilgen/OMRJitBuilderRecorder.cpp \
+    $(JIT_OMR_DIRTY_DIR)/ilgen/OMRJitBuilderRecorderBinaryBuffer.cpp \
+    $(JIT_OMR_DIRTY_DIR)/ilgen/OMRJitBuilderRecorderBinaryFile.cpp \
+    $(JIT_OMR_DIRTY_DIR)/ilgen/OMRJitBuilderRecorderTextFile.cpp \
 	 $(JIT_OMR_DIRTY_DIR)/ilgen/JitBuilderReplay.cpp \
 	 $(JIT_OMR_DIRTY_DIR)/ilgen/JitBuilderReplayTextFile.cpp \
     $(JIT_OMR_DIRTY_DIR)/ilgen/IlBuilderRecorder.cpp \
     $(JIT_OMR_DIRTY_DIR)/ilgen/MethodBuilderRecorder.cpp \
 	 $(JIT_OMR_DIRTY_DIR)/ilgen/MethodBuilderReplay.cpp \
-    $(JIT_OMR_DIRTY_DIR)/ilgen/BytecodeBuilderRecorder.cpp \
+    $(JIT_OMR_DIRTY_DIR)/ilgen/OMRBytecodeBuilderRecorder.cpp \
     $(JIT_OMR_DIRTY_DIR)/ilgen/IlInjector.cpp \
     $(JIT_OMR_DIRTY_DIR)/ilgen/OMRBytecodeBuilder.cpp \
     $(JIT_OMR_DIRTY_DIR)/ilgen/OMRIlBuilder.cpp \

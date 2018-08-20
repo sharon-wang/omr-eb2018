@@ -1008,6 +1008,8 @@ int32_t OMR::Compilation::compile()
    // Force a crash during compilation if the crashDuringCompile option is set
    TR_ASSERT_FATAL(!self()->getOption(TR_CrashDuringCompilation), "crashDuringCompile option is set");
 
+   {
+      
    LexicalTimer t("compile", self()->signature(), self()->phaseTimer());
    TR::LexicalMemProfiler mp("compile", self()->signature(), self()->phaseMemProfiler());
 
@@ -1182,6 +1184,8 @@ int32_t OMR::Compilation::compile()
    //
    if (self()->getOutFile() != NULL && self()->getOption(TR_TraceAll))
       trfflush(self()->getOutFile());
+
+   }
 
    if (self()->getOption(TR_Timing))
       {

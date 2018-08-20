@@ -22,7 +22,6 @@
 #include "ilgen/JitBuilderRecorderBinaryBuffer.hpp"
 #include "infra/Assert.hpp"
 
-
 OMR::JitBuilderRecorderBinaryBuffer::JitBuilderRecorderBinaryBuffer(const TR::MethodBuilderRecorder *mb)
    : TR::JitBuilderRecorder(mb), _buf()
    {

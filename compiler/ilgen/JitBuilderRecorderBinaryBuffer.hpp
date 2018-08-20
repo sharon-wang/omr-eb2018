@@ -16,60 +16,10 @@
  *    Multiple authors (IBM Corp.) - initial implementation and documentation
  ******************************************************************************/
 
+#ifndef TR_JITBUILDERRECORDER_BINARYBUFFER_INCL
+#define TR_JITBUILDERRECORDER_BINARYBUFFER_INCL
 
-#ifndef OMR_JITBUILDERRECORDER_BINARYBUFFER_INCL
-#define OMR_JITBUILDERRECORDER_BINARYBUFFER_INCL
-
-
-#ifndef TR_JITBUILDERRECORDER_BINARYBUFFER_DEFINED
-#define TR_JITBUILDERRECORDER_BINARYBUFFER_DEFINED
-#define PUT_OMR_JITBUILDERRECORDER_BINARYBUFFER_INTO_TR
-#endif
-
-
-#include "ilgen/JitBuilderRecorder.hpp"
-#include <vector>
-
-namespace TR { class IlBuilderRecorder; }
-namespace TR { class MethodBuilderRecorder; }
-namespace TR { class IlType; }
-namespace TR { class IlValue; }
-
-namespace OMR
-{
-
-class JitBuilderRecorderBinaryBuffer : public TR::JitBuilderRecorder
-   {
-   public:
-   JitBuilderRecorderBinaryBuffer(const TR::MethodBuilderRecorder *mb);
-   virtual ~JitBuilderRecorderBinaryBuffer() { }
-
-   virtual void Close();
-   virtual void String(const char * const string);
-   virtual void Number(int8_t num);
-   virtual void Number(int16_t num);
-   virtual void Number(int32_t num);
-   virtual void Number(int64_t num);
-   virtual void Number(float num);
-   virtual void Number(double num);
-   virtual void ID(TypeID id);
-   virtual void Statement(const char *s);
-   virtual void Type(const TR::IlType *type);
-   virtual void Value(const TR::IlValue *v);
-   virtual void Builder(const TR::IlBuilderRecorder *b);
-   virtual void Location(const void * location);
-   virtual void EndStatement();
-
-   std::vector<uint8_t> & buffer() { return _buf; }
-
-   protected:
-   std::vector<uint8_t> _buf;
-   };
-
-} // namespace OMR
-
-
-#if defined(PUT_OMR_JITBUILDERRECORDER_BINARYBUFFER_INTO_TR)
+#include "ilgen/OMRJitBuilderRecorderBinaryBuffer.hpp"
 
 namespace TR
 {
@@ -85,6 +35,4 @@ namespace TR
 
 } // namespace TR
 
-#endif // defined(PUT_OMR_JITBUILDERRECORDER_BINARYBUFFER_INTO_TR)
-
-#endif // !defined(OMR_JITBUILDERRECORDER_BINARYBUFFER_INCL)
+#endif // !defined(TR_JITBUILDERRECORDER_BINARYBUFFER_INCL)
