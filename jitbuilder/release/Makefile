@@ -1,19 +1,19 @@
 ###############################################################################
 # Copyright (c) 2000, 2018 IBM Corp. and others
-#  
+#
 # This program and the accompanying materials are made available under
 # the terms of the Eclipse Public License 2.0 which accompanies this
 # distribution and is available at https://www.eclipse.org/legal/epl-2.0/
 # or the Apache License, Version 2.0 which accompanies this distribution and
 # is available at https://www.apache.org/licenses/LICENSE-2.0.
-#       
+#
 # This Source Code may also be made available under the following
 # Secondary Licenses when the conditions for such availability set
 # forth in the Eclipse Public License, v. 2.0 are satisfied: GNU
 # General Public License, version 2 with the GNU Classpath
 # Exception [1] and GNU General Public License, version 2 with the
 # OpenJDK Assembly Exception [2].
-#     
+#
 # [1] https://www.gnu.org/software/classpath/license.html
 # [2] http://openjdk.java.net/legal/assembly-exception.html
 #
@@ -41,6 +41,7 @@ ALL_TESTS = \
             iterfib \
             linkedlist \
             localarray \
+						mandelbrot \
             nestedloop \
             operandarraytests \
             operandstacktests \
@@ -147,14 +148,14 @@ Call.o: src/Call.cpp src/Call.hpp
 	$(CXX) -o $@ $(CXXFLAGS) $<
 
 
-conditionals : libjitbuilder.a Conditionals.o	
+conditionals : libjitbuilder.a Conditionals.o
 	$(CXX) -g -fno-rtti -o $@ Conditionals.o $(JITBUILDER_LINK_FLAGS)
 
 Conditionals.o: src/Conditionals.cpp src/Conditionals.hpp
 	$(CXX) -o $@ $(CXXFLAGS) $<
 
 
-conststring : libjitbuilder.a ConstString.o	
+conststring : libjitbuilder.a ConstString.o
 	$(CXX) -g -fno-rtti -o $@ ConstString.o $(JITBUILDER_LINK_FLAGS)
 
 ConstString.o: src/ConstString.cpp src/ConstString.hpp
