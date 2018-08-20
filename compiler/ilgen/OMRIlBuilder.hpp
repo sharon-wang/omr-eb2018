@@ -121,6 +121,7 @@ public:
 
    IlBuilder(TR::MethodBuilder *methodBuilder, TR::TypeDictionary *types)
       : TR::IlBuilderRecorder(methodBuilder, types),
+      _methodBuilder(methodBuilder),
       _sequence(0),
       _sequenceAppender(0),
       _entryBlock(0),

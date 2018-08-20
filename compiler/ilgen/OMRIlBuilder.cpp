@@ -87,6 +87,7 @@
 
 OMR::IlBuilder::IlBuilder(TR::IlBuilder *source)
    : TR::IlBuilderRecorder(source),
+   _methodBuilder(source->_methodBuilder),
    _sequence(0),
    _sequenceAppender(0),
    _entryBlock(0),
