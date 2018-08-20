@@ -888,18 +888,6 @@ OMR::IlBuilderRecorder::IfCmpEqualZero(TR::IlBuilder *target, TR::IlValue *condi
       }
    }
 
-
-// TR::IlValue *
-// OMR::IlBuilderRecorder::LessThan(TR::IlValue *left, TR::IlValue *right)
-//             {
-//             TR::IlValue *returnValue = newValue();
-//             TR::JitBuilderRecorder *rec = recorder();
-//             if (rec)
-//                binaryOp(returnValue, left, right, rec->STATEMENT_LESSTHAN);
-//             return returnValue;
-//             }
-
-
 #if 0
 /*
  * blockThrowsException:
@@ -1061,51 +1049,6 @@ OMR::IlBuilderRecorder::MulWithOverflow(TR::IlBuilder **handler, TR::IlValue *le
    }
 
 TR::IlValue *
-OMR::IlBuilderRecorder::Mul(TR::IlValue *left, TR::IlValue *right)
-   {
-   TR::IlValue *returnValue=binaryOpFromOpMap(TR::ILOpCode::multiplyOpCode, left, right);
-   TraceIL("IlBuilder[ %p ]::%d is Mul %d * %d\n", this, returnValue->getID(), left->getID(), right->getID());
-   ILB_REPLAY("%s = %s->Mul(%s, %s);", REPLAY_VALUE(returnValue), REPLAY_BUILDER(this), REPLAY_VALUE(left), REPLAY_VALUE(right));
-   return returnValue;
-   }
-
-TR::IlValue *
-OMR::IlBuilderRecorder::Div(TR::IlValue *left, TR::IlValue *right)
-   {
-   TR::IlValue *returnValue=binaryOpFromOpMap(TR::ILOpCode::divideOpCode, left, right);
-   TraceIL("IlBuilder[ %p ]::%d is Div %d / %d\n", this, returnValue->getID(), left->getID(), right->getID());
-   ILB_REPLAY("%s = %s->Div(%s, %s);", REPLAY_VALUE(returnValue), REPLAY_BUILDER(this), REPLAY_VALUE(left), REPLAY_VALUE(right));
-   return returnValue;
-   }
-
-TR::IlValue *
-OMR::IlBuilderRecorder::And(TR::IlValue *left, TR::IlValue *right)
-   {
-   TR::IlValue *returnValue=binaryOpFromOpMap(TR::ILOpCode::andOpCode, left, right);
-   TraceIL("IlBuilder[ %p ]::%d is And %d & %d\n", this, returnValue->getID(), left->getID(), right->getID());
-   ILB_REPLAY("%s = %s->And(%s, %s);", REPLAY_VALUE(returnValue), REPLAY_BUILDER(this), REPLAY_VALUE(left), REPLAY_VALUE(right));
-   return returnValue;
-   }
-
-TR::IlValue *
-OMR::IlBuilderRecorder::Or(TR::IlValue *left, TR::IlValue *right)
-   {
-   TR::IlValue *returnValue=binaryOpFromOpMap(TR::ILOpCode::orOpCode, left, right);
-   TraceIL("IlBuilder[ %p ]::%d is Or %d | %d\n", this, returnValue->getID(), left->getID(), right->getID());
-   ILB_REPLAY("%s = %s->Or(%s, %s);", REPLAY_VALUE(returnValue), REPLAY_BUILDER(this), REPLAY_VALUE(left), REPLAY_VALUE(right));
-   return returnValue;
-   }
-
-TR::IlValue *
-OMR::IlBuilderRecorder::Xor(TR::IlValue *left, TR::IlValue *right)
-   {
-   TR::IlValue *returnValue=binaryOpFromOpMap(TR::ILOpCode::xorOpCode, left, right);
-   TraceIL("IlBuilder[ %p ]::%d is Xor %d ^ %d\n", this, returnValue->getID(), left->getID(), right->getID());
-   ILB_REPLAY("%s = %s->Xor(%s, %s);", REPLAY_VALUE(returnValue), REPLAY_BUILDER(this), REPLAY_VALUE(left), REPLAY_VALUE(right));
-   return returnValue;
-   }
-
-TR::IlValue *
 OMR::IlBuilderRecorder::ShiftL(TR::IlValue *v, TR::IlValue *amount)
    {
    TR::IlValue *returnValue=binaryOpFromOpMap(TR::ILOpCode::shiftLeftOpCode, v, amount);
@@ -1120,15 +1063,6 @@ OMR::IlBuilderRecorder::ShiftR(TR::IlValue *v, TR::IlValue *amount)
    TR::IlValue *returnValue=binaryOpFromOpMap(TR::ILOpCode::shiftRightOpCode, v, amount);
    TraceIL("IlBuilder[ %p ]::%d is shr %d >> %d\n", this, returnValue->getID(), v->getID(), amount->getID());
    ILB_REPLAY("%s = %s->ShiftR(%s, %s);", REPLAY_VALUE(returnValue), REPLAY_BUILDER(this), REPLAY_VALUE(v), REPLAY_VALUE(amount));
-   return returnValue;
-   }
-
-TR::IlValue *
-OMR::IlBuilderRecorder::UnsignedShiftR(TR::IlValue *v, TR::IlValue *amount)
-   {
-   TR::IlValue *returnValue=binaryOpFromOpMap(TR::ILOpCode::unsignedShiftRightOpCode, v, amount);
-   TraceIL("IlBuilder[ %p ]::%d is unsigned shr %d >> %d\n", this, returnValue->getID(), v->getID(), amount->getID());
-   ILB_REPLAY("%s = %s->UnsignedShiftR(%s, %s);", REPLAY_VALUE(returnValue), REPLAY_BUILDER(this), REPLAY_VALUE(v), REPLAY_VALUE(amount));
    return returnValue;
    }
 
@@ -1290,16 +1224,6 @@ OMR::IlBuilderRecorder::UnsignedLessOrEqualTo(TR::IlValue *left, TR::IlValue *ri
    TR::IlValue *returnValue=compareOp(TR_cmpLE, true, left, right);
    TraceIL("IlBuilder[ %p ]::%d is UnsignedLessOrEqualTo %d <= %d?\n", this, returnValue->getID(), left->getID(), right->getID());
    ILB_REPLAY("%s = %s->UnsignedLessOrEqualTo(%s, %s);", REPLAY_VALUE(returnValue), REPLAY_BUILDER(this), REPLAY_VALUE(left), REPLAY_VALUE(right));
-   return returnValue;
-   }
-
-TR::IlValue *
-OMR::IlBuilderRecorder::GreaterThan(TR::IlValue *left, TR::IlValue *right)
-   {
-   integerizeAddresses(&left, &right);
-   TR::IlValue *returnValue=compareOp(TR_cmpGT, false, left, right);
-   TraceIL("IlBuilder[ %p ]::%d is GreaterThan %d > %d?\n", this, returnValue->getID(), left->getID(), right->getID());
-   ILB_REPLAY("%s = %s->GreaterThan(%s, %s);", REPLAY_VALUE(returnValue), REPLAY_BUILDER(this), REPLAY_VALUE(left), REPLAY_VALUE(right));
    return returnValue;
    }
 
@@ -1691,15 +1615,6 @@ OMR::IlBuilderRecorder::IfCmpEqualZero(TR::IlBuilder **target, TR::IlValue *cond
    {
    *target = createBuilderIfNeeded(*target);
    IfCmpEqualZero(*target, condition);
-   }
-
-void
-OMR::IlBuilderRecorder::IfCmpEqualZero(TR::IlBuilder *target, TR::IlValue *condition)
-   {
-   TR_ASSERT(target != NULL, "This IfCmpEqualZero requires a non-NULL builder object");
-   ILB_REPLAY("%s->IfCmpEqualZero(%s, %s, %s);", REPLAY_BUILDER(this), REPLAY_BUILDER(target), REPLAY_VALUE(condition));
-   TraceIL("IlBuilder[ %p ]::IfCmpEqualZero %d == 0? -> [ %p ] B%d\n", this, condition->getID(), target, target->getEntry()->getNumber());
-   ifCmpEqualZero(condition, target->getEntry());
    }
 
 void

@@ -22,7 +22,6 @@
 #ifndef OMR_BYTECODEBUILDER_INCL
 #define OMR_BYTECODEBUILDER_INCL
 
-#include "ilgen/IlBuilder.hpp"
 #include "ilgen/BytecodeBuilderRecorder.hpp"
 
 namespace TR { class BytecodeBuilder; }
@@ -71,38 +70,6 @@ public:
    void setVMState(TR::VirtualMachineState *vmState)        { _vmState = vmState; }
 
    void propagateVMState(TR::VirtualMachineState *fromVMState);
-
-   // The following control flow services are meant to hide the similarly named services
-   // provided by the IlBuilder class. The reason these implementations exist is to
-   // automatically manage the propagation of virtual machine states between bytecode
-   // builders. By using these services, and AddFallthroughBuilder(), users do not have
-   // to do anything to propagate VM states; it's all just taken care of under the covers.
-   void Goto(TR::BytecodeBuilder **dest);
-   void Goto(TR::BytecodeBuilder *dest);
-   void IfCmpEqual(TR::BytecodeBuilder **dest, TR::IlValue *v1, TR::IlValue *v2);
-   void IfCmpEqual(TR::BytecodeBuilder *dest, TR::IlValue *v1, TR::IlValue *v2);
-   void IfCmpEqualZero(TR::BytecodeBuilder **dest, TR::IlValue *c);
-   void IfCmpEqualZero(TR::BytecodeBuilder *dest, TR::IlValue *c);
-   void IfCmpNotEqual(TR::BytecodeBuilder **dest, TR::IlValue *v1, TR::IlValue *v2);
-   void IfCmpNotEqual(TR::BytecodeBuilder *dest, TR::IlValue *v1, TR::IlValue *v2);
-   void IfCmpNotEqualZero(TR::BytecodeBuilder **dest, TR::IlValue *c);
-   void IfCmpNotEqualZero(TR::BytecodeBuilder *dest, TR::IlValue *c);
-   void IfCmpLessThan(TR::BytecodeBuilder **dest, TR::IlValue *v1, TR::IlValue *v2);
-   void IfCmpLessThan(TR::BytecodeBuilder *dest, TR::IlValue *v1, TR::IlValue *v2);
-   void IfCmpUnsignedLessThan(TR::BytecodeBuilder **dest, TR::IlValue *v1, TR::IlValue *v2);
-   void IfCmpUnsignedLessThan(TR::BytecodeBuilder *dest, TR::IlValue *v1, TR::IlValue *v2);
-   void IfCmpLessOrEqual(TR::BytecodeBuilder **dest, TR::IlValue *v1, TR::IlValue *v2);
-   void IfCmpLessOrEqual(TR::BytecodeBuilder *dest, TR::IlValue *v1, TR::IlValue *v2);
-   void IfCmpUnsignedLessOrEqual(TR::BytecodeBuilder **dest, TR::IlValue *v1, TR::IlValue *v2);
-   void IfCmpUnsignedLessOrEqual(TR::BytecodeBuilder *dest, TR::IlValue *v1, TR::IlValue *v2);
-   void IfCmpGreaterThan(TR::BytecodeBuilder **dest, TR::IlValue *v1, TR::IlValue *v2);
-   void IfCmpGreaterThan(TR::BytecodeBuilder *dest, TR::IlValue *v1, TR::IlValue *v2);
-   void IfCmpUnsignedGreaterThan(TR::BytecodeBuilder **dest, TR::IlValue *v1, TR::IlValue *v2);
-   void IfCmpUnsignedGreaterThan(TR::BytecodeBuilder *dest, TR::IlValue *v1, TR::IlValue *v2);
-   void IfCmpGreaterOrEqual(TR::BytecodeBuilder **dest, TR::IlValue *v1, TR::IlValue *v2);
-   void IfCmpGreaterOrEqual(TR::BytecodeBuilder *dest, TR::IlValue *v1, TR::IlValue *v2);
-   void IfCmpUnsignedGreaterOrEqual(TR::BytecodeBuilder **dest, TR::IlValue *v1, TR::IlValue *v2);
-   void IfCmpUnsignedGreaterOrEqual(TR::BytecodeBuilder *dest, TR::IlValue *v1, TR::IlValue *v2);
 
 protected:
    TR::BytecodeBuilder       * _fallThroughBuilder;
