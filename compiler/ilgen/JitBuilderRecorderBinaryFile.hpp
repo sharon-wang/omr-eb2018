@@ -16,44 +16,10 @@
  *    Multiple authors (IBM Corp.) - initial implementation and documentation
  ******************************************************************************/
 
+#ifndef TR_JITBUILDERRECORDER_BINARYFILE_INCL
+#define TR_JITBUILDERRECORDER_BINARYFILE_INCL
 
-#ifndef OMR_JITBUILDERRECORDER_BINARYFILE_INCL
-#define OMR_JITBUILDERRECORDER_BINARYFILE_INCL
-
-
-#ifndef TR_JITBUILDERRECORDER_BINARYFILE_DEFINED
-#define TR_JITBUILDERRECORDER_BINARYFILE_DEFINED
-#define PUT_OMR_JITBUILDERRECORDER_BINARYFILE_INTO_TR
-#endif
-
-
-#include "ilgen/JitBuilderRecorderBinaryBuffer.hpp"
-#include <fstream>
-
-namespace TR { class IlBuilderRecorder; }
-namespace TR { class MethodBuilderRecorder; }
-namespace TR { class IlType; }
-namespace TR { class IlValue; }
-
-namespace OMR
-{
-
-class JitBuilderRecorderBinaryFile : public TR::JitBuilderRecorderBinaryBuffer
-   {
-   public:
-   JitBuilderRecorderBinaryFile(const TR::MethodBuilderRecorder *mb, const char *fileName);
-   virtual ~JitBuilderRecorderBinaryFile() { }
-
-   virtual void Close();
-
-   private:
-   std::fstream _file;
-   };
-
-} // namespace OMR
-
-
-#if defined(PUT_OMR_JITBUILDERRECORDER_BINARYFILE_INTO_TR)
+#include "ilgen/OMRJitBuilderRecorderBinaryFile.hpp"
 
 namespace TR
 {
@@ -69,6 +35,4 @@ namespace TR
 
 } // namespace TR
 
-#endif // defined(PUT_OMR_JITBUILDERRECORDER_BINARYFILE_INTO_TR)
-
-#endif // !defined(OMR_JITBUILDERRECORDER_BINARYFILE_INCL)
+#endif // !defined(TR_JITBUILDERRECORDER_BINARYFILE_INCL)

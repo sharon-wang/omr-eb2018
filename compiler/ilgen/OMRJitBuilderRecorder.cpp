@@ -1,6 +1,6 @@
 /*******************************************************************************
  *
- * (c) Copyright IBM Corp. 2016, 2017
+ * (c) Copyright IBM Corp. 2016, 2018
  *
  *  This program and the accompanying materials are made available
  *  under the terms of the Eclipse Public License v1.0 and
@@ -23,7 +23,6 @@
 #include "infra/Assert.hpp"
 #include "ilgen/JitBuilderRecorder.hpp"
 #include "ilgen/MethodBuilderRecorder.hpp"
-
 
 OMR::JitBuilderRecorder::JitBuilderRecorder(const TR::MethodBuilderRecorder *mb)
    : _mb(mb), _nextID(0), _idSize(8)
@@ -84,7 +83,7 @@ OMR::JitBuilderRecorder::knownID(const void *ptr)
    TypeMapID::iterator it = _idMap.find(ptr);
    return (it != _idMap.end());
    }
-   
+
 OMR::JitBuilderRecorder::TypeID
 OMR::JitBuilderRecorder::lookupID(const void *ptr)
    {
