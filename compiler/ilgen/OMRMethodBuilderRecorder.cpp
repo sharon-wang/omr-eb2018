@@ -57,7 +57,8 @@ OMR::MethodBuilderRecorder::MethodBuilderRecorder(TR::TypeDictionary *types, TR:
    _bytecodeHasBeenInWorklist(NULL),
    _recorder(recorder)
    {
-   _recorder->setMethodBuilderRecorder(asMethodBuilder());
+   if (_recorder != NULL)
+      _recorder->setMethodBuilderRecorder(asMethodBuilder());
 
    TR::JitBuilderRecorder *rec = _recorder;
    if (rec)
