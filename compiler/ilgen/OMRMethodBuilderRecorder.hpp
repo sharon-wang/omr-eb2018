@@ -39,7 +39,7 @@ class MethodBuilderRecorder : public TR::IlBuilder
    public:
    TR_ALLOC(TR_Memory::IlGenerator)
 
-   MethodBuilderRecorder(TR::TypeDictionary *types, TR::JitBuilderRecorder *recorder, TR::VirtualMachineState *vmState);
+   MethodBuilderRecorder(TR::TypeDictionary *types, TR::VirtualMachineState *vmState, TR::JitBuilderRecorder *recorder);
    virtual ~MethodBuilderRecorder()                          { }
 
    int32_t getNextValueID()                                  { return _nextValueID++; }

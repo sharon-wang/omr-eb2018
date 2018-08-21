@@ -35,7 +35,7 @@
 #include "IterativeFib.hpp"
 
 IterativeFibonnaciMethod::IterativeFibonnaciMethod(TR::TypeDictionary *types, TR::JitBuilderRecorder *recorder)
-   : MethodBuilder(types, recorder)
+   : MethodBuilder(types, NULL, recorder)
    {
    DefineLine(LINETOSTR(__LINE__));
    DefineFile(__FILE__);

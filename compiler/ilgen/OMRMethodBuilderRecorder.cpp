@@ -51,7 +51,7 @@
 // full IlBuilder API as well as introducing new MethodBuilder specifi
 // API.
 
-OMR::MethodBuilderRecorder::MethodBuilderRecorder(TR::TypeDictionary *types, TR::JitBuilderRecorder *recorder, TR::VirtualMachineState *vmState)
+OMR::MethodBuilderRecorder::MethodBuilderRecorder(TR::TypeDictionary *types, TR::VirtualMachineState *vmState, TR::JitBuilderRecorder *recorder)
    : TR::IlBuilder(static_cast<TR::MethodBuilder *>(this), types),
    _nextValueID(0),
    _useBytecodeBuilders(false),

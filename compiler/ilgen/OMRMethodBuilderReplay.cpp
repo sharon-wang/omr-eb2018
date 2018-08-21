@@ -40,7 +40,7 @@
   #include "ilgen/MethodBuilderReplay.hpp"
 
  OMR::MethodBuilderReplay::MethodBuilderReplay(TR::TypeDictionary *types, TR::JitBuilderReplay *replay, TR::JitBuilderRecorder *recorder)
-    : TR::MethodBuilder(types, recorder)
+    : TR::MethodBuilder(types, NULL, recorder)
     {
 
     setReplay(replay); // _mb = replay

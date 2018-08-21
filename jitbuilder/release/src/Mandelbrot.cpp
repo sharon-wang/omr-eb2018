@@ -35,7 +35,7 @@
 
 
 MandelbrotMethod::MandelbrotMethod(TR::TypeDictionary *types, TR::JitBuilderRecorder *recorder)
-   : TR::MethodBuilder(types, recorder)
+   : TR::MethodBuilder(types, NULL, recorder)
    {
    DefineLine(LINETOSTR(__LINE__));
    DefineFile(__FILE__);

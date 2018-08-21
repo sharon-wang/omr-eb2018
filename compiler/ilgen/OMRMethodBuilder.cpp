@@ -96,40 +96,8 @@ OMR::MethodBuilder::MemoryManager::~MemoryManager()
    ::operator delete(_segmentProvider, TR::Compiler->persistentAllocator());
    }
 
-OMR::MethodBuilder::MethodBuilder(TR::TypeDictionary *types, TR::VirtualMachineState *vmState)
-   : TR::MethodBuilderRecorder(types),
-   _methodName("NoName"),
-   _returnType(NoType),
-   _numParameters(0),
-   _symbols(str_comparator, trMemory()->heapMemoryRegion()),
-   _parameterSlot(str_comparator, trMemory()->heapMemoryRegion()),
-   _symbolTypes(str_comparator, trMemory()->heapMemoryRegion()),
-   _symbolNameFromSlot(std::less<int32_t>(), trMemory()->heapMemoryRegion()),
-   _symbolIsArray(str_comparator, trMemory()->heapMemoryRegion()),
-   _memoryLocations(str_comparator, trMemory()->heapMemoryRegion()),
-   _functions(str_comparator, trMemory()->heapMemoryRegion()),
-   _cachedParameterTypes(0),
-   _definingFile(""),
-   _newSymbolsAreTemps(false),
-   _nextValueID(0),
-   _useBytecodeBuilders(false),
-   _countBlocksWorklist(0),
-   _connectTreesWorklist(0),
-   _allBytecodeBuilders(0),
-   _vmState(vmState),
-   _bytecodeWorklist(NULL),
-   _bytecodeHasBeenInWorklist(NULL),
-   _inlineSiteIndex(-1),
-   _nextInlineSiteIndex(0),
-   _returnBuilder(NULL),
-   _returnSymbolName(NULL)
-   {
-   _definingLine[0] = '\0';
-   }
-
-// TODO: Merge this constructor with above
-OMR::MethodBuilder::MethodBuilder(TR::TypeDictionary *types, TR::JitBuilderRecorder  *recorder, TR::VirtualMachineState *vmState)
-   : TR::MethodBuilderRecorder(types, recorder, vmState),
+OMR::MethodBuilder::MethodBuilder(TR::TypeDictionary *types, TR::VirtualMachineState *vmState, TR::JitBuilderRecorder  *recorder)
+   : TR::MethodBuilderRecorder(types, vmState, recorder),
    _methodName("NoName"),
    _returnType(NoType),
    _numParameters(0),

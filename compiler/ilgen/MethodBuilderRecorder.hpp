@@ -29,11 +29,8 @@ namespace TR
    class MethodBuilderRecorder : public OMR::MethodBuilderRecorder
       {
       public:
-         MethodBuilderRecorder(TR::TypeDictionary *types, TR::JitBuilderRecorder *recorder)
-            : OMR::MethodBuilderRecorder(types, recorder, NULL)
-            { }
-         MethodBuilderRecorder(TR::TypeDictionary *types, TR::JitBuilderRecorder *recorder=NULL, TR::VirtualMachineState *vmState=NULL)
-            : OMR::MethodBuilderRecorder(types, recorder, vmState)
+         MethodBuilderRecorder(TR::TypeDictionary *types, TR::VirtualMachineState *vmState = NULL, TR::JitBuilderRecorder *recorder = NULL)
+            : OMR::MethodBuilderRecorder(types, vmState, recorder)
             { }
       };
 

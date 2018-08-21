@@ -96,7 +96,7 @@ main(int argc, char *argv[])
 
 
 SimpleMethod::SimpleMethod(TR::TypeDictionary *d, TR::JitBuilderRecorder *recorder)
-   : MethodBuilder(d, recorder)
+   : MethodBuilder(d, NULL, recorder)
    {
 
    DefineLine(LINETOSTR(__LINE__));

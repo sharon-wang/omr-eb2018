@@ -38,7 +38,7 @@ class SimpleMethod : public TR::MethodBuilder
    {
    public:
       SimpleMethod(TR::TypeDictionary *d, TR::JitBuilderRecorder *recorder)
-      : MethodBuilder(d, recorder)
+      : MethodBuilder(d, NULL, recorder)
       {
       DefineLine(LINETOSTR(__LINE__));
       DefineFile(__FILE__);

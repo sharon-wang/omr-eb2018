@@ -51,9 +51,8 @@ class MethodBuilder : public TR::MethodBuilderRecorder
    public:
    TR_ALLOC(TR_Memory::IlGenerator)
 
-   MethodBuilder(TR::TypeDictionary *types, TR::VirtualMachineState *vmState);
+   MethodBuilder(TR::TypeDictionary *types, TR::VirtualMachineState *vmState = NULL, TR::JitBuilderRecorder *recorder = NULL);
    MethodBuilder(TR::MethodBuilder *callerMB, TR::VirtualMachineState *vmState = NULL);
-   MethodBuilder(TR::TypeDictionary *types, TR::JitBuilderRecorder *recorder = NULL, TR::VirtualMachineState *vmState = NULL);
 
    virtual ~MethodBuilder();
 

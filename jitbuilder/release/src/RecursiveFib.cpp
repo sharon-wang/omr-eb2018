@@ -53,7 +53,7 @@ printInt32(int32_t value)
    }
 
 RecursiveFibonacciMethod::RecursiveFibonacciMethod(TR::TypeDictionary *types, TR::JitBuilderRecorder *recorder)
-   : MethodBuilder(types, recorder)
+   : MethodBuilder(types, NULL, recorder)
    {
    DefineLine(LINETOSTR(__LINE__));
    DefineFile(__FILE__);
