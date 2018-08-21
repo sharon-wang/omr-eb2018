@@ -146,13 +146,9 @@ public:
 
    virtual bool isBytecodeBuilder()             { return false; }
 
-   bool shouldCompile(); // TODO: remove shouldCompile
-
    virtual TR::VirtualMachineState *initialVMState()         { return NULL; }
    virtual TR::VirtualMachineState *vmState()                { return NULL; }
    virtual void setVMState(TR::VirtualMachineState *vmState) { }
-
-   //char *getName();
 
    void print(const char *title, bool recurse=false);
    void printBlock(TR::Block *block);

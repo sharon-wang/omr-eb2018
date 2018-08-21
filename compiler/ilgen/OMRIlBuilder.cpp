@@ -135,12 +135,6 @@ OMR::IlBuilder::initSequence()
    }
 
 bool
-OMR::IlBuilder::shouldCompile()
-   {
-   return _methodBuilder->isCompiling();
-   }
-
-bool
 OMR::IlBuilder::injectIL()
    {
    TraceIL("Inside injectIL()\n");
@@ -811,15 +805,10 @@ TR::IlValue *
 OMR::IlBuilder::Load(const char *name)
    {
    TR::IlValue *returnValue = IlBuilderRecorder::Load(name);
-
-   if(shouldCompile())
-      {
-        TR::SymbolReference *symRef = lookupSymbol(name);
-        TR::Node *valueNode = TR::Node::createLoad(symRef);
-        closeValue(returnValue, symRef->getSymbol()->getDataType(), valueNode);
-
-        TraceIL("IlBuilder[ %p ]::Load %s into %d from symref %d\n", this, name, returnValue->getID(), symRef->getReferenceNumber());
-      }
+   TR::SymbolReference *symRef = lookupSymbol(name);
+   TR::Node *valueNode = TR::Node::createLoad(symRef);
+   closeValue(returnValue, symRef->getSymbol()->getDataType(), valueNode);
+   TraceIL("IlBuilder[ %p ]::Load %s into %d from symref %d\n", this, name, returnValue->getID(), symRef->getReferenceNumber());
 
    return returnValue;
    }
@@ -980,11 +969,9 @@ TR::IlValue *
 OMR::IlBuilder::ConstInt32(int32_t value)
    {
    TR::IlValue *returnValue = TR::IlBuilderRecorder::ConstInt32(value);
-   if(shouldCompile())
-      {
-        closeValue(returnValue, Int32, TR::Node::iconst(value));
-        TraceIL("IlBuilder[ %p ]::%d is ConstInt32 %d\n", this, returnValue->getID(), value);
-      }
+   closeValue(returnValue, Int32, TR::Node::iconst(value));
+   TraceIL("IlBuilder[ %p ]::%d is ConstInt32 %d\n", this, returnValue->getID(), value);
+
    return returnValue;
    }
 
@@ -1327,14 +1314,11 @@ OMR::IlBuilder::Return(TR::IlValue *value)
    else
       {
       TR::IlBuilderRecorder::Return(value);
-      if(shouldCompile())
-         {
-           TraceIL("IlBuilder[ %p ]::Return %d\n", this, value->getID());
-           TR::Node *returnNode = TR::Node::create(TR::ILOpCode::returnOpCode(value->getDataType()), 1, loadValue(value));
-           genTreeTop(returnNode);
-           cfg()->addEdge(_currentBlock, cfg()->getEnd());
-           setDoesNotComeBack();
-         }
+      TraceIL("IlBuilder[ %p ]::Return %d\n", this, value->getID());
+      TR::Node *returnNode = TR::Node::create(TR::ILOpCode::returnOpCode(value->getDataType()), 1, loadValue(value));
+      genTreeTop(returnNode);
+      cfg()->addEdge(_currentBlock, cfg()->getEnd());
+      setDoesNotComeBack();
       }
    }
 
@@ -1414,22 +1398,21 @@ OMR::IlBuilder::Add(TR::IlValue *left, TR::IlValue *right)
    // TraceIL("IlBuilder[ %p ]::%d is Add %d + %d\n", this, returnValue->getID(), left->getID(), right->getID());
    // return returnValue;
    TR::IlValue *returnValue = TR::IlBuilderRecorder::Add(left, right);
-   if(shouldCompile())
-      {
-        if (left->getDataType() == TR::Address)
-           {
-           if (right->getDataType() == TR::Int32)
-              binaryOpFromNodes(TR::aiadd, returnValue, loadValue(left), loadValue(right));
-           else if (right->getDataType() == TR::Int64)
-              binaryOpFromNodes(TR::aladd, returnValue, loadValue(left), loadValue(right));
-           else
-              binaryOpFromOpMap(addOpCode, returnValue, left, right);
-           }
-        else
-           binaryOpFromOpMap(addOpCode, returnValue, left, right);
 
-        TraceIL("IlBuilder[ %p ]::%d is Add %d + %d\n", this, returnValue->getID(), left->getID(), right->getID());
+   if (left->getDataType() == TR::Address)
+      {
+      if (right->getDataType() == TR::Int32)
+         binaryOpFromNodes(TR::aiadd, returnValue, loadValue(left), loadValue(right));
+      else if (right->getDataType() == TR::Int64)
+         binaryOpFromNodes(TR::aladd, returnValue, loadValue(left), loadValue(right));
+      else
+         binaryOpFromOpMap(addOpCode, returnValue, left, right);
       }
+   else
+      binaryOpFromOpMap(addOpCode, returnValue, left, right);
+
+   TraceIL("IlBuilder[ %p ]::%d is Add %d + %d\n", this, returnValue->getID(), left->getID(), right->getID());
+
    return returnValue;
    }
 
@@ -1606,11 +1589,8 @@ TR::IlValue *
 OMR::IlBuilder::Mul(TR::IlValue *left, TR::IlValue *right)
    {
    TR::IlValue *returnValue = TR::IlBuilderRecorder::Mul(left, right);
-   if(shouldCompile())
-   {
-     binaryOpFromOpMap(TR::ILOpCode::multiplyOpCode, returnValue, left, right);
-   }
-  // TraceIL("IlBuilder[ %p ]::%d is Mul %d * %d\n", this, returnValue->getID(), left->getID(), right->getID());
+   binaryOpFromOpMap(TR::ILOpCode::multiplyOpCode, returnValue, left, right);
+   TraceIL("IlBuilder[ %p ]::%d is Mul %d * %d\n", this, returnValue->getID(), left->getID(), right->getID());
    return returnValue;
    }
 
@@ -1618,11 +1598,7 @@ TR::IlValue *
 OMR::IlBuilder::Div(TR::IlValue *left, TR::IlValue *right)
    {
    TR::IlValue *returnValue = TR::IlBuilderRecorder::Div(left, right);
-
-   if(shouldCompile())
-   {
-     binaryOpFromOpMap(TR::ILOpCode::divideOpCode, returnValue, left, right);
-   }
+   binaryOpFromOpMap(TR::ILOpCode::divideOpCode, returnValue, left, right);
    TraceIL("IlBuilder[ %p ]::%d is Div %d / %d\n", this, returnValue->getID(), left->getID(), right->getID());
    return returnValue;
    }
@@ -1651,10 +1627,8 @@ OMR::IlBuilder::Rem(TR::IlValue *left, TR::IlValue *right)
 TR::IlValue *
 OMR::IlBuilder::And(TR::IlValue *left, TR::IlValue *right)
    {
-    TR::IlValue *returnValue = TR::IlBuilderRecorder::And(left, right);
-    if(shouldCompile()){
-      binaryOpFromOpMap(TR::ILOpCode::andOpCode, returnValue, left, right);
-    }
+   TR::IlValue *returnValue = TR::IlBuilderRecorder::And(left, right);
+   binaryOpFromOpMap(TR::ILOpCode::andOpCode, returnValue, left, right);
    TraceIL("IlBuilder[ %p ]::%d is And %d & %d\n", this, returnValue->getID(), left->getID(), right->getID());
    return returnValue;
    }
@@ -1663,9 +1637,7 @@ TR::IlValue *
 OMR::IlBuilder::Or(TR::IlValue *left, TR::IlValue *right)
    {
    TR::IlValue *returnValue = TR::IlBuilderRecorder::Or(left, right);
-   if(shouldCompile()){
-     binaryOpFromOpMap(TR::ILOpCode::orOpCode, returnValue, left, right);
-   }
+   binaryOpFromOpMap(TR::ILOpCode::orOpCode, returnValue, left, right);
    TraceIL("IlBuilder[ %p ]::%d is Or %d | %d\n", this, returnValue->getID(), left->getID(), right->getID());
    return returnValue;
    }
@@ -1674,9 +1646,7 @@ TR::IlValue *
 OMR::IlBuilder::Xor(TR::IlValue *left, TR::IlValue *right)
    {
    TR::IlValue *returnValue = TR::IlBuilderRecorder::Xor(left, right);
-   if(shouldCompile()){
-     binaryOpFromOpMap(TR::ILOpCode::xorOpCode, returnValue, left, right);
-   }
+   binaryOpFromOpMap(TR::ILOpCode::xorOpCode, returnValue, left, right);
    TraceIL("IlBuilder[ %p ]::%d is Xor %d ^ %d\n", this, returnValue->getID(), left->getID(), right->getID());
    return returnValue;
    }

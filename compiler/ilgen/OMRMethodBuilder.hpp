@@ -53,7 +53,7 @@ class MethodBuilder : public TR::MethodBuilderRecorder
 
    MethodBuilder(TR::TypeDictionary *types, TR::VirtualMachineState *vmState);
    MethodBuilder(TR::MethodBuilder *callerMB, TR::VirtualMachineState *vmState = NULL);
-   MethodBuilder(TR::TypeDictionary *types, TR::JitBuilderRecorder *recorder = NULL, TR::VirtualMachineState *vmState = NULL, bool isCompiling = true);
+   MethodBuilder(TR::TypeDictionary *types, TR::JitBuilderRecorder *recorder = NULL, TR::VirtualMachineState *vmState = NULL);
 
    virtual ~MethodBuilder();
 
@@ -242,8 +242,6 @@ class MethodBuilder : public TR::MethodBuilderRecorder
     */
    TR::MethodBuilder *callerMethodBuilder();
 
-   bool isCompiling() { return _isCompiling; }
-
    protected:
    void initMaps();
    virtual uint32_t countBlocks();
@@ -335,8 +333,6 @@ class MethodBuilder : public TR::MethodBuilderRecorder
    int32_t                     _nextInlineSiteIndex;
    TR::IlBuilder             * _returnBuilder;
    const char                * _returnSymbolName;
-
-   bool                        _isCompiling;
    };
 
 } // namespace OMR
