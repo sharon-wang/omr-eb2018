@@ -41,7 +41,7 @@ ALL_TESTS = \
             iterfib \
             linkedlist \
             localarray \
-						mandelbrot \
+            mandelbrot \
             nestedloop \
             operandarraytests \
             operandstacktests \
