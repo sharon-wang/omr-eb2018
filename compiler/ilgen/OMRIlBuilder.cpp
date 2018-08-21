@@ -1341,40 +1341,28 @@ OMR::IlBuilder::Return(TR::IlValue *value)
 TR::IlValue *
 OMR::IlBuilder::Sub(TR::IlValue *left, TR::IlValue *right)
    {
-   // TODO: Confirm which implementation is correct
-   // TR::IlValue *returnValue = NULL;
-   // if (left->getDataType() == TR::Address)
-   //    {
-   //    if (TR::Compiler->target.is64Bit() && right->getDataType() == TR::Int32)
-   //       {
-   //       right = unaryOp(TR::i2l, right);
-   //       }
-   //    else if (TR::Compiler->target.is32Bit() && right->getDataType() == TR::Int64)
-   //       {
-   //       right = unaryOp(TR::l2i, right);
-   //       }
-   //    right = Sub(TR::Compiler->target.is32Bit() ? ConstInt32(0) : ConstInt64(0), right);
-   //    returnValue = binaryOpFromNodes(TR::Compiler->target.is32Bit() ? TR::aiadd : TR::aladd, loadValue(left), loadValue(right));
-   //    }
-   // else
-   //    {
-   //    returnValue = binaryOpFromOpMap(TR::ILOpCode::subtractOpCode, left, right);
-   //    }
-   // TraceIL("IlBuilder[ %p ]::%d is Sub %d - %d\n", this, returnValue->getID(), left->getID(), right->getID());
-   // return returnValue;
    TR::IlValue *returnValue = TR::IlBuilderRecorder::Sub(left, right);
    if (left->getDataType() == TR::Address)
       {
-      if (right->getDataType() == TR::Int32)
-         binaryOpFromNodes(TR::aiadd, returnValue, loadValue(left), loadValue(Sub(ConstInt32(0), right)));
-      else if (right->getDataType() == TR::Int64)
-         binaryOpFromNodes(TR::aladd, returnValue, loadValue(left), loadValue(Sub(ConstInt64(0), right)));
-      else
+      if (TR::Compiler->target.is64Bit() && right->getDataType() == TR::Int32)
+         {
+         right = unaryOp(TR::i2l, right);
+         binaryOpFromNodes(TR::aiadd, returnValue, loadValue(left), loadValue(Sub(ConstInt64(0), right)));
+         }
+      else if (TR::Compiler->target.is32Bit() && right->getDataType() == TR::Int64)
+         {
+         right = unaryOp(TR::l2i, right);
+         binaryOpFromNodes(TR::aladd, returnValue, loadValue(left), loadValue(Sub(ConstInt32(0), right)));
+         }
+      else 
+         {
          binaryOpFromOpMap(TR::ILOpCode::subtractOpCode, returnValue, left, right);
+         }
       }
    else
+      {
       binaryOpFromOpMap(TR::ILOpCode::subtractOpCode, returnValue, left, right);
-
+      }
    TraceIL("IlBuilder[ %p ]::%d is Sub %d - %d\n", this, returnValue->getID(), left->getID(), right->getID());
    return returnValue;
    }
@@ -1393,43 +1381,27 @@ static TR::ILOpCodes unsignedAddOpCode(TR::DataType type)
 TR::IlValue *
 OMR::IlBuilder::Add(TR::IlValue *left, TR::IlValue *right)
    {
-   // TODO: Confirm which implementation is correct
-   // TR::IlValue *returnValue = NULL;
-   // if (left->getDataType() == TR::Address)
-   //    {
-   //    if (TR::Compiler->target.is64Bit() && right->getDataType() == TR::Int32)
-   //       {
-   //       right = unaryOp(TR::i2l, right);
-   //       }
-   //    else if (TR::Compiler->target.is32Bit() && right->getDataType() == TR::Int64)
-   //       {
-   //       right = unaryOp(TR::l2i, right);
-   //       }
-   //    returnValue = binaryOpFromNodes(TR::Compiler->target.is32Bit() ? TR::aiadd : TR::aladd, loadValue(left), loadValue(right));
-   //    }
-   // else
-   //    {
-   //    returnValue = binaryOpFromOpMap(addOpCode, left, right);
-   //    }
-   // TraceIL("IlBuilder[ %p ]::%d is Add %d + %d\n", this, returnValue->getID(), left->getID(), right->getID());
-   // return returnValue;
    TR::IlValue *returnValue = TR::IlBuilderRecorder::Add(left, right);
-   if(shouldCompile())
+   if (left->getDataType() == TR::Address)
       {
-        if (left->getDataType() == TR::Address)
-           {
-           if (right->getDataType() == TR::Int32)
-              binaryOpFromNodes(TR::aiadd, returnValue, loadValue(left), loadValue(right));
-           else if (right->getDataType() == TR::Int64)
-              binaryOpFromNodes(TR::aladd, returnValue, loadValue(left), loadValue(right));
-           else
-              binaryOpFromOpMap(addOpCode, returnValue, left, right);
-           }
-        else
-           binaryOpFromOpMap(addOpCode, returnValue, left, right);
-
-        TraceIL("IlBuilder[ %p ]::%d is Add %d + %d\n", this, returnValue->getID(), left->getID(), right->getID());
+      if (TR::Compiler->target.is64Bit() && right->getDataType() == TR::Int32)
+         {
+         right = unaryOp(TR::i2l, right);
+         binaryOpFromNodes(TR::aiadd, returnValue, loadValue(left), loadValue(right));
+         }
+      else if (TR::Compiler->target.is32Bit() && right->getDataType() == TR::Int64)
+         {
+         right = unaryOp(TR::l2i, right);
+         binaryOpFromNodes(TR::aladd, returnValue, loadValue(left), loadValue(right));
+         }
+      else
+         binaryOpFromOpMap(addOpCode, returnValue, left, right);
       }
+   else
+      {
+      binaryOpFromOpMap(addOpCode, returnValue, left, right);
+      }
+   TraceIL("IlBuilder[ %p ]::%d is Add %d + %d\n", this, returnValue->getID(), left->getID(), right->getID());
    return returnValue;
    }
 
@@ -1520,22 +1492,13 @@ OMR::IlBuilder::genOperationWithOverflowCHK(TR::ILOpCodes op, TR::Node *leftNode
 TR::ILOpCodes
 OMR::IlBuilder::getOpCode(TR::IlValue *leftValue, TR::IlValue *rightValue)
    {
-   // TODO: Confirm which implementation is correct
-   // TR::ILOpCodes op;
-   // if (leftValue->getDataType() == TR::Address)
-   //    {
-   //    TR_ASSERT((TR::Compiler->target.is64Bit() && rightValue->getDataType() == TR::Int64) || (TR::Compiler->target.is32Bit() && rightValue->getDataType() == TR::Int32),
-   //              "the right child type must be either TR::Int32 (on 32-bit ISA) or TR::Int64 (on 64-bit ISA) when the left child of Add is TR::Address\n");
-   //    op = TR::Compiler->target.is32Bit() ? TR::aiadd : TR::aladd;
-   //    }
-   // else
-   //    {
-   //    op = addOpCode(leftValue->getDataType());
-   //    }
-   // return op;
+
    TR::ILOpCodes op;
    if (leftValue->getDataType() == TR::Address)
       {
+      TR_ASSERT((TR::Compiler->target.is64Bit() && rightValue->getDataType() == TR::Int64) || (TR::Compiler->target.is32Bit() && rightValue->getDataType() == TR::Int32),
+          "the right child type must be either TR::Int32 (on 32-bit ISA) or TR::Int64 (on 64-bit ISA) when the left child of Add is TR::Address\n");
+
       if (rightValue->getDataType() == TR::Int32)
          op = TR::aiadd;
       else if (rightValue->getDataType() == TR::Int64)
