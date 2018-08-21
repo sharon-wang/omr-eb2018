@@ -1920,6 +1920,7 @@ OMR::Options::Options(
     */
    if (_suppressLogFileBecauseDebugObjectNotCreated && !optimizationPlan->isLogCompilation())
       _logFile = NULL;
+
    }
 
 
@@ -1930,7 +1931,6 @@ OMR::Options::Options(TR::Options &other) :
    *this = other;
    if (_suppressLogFileBecauseDebugObjectNotCreated)
       _logFile = NULL;
-
    }
 
 
