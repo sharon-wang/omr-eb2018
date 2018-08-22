@@ -59,6 +59,7 @@ public:
    TR::IlValue *NewValue(TR::IlType *dt);
 
    void DoneConstructor(const char * value);
+   void assertNotRecorded();
 
    // constants
    TR::IlValue *NullAddress();
@@ -102,7 +103,6 @@ public:
    TR::IlValue *UnsignedShiftR(TR::IlValue *v, TR::IlValue *amount);
    TR::IlValue *UnsignedShiftR(TR::IlValue *v, int8_t amount)        { return UnsignedShiftR(v, ConstInt8(amount)); }
    TR::IlValue *NotEqualTo(TR::IlValue *left, TR::IlValue *right);
-   TR::IlValue *EqualTo(TR::IlValue *left, TR::IlValue *right);
    TR::IlValue *UnsignedLessThan(TR::IlValue *left, TR::IlValue *right);
    TR::IlValue *LessOrEqualTo(TR::IlValue *left, TR::IlValue *right);
    TR::IlValue *UnsignedLessOrEqualTo(TR::IlValue *left, TR::IlValue *right);
@@ -115,6 +115,10 @@ public:
 
    TR::IlValue *LessThan(TR::IlValue *left, TR::IlValue *right);
    TR::IlValue *IfThenElse(TR::IlValue *left, TR::IlValue *right);
+
+   // TODO: implement recording for the following
+   TR::IlValue *Rem(TR::IlValue *left, TR::IlValue *right);
+   TR::IlValue *EqualTo(TR::IlValue *left, TR::IlValue *right);
 
    // memory
    void Store(const char *name, TR::IlValue *value);
