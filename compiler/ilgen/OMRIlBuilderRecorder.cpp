@@ -655,6 +655,15 @@ OMR::IlBuilderRecorder::GreaterThan(TR::IlValue *left, TR::IlValue *right)
    }
 
 TR::IlValue *
+OMR::IlBuilderRecorder::EqualTo(TR::IlValue *left, TR::IlValue *right)
+   {
+   TR::IlValue *returnValue = newValue();
+   TR::JitBuilderRecorder *rec = recorder();
+   assertNotRecorded();
+   return returnValue;
+   }
+
+TR::IlValue *
 OMR::IlBuilderRecorder::ConstString(const char * const value)
    {
    TR::IlValue *returnValue = newValue();
@@ -755,6 +764,24 @@ OMR::IlBuilderRecorder::unaryOp(TR::IlValue *returnValue, TR::IlValue *v, const 
    }
 
 TR::IlValue *
+OMR::IlBuilderRecorder::ShiftL(TR::IlValue *v, TR::IlValue *amount)
+   {
+   TR::IlValue *returnValue = newValue();
+   TR::JitBuilderRecorder *rec = recorder();
+   assertNotRecorded();
+   return returnValue;
+   }
+
+TR::IlValue *
+OMR::IlBuilderRecorder::ShiftR(TR::IlValue *v, TR::IlValue *amount)
+   {
+   TR::IlValue *returnValue = newValue();
+   TR::JitBuilderRecorder *rec = recorder();
+   assertNotRecorded();
+   return returnValue;
+   }
+
+TR::IlValue *
 OMR::IlBuilderRecorder::UnsignedShiftR(TR::IlValue *v, TR::IlValue *amount)
    {
    TR::IlValue *returnValue = newValue();
@@ -771,6 +798,60 @@ OMR::IlBuilderRecorder::NotEqualTo(TR::IlValue *left, TR::IlValue *right)
    TR::JitBuilderRecorder *rec = recorder();
    if (rec)
       binaryOp(returnValue, left, right, rec->STATEMENT_NOTEQUALTO);
+   return returnValue;
+   }
+
+TR::IlValue *
+OMR::IlBuilderRecorder::LessOrEqualTo(TR::IlValue *left, TR::IlValue *right)
+   {
+   TR::IlValue *returnValue = newValue();
+   TR::JitBuilderRecorder *rec = recorder();
+   assertNotRecorded();
+   return returnValue;
+   }
+
+TR::IlValue *
+OMR::IlBuilderRecorder::GreaterOrEqualTo(TR::IlValue *left, TR::IlValue *right)
+   {
+   TR::IlValue *returnValue = newValue();
+   TR::JitBuilderRecorder *rec = recorder();
+   assertNotRecorded();
+   return returnValue;
+   }
+
+TR::IlValue *
+OMR::IlBuilderRecorder::UnsignedLessThan(TR::IlValue *left, TR::IlValue *right)
+   {
+   TR::IlValue *returnValue = newValue();
+   TR::JitBuilderRecorder *rec = recorder();
+   assertNotRecorded();
+   return returnValue;
+   }
+
+TR::IlValue *
+OMR::IlBuilderRecorder::UnsignedGreaterThan(TR::IlValue *left, TR::IlValue *right)
+   {
+   TR::IlValue *returnValue = newValue();
+   TR::JitBuilderRecorder *rec = recorder();
+   assertNotRecorded();
+   return returnValue;
+   }
+
+TR::IlValue *
+OMR::IlBuilderRecorder::UnsignedLessOrEqualTo(TR::IlValue *left, TR::IlValue *right)
+   {
+   TR::IlValue *returnValue = newValue();
+   TR::JitBuilderRecorder *rec = recorder();
+   assertNotRecorded();
+   return returnValue;
+   }
+
+TR::IlValue *
+OMR::IlBuilderRecorder::UnsignedGreaterOrEqualTo(TR::IlValue *left, TR::IlValue *right)
+   {
+   TR::IlValue *returnValue = newValue();
+   TR::JitBuilderRecorder *rec = recorder();
+   assertNotRecorded();
    return returnValue;
    }
 
@@ -845,6 +926,23 @@ OMR::IlBuilderRecorder::Div(TR::IlValue *left, TR::IlValue *right)
    if (rec)
       binaryOp(returnValue, left, right, rec->STATEMENT_DIV);
    return returnValue;
+   }
+
+TR::IlValue *
+OMR::IlBuilderRecorder::Rem(TR::IlValue *left, TR::IlValue *right)
+   {
+   TR::IlValue *returnValue = newValue();
+   TR::JitBuilderRecorder *rec = recorder();
+   assertNotRecorded();
+   return returnValue;
+   }
+
+void
+OMR::IlBuilderRecorder::assertNotRecorded()
+   {
+   TR::JitBuilderRecorder *rec = recorder();
+   if (rec)
+      TR_ASSERT(0, "Something is not being recorded\n");
    }
 
 TR::IlValue *
@@ -1051,24 +1149,6 @@ OMR::IlBuilderRecorder::MulWithOverflow(TR::IlBuilder **handler, TR::IlValue *le
    return mulValue;
    }
 
-TR::IlValue *
-OMR::IlBuilderRecorder::ShiftL(TR::IlValue *v, TR::IlValue *amount)
-   {
-   TR::IlValue *returnValue=binaryOpFromOpMap(TR::ILOpCode::shiftLeftOpCode, v, amount);
-   TraceIL("IlBuilder[ %p ]::%d is shr %d << %d\n", this, returnValue->getID(), v->getID(), amount->getID());
-   ILB_REPLAY("%s = %s->ShiftL(%s, %s);", REPLAY_VALUE(returnValue), REPLAY_BUILDER(this), REPLAY_VALUE(v), REPLAY_VALUE(amount));
-   return returnValue;
-   }
-
-TR::IlValue *
-OMR::IlBuilderRecorder::ShiftR(TR::IlValue *v, TR::IlValue *amount)
-   {
-   TR::IlValue *returnValue=binaryOpFromOpMap(TR::ILOpCode::shiftRightOpCode, v, amount);
-   TraceIL("IlBuilder[ %p ]::%d is shr %d >> %d\n", this, returnValue->getID(), v->getID(), amount->getID());
-   ILB_REPLAY("%s = %s->ShiftR(%s, %s);", REPLAY_VALUE(returnValue), REPLAY_BUILDER(this), REPLAY_VALUE(v), REPLAY_VALUE(amount));
-   return returnValue;
-   }
-
 /*
  * @brief IfAnd service for constructing short circuit AND conditional nests (like the && operator)
  * @param allTrueBuilder builder containing operations to execute if all conditional tests evaluate to true
@@ -1177,15 +1257,6 @@ OMR::IlBuilderRecorder::IfOr(TR::IlBuilder **anyTrueBuilder, TR::IlBuilder **all
 
    // return state for "this" can get confused by the Goto's in this service
    setComesBack();
-   }
-
-TR::IlValue *
-OMR::IlBuilderRecorder::EqualTo(TR::IlValue *left, TR::IlValue *right)
-   {
-   TR::IlValue *returnValue=compareOp(TR_cmpEQ, false, left, right);
-   TraceIL("IlBuilder[ %p ]::%d is EqualTo %d == %d?\n", this, returnValue->getID(), left->getID(), right->getID());
-   ILB_REPLAY("%s = %s->EqualTo(%s, %s);", REPLAY_VALUE(returnValue), REPLAY_BUILDER(this), REPLAY_VALUE(left), REPLAY_VALUE(right));
-   return returnValue;
    }
 
 void

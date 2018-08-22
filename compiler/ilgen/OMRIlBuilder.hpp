@@ -551,9 +551,7 @@ protected:
    TR::Node *loadValue(TR::IlValue *v);
    void storeNode(TR::SymbolReference *symRef, TR::Node *v);
    void indirectStoreNode(TR::Node *addr, TR::Node *v);
-   TR::IlValue *indirectLoadNode(TR::IlType *dt, TR::Node *addr, bool isVectorLoad=false);
    void indirectLoadNode(TR::IlValue *returnValue, TR::IlType *dt, TR::Node *addr, bool isVectorLoad = false);
-
 
    TR::Node *zero(TR::DataType dt);
    TR::Node *zero(TR::IlType *dt);
@@ -565,15 +563,11 @@ protected:
    TR::IlValue *widenIntegerTo32Bits(TR::IlValue *v);
 
    void binaryOpFromNodes(TR::ILOpCodes op, TR::IlValue *returnValue, TR::Node *leftNode, TR::Node *rightNode);
-   TR::IlValue *binaryOpFromNodes(TR::ILOpCodes op, TR::Node *leftNode, TR::Node *rightNode);
    TR::Node *binaryOpNodeFromNodes(TR::ILOpCodes op, TR::Node *leftNode, TR::Node *rightNode);
    void binaryOpFromOpMap(OpCodeMapper mapOp, TR::IlValue *returnValue, TR::IlValue *left, TR::IlValue *right);
-   TR::IlValue *binaryOpFromOpMap(OpCodeMapper mapOp, TR::IlValue *left, TR::IlValue *right);
    void binaryOpFromOpCode(TR::ILOpCodes op, TR::IlValue *returnValue, TR::IlValue *left, TR::IlValue *right);
-   TR::IlValue *binaryOpFromOpCode(TR::ILOpCodes op, TR::IlValue *left, TR::IlValue *right);
    TR::Node *shiftOpNodeFromNodes(TR::ILOpCodes op, TR::Node *leftNode, TR::Node *rightNode);
    void shiftOpFromNodes(TR::ILOpCodes op, TR::IlValue *returnValue, TR::Node *leftNode, TR::Node *rightNode);
-   TR::IlValue *shiftOpFromNodes(TR::ILOpCodes op, TR::Node *leftNode, TR::Node *rightNode);
    void shiftOpFromOpMap(OpCodeMapper mapOp, TR::IlValue *returnValue, TR::IlValue *left, TR::IlValue *right);
    TR::IlValue *shiftOpFromOpMap(OpCodeMapper mapOp, TR::IlValue *left, TR::IlValue *right);
 
