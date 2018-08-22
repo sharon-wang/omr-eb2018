@@ -63,12 +63,12 @@ OMR::JitBuilderRecorder::getNewID()
    if (_nextID == (1 << 8) - 2)
       {
       _idSize = 16;
-      // Statement(STATEMENT_ID16BIT);
+      Statement(STATEMENT_ID16BIT); // TODO
       }
    else if (_nextID == (1 << 16) - 2)
       {
       _idSize = 32;
-      // Statement(STATEMENT_ID32BIT);
+      Statement(STATEMENT_ID32BIT); // TODO
       }
 
    return _nextID++;

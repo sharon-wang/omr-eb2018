@@ -2840,6 +2840,8 @@ OMR::IlBuilder::DoWhileLoop(const char *whileCondition, TR::IlBuilder **body, TR
    else
       loopContinue = self()->OrphanBuilder();
 
+   TR::IlBuilderRecorder::DoWhileLoop(whileCondition, body, breakBuilder, continueBuilder);
+
    self()->AppendBuilder(loopContinue);
    loopContinue->IfCmpNotEqualZero(body,
    loopContinue->   Load(whileCondition));
@@ -2875,6 +2877,8 @@ OMR::IlBuilder::WhileDoLoop(const char *whileCondition, TR::IlBuilder **body, TR
       TR_ASSERT(*continueBuilder == NULL, "WhileDoLoop returns continueBuilder, cannot provide continueBuilder as input");
       *continueBuilder = loopContinue;
       }
+
+   TR::IlBuilderRecorder::WhileDoLoop(whileCondition, body, breakBuilder, continueBuilder);
 
    self()->AppendBuilder(loopContinue);
    loopContinue->IfCmpEqualZero(&done,

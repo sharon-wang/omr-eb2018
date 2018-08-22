@@ -1437,6 +1437,11 @@ OMR::JitBuilderReplayTextFile::parseBuildIL()
          }
       else if (tokens != NULL)  // Its probably a call to MethodBuilder
          {
+             if (tokens[0] == 'S') // It's a statement. Ignore.
+               {
+                  // TODO: Do something.
+                  continue;
+               }
              buildIlFlag = handleService(IL_BUILDER, tokens);
          }
       }

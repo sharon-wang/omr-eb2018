@@ -2004,42 +2004,19 @@ OMR::IlBuilderRecorder::ForLoop(bool countsUp,
    ForLoop(countsUp, indVar, *loopCode, bBreak, bContinue, initial, end, increment);
    }
 
-#if 0
 void
 OMR::IlBuilderRecorder::DoWhileLoop(const char *whileCondition, TR::IlBuilder **body, TR::IlBuilder **breakBuilder, TR::IlBuilder **continueBuilder)
    {
-   //ILB_REPLAY_BEGIN();
+   // TODO: ASSERT
+    }
 
-   methodSymbol()->setMayHaveLoops(true);
-   TR_ASSERT(body != NULL, "doWhileLoop needs to have a body");
-
-   if (!_methodBuilder->symbolDefined(whileCondition))
-      _methodBuilder->defineValue(whileCondition, Int32);
-
-   *body = createBuilderIfNeeded(*body);
-   TraceIL("IlBuilder[ %p ]::DoWhileLoop do body B%d while %s\n", this, (*body)->getEntry()->getNumber(), whileCondition);
-
-   AppendBuilder(*body);
-   TR::IlBuilder *loopContinue = NULL;
-
-   if (continueBuilder)
-      {
-      TR_ASSERT(*continueBuilder == NULL, "DoWhileLoop returns continueBuilder, cannot provide continueBuilder as input");
-      loopContinue = *continueBuilder = asIlBuilder()->OrphanBuilder();
-      }
-   else
-      loopContinue = asIlBuilder()->OrphanBuilder();
-
-   AppendBuilder(loopContinue);
-   loopContinue->IfCmpNotEqualZero(body,
-   loopContinue->   Load(whileCondition));
-
-   if (breakBuilder)
-      {
-      TR_ASSERT(*breakBuilder == NULL, "DoWhileLoop returns breakBuilder, cannot provide breakBuilder as input");
-      *breakBuilder = asIlBuilder()->OrphanBuilder();
-      AppendBuilder(*breakBuilder);
-      }
+void 
+OMR::IlBuilderRecorder::WhileDoLoop(const char *whileCondition, TR::IlBuilder **body, TR::IlBuilder **breakBuilder, TR::IlBuilder **continueBuilder)
+   {
+     // TODO: ASSERT
+   }
+   
+#if 0
 
    // make sure any subsequent operations go into their own block *after* the loop
    appendBlock();
@@ -2052,48 +2029,5 @@ OMR::IlBuilderRecorder::DoWhileLoop(const char *whileCondition, TR::IlBuilder **
           //REPLAY_PTRTOBUILDER(breakBuilder),
           //REPLAY_PTRTOBUILDER(continueBuilder));
    }
-
-void
-OMR::IlBuilderRecorder::WhileDoLoop(const char *whileCondition, TR::IlBuilder **body, TR::IlBuilder **breakBuilder, TR::IlBuilder **continueBuilder)
-   {
-   //ILB_REPLAY_BEGIN();
-
-   methodSymbol()->setMayHaveLoops(true);
-   TR_ASSERT(body != NULL, "WhileDo needs to have a body");
-   TraceIL("IlBuilder[ %p ]::WhileDoLoop while %s do body %p\n", this, whileCondition, *body);
-
-   TR::IlBuilder *done = asIlBuilder()->OrphanBuilder();
-   if (breakBuilder)
-      {
-      TR_ASSERT(*breakBuilder == NULL, "WhileDoLoop returns breakBuilder, cannot provide breakBuilder as input");
-      *breakBuilder = done;
-      }
-
-   TR::IlBuilder *loopContinue = asIlBuilder()->OrphanBuilder();
-   if (continueBuilder)
-      {
-      TR_ASSERT(*continueBuilder == NULL, "WhileDoLoop returns continueBuilder, cannot provide continueBuilder as input");
-      *continueBuilder = loopContinue;
-      }
-
-   AppendBuilder(loopContinue);
-   loopContinue->IfCmpEqualZero(&done,
-   loopContinue->   Load(whileCondition));
-
-   *body = createBuilderIfNeeded(*body);
-   AppendBuilder(*body);
-
-   Goto(&loopContinue);
-   setComesBack(); // this goto is on one particular flow path, doesn't mean every path does a goto
-
-   AppendBuilder(done);
-
-   //ILB_REPLAY_END();
-   //ILB_REPLAY("%s->WhileDoLoop(%s, %s, %s, %s);",
-          //REPLAY_BUILDER(this),
-          //whileCondition,
-          //REPLAY_PTRTOBUILDER(body),
-          //REPLAY_PTRTOBUILDER(breakBuilder),
-          //REPLAY_PTRTOBUILDER(continueBuilder));
-   }
 #endif
+
