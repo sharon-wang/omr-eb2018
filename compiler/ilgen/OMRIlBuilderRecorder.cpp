@@ -1236,66 +1236,6 @@ OMR::IlBuilderRecorder::integerizeAddresses(TR::IlValue **leftPtr, TR::IlValue *
       *rightPtr = ConvertTo(Word, right);
    }
 
-TR::IlValue *
-OMR::IlBuilderRecorder::UnsignedLessThan(TR::IlValue *left, TR::IlValue *right)
-   {
-   integerizeAddresses(&left, &right);
-   TR::IlValue *returnValue=compareOp(TR_cmpLT, true, left, right);
-   TraceIL("IlBuilder[ %p ]::%d is UnsignedLessThan %d < %d?\n", this, returnValue->getID(), left->getID(), right->getID());
-   ILB_REPLAY("%s = %s->UnsignedLessThan(%s, %s);", REPLAY_VALUE(returnValue), REPLAY_BUILDER(this), REPLAY_VALUE(left), REPLAY_VALUE(right));
-   return returnValue;
-   }
-
-TR::IlValue *
-OMR::IlBuilderRecorder::LessOrEqualTo(TR::IlValue *left, TR::IlValue *right)
-   {
-   integerizeAddresses(&left, &right);
-   TR::IlValue *returnValue=compareOp(TR_cmpLE, false, left, right);
-   TraceIL("IlBuilder[ %p ]::%d is LessOrEqualTo %d <= %d?\n", this, returnValue->getID(), left->getID(), right->getID());
-   ILB_REPLAY("%s = %s->LessOrEqualTo(%s, %s);", REPLAY_VALUE(returnValue), REPLAY_BUILDER(this), REPLAY_VALUE(left), REPLAY_VALUE(right));
-   return returnValue;
-   }
-
-TR::IlValue *
-OMR::IlBuilderRecorder::UnsignedLessOrEqualTo(TR::IlValue *left, TR::IlValue *right)
-   {
-   integerizeAddresses(&left, &right);
-   TR::IlValue *returnValue=compareOp(TR_cmpLE, true, left, right);
-   TraceIL("IlBuilder[ %p ]::%d is UnsignedLessOrEqualTo %d <= %d?\n", this, returnValue->getID(), left->getID(), right->getID());
-   ILB_REPLAY("%s = %s->UnsignedLessOrEqualTo(%s, %s);", REPLAY_VALUE(returnValue), REPLAY_BUILDER(this), REPLAY_VALUE(left), REPLAY_VALUE(right));
-   return returnValue;
-   }
-
-TR::IlValue *
-OMR::IlBuilderRecorder::UnsignedGreaterThan(TR::IlValue *left, TR::IlValue *right)
-   {
-   integerizeAddresses(&left, &right);
-   TR::IlValue *returnValue=compareOp(TR_cmpGT, true, left, right);
-   TraceIL("IlBuilder[ %p ]::%d is UnsignedGreaterThan %d > %d?\n", this, returnValue->getID(), left->getID(), right->getID());
-   ILB_REPLAY("%s = %s->UnsignedGreaterThan(%s, %s);", REPLAY_VALUE(returnValue), REPLAY_BUILDER(this), REPLAY_VALUE(left), REPLAY_VALUE(right));
-   return returnValue;
-   }
-
-TR::IlValue *
-OMR::IlBuilderRecorder::GreaterOrEqualTo(TR::IlValue *left, TR::IlValue *right)
-   {
-   integerizeAddresses(&left, &right);
-   TR::IlValue *returnValue=compareOp(TR_cmpGE, false, left, right);
-   TraceIL("IlBuilder[ %p ]::%d is GreaterOrEqualTo %d >= %d?\n", this, returnValue->getID(), left->getID(), right->getID());
-   ILB_REPLAY("%s = %s->GreaterOrEqualTo(%s, %s);", REPLAY_VALUE(returnValue), REPLAY_BUILDER(this), REPLAY_VALUE(left), REPLAY_VALUE(right));
-   return returnValue;
-   }
-
-TR::IlValue *
-OMR::IlBuilderRecorder::UnsignedGreaterOrEqualTo(TR::IlValue *left, TR::IlValue *right)
-   {
-   integerizeAddresses(&left, &right);
-   TR::IlValue *returnValue=compareOp(TR_cmpGE, true, left, right);
-   TraceIL("IlBuilder[ %p ]::%d is UnsignedGreaterOrEqualTo %d >= %d?\n", this, returnValue->getID(), left->getID(), right->getID());
-   ILB_REPLAY("%s = %s->UnsignedGreaterOrEqualTo(%s, %s);", REPLAY_VALUE(returnValue), REPLAY_BUILDER(this), REPLAY_VALUE(left), REPLAY_VALUE(right));
-   return returnValue;
-   }
-
 TR::IlValue**
 OMR::IlBuilderRecorder::processCallArgs(TR::Compilation *comp, int numArgs, va_list args)
    {
@@ -1650,13 +1590,6 @@ OMR::IlBuilderRecorder::IfCmpNotEqual(TR::IlBuilder *target, TR::IlValue *left, 
    }
 
 void
-OMR::IlBuilderRecorder::IfCmpEqualZero(TR::IlBuilder **target, TR::IlValue *condition)
-   {
-   *target = createBuilderIfNeeded(*target);
-   IfCmpEqualZero(*target, condition);
-   }
-
-void
 OMR::IlBuilderRecorder::IfCmpEqual(TR::IlBuilder **target, TR::IlValue *left, TR::IlValue *right)
    {
    *target = createBuilderIfNeeded(*target);
@@ -1971,19 +1904,4 @@ OMR::IlBuilderRecorder::WhileDoLoop(const char *whileCondition, TR::IlBuilder **
    TR::JitBuilderRecorder *rec = recorder();
    assertNotRecorded(rec);
    }
-
-#if 0
-
-   // make sure any subsequent operations go into their own block *after* the loop
-   appendBlock();
-
-   //ILB_REPLAY_END();
-   //ILB_REPLAY("%s->DoWhileLoop(%s, %s, %s, %s);",
-          //REPLAY_BUILDER(this),
-          //whileCondition,
-          //REPLAY_PTRTOBUILDER(body),
-          //REPLAY_PTRTOBUILDER(breakBuilder),
-          //REPLAY_PTRTOBUILDER(continueBuilder));
-   }
-#endif
 
