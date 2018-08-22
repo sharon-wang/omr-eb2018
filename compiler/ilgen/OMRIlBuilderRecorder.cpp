@@ -659,7 +659,7 @@ OMR::IlBuilderRecorder::EqualTo(TR::IlValue *left, TR::IlValue *right)
    {
    TR::IlValue *returnValue = newValue();
    TR::JitBuilderRecorder *rec = recorder();
-   assertNotRecorded();
+   assertNotRecorded(rec);
    return returnValue;
    }
 
@@ -768,7 +768,7 @@ OMR::IlBuilderRecorder::ShiftL(TR::IlValue *v, TR::IlValue *amount)
    {
    TR::IlValue *returnValue = newValue();
    TR::JitBuilderRecorder *rec = recorder();
-   assertNotRecorded();
+   assertNotRecorded(rec);
    return returnValue;
    }
 
@@ -777,7 +777,7 @@ OMR::IlBuilderRecorder::ShiftR(TR::IlValue *v, TR::IlValue *amount)
    {
    TR::IlValue *returnValue = newValue();
    TR::JitBuilderRecorder *rec = recorder();
-   assertNotRecorded();
+   assertNotRecorded(rec);
    return returnValue;
    }
 
@@ -806,7 +806,7 @@ OMR::IlBuilderRecorder::LessOrEqualTo(TR::IlValue *left, TR::IlValue *right)
    {
    TR::IlValue *returnValue = newValue();
    TR::JitBuilderRecorder *rec = recorder();
-   assertNotRecorded();
+   assertNotRecorded(rec);
    return returnValue;
    }
 
@@ -815,7 +815,7 @@ OMR::IlBuilderRecorder::GreaterOrEqualTo(TR::IlValue *left, TR::IlValue *right)
    {
    TR::IlValue *returnValue = newValue();
    TR::JitBuilderRecorder *rec = recorder();
-   assertNotRecorded();
+   assertNotRecorded(rec);
    return returnValue;
    }
 
@@ -824,7 +824,7 @@ OMR::IlBuilderRecorder::UnsignedLessThan(TR::IlValue *left, TR::IlValue *right)
    {
    TR::IlValue *returnValue = newValue();
    TR::JitBuilderRecorder *rec = recorder();
-   assertNotRecorded();
+   assertNotRecorded(rec);
    return returnValue;
    }
 
@@ -833,7 +833,7 @@ OMR::IlBuilderRecorder::UnsignedGreaterThan(TR::IlValue *left, TR::IlValue *righ
    {
    TR::IlValue *returnValue = newValue();
    TR::JitBuilderRecorder *rec = recorder();
-   assertNotRecorded();
+   assertNotRecorded(rec);
    return returnValue;
    }
 
@@ -842,7 +842,7 @@ OMR::IlBuilderRecorder::UnsignedLessOrEqualTo(TR::IlValue *left, TR::IlValue *ri
    {
    TR::IlValue *returnValue = newValue();
    TR::JitBuilderRecorder *rec = recorder();
-   assertNotRecorded();
+   assertNotRecorded(rec);
    return returnValue;
    }
 
@@ -851,7 +851,7 @@ OMR::IlBuilderRecorder::UnsignedGreaterOrEqualTo(TR::IlValue *left, TR::IlValue 
    {
    TR::IlValue *returnValue = newValue();
    TR::JitBuilderRecorder *rec = recorder();
-   assertNotRecorded();
+   assertNotRecorded(rec);
    return returnValue;
    }
 
@@ -933,14 +933,13 @@ OMR::IlBuilderRecorder::Rem(TR::IlValue *left, TR::IlValue *right)
    {
    TR::IlValue *returnValue = newValue();
    TR::JitBuilderRecorder *rec = recorder();
-   assertNotRecorded();
+   assertNotRecorded(rec);
    return returnValue;
    }
 
 void
-OMR::IlBuilderRecorder::assertNotRecorded()
+OMR::IlBuilderRecorder::assertNotRecorded(TR::JitBuilderRecorder *rec)
    {
-   TR::JitBuilderRecorder *rec = recorder();
    if (rec)
       TR_ASSERT(0, "Something is not being recorded\n");
    }
@@ -1000,7 +999,7 @@ OMR::IlBuilderRecorder::IfCmpEqualZero(TR::IlBuilder *target, TR::IlValue *condi
  * blockAfterExceptionHandler:
  */
 void
-OMR::IlBuilderRecorder::appendExceptionHandler(TR::Block *blockThrowsException, TR::IlBuilder **handler, uint32_t catchType)
+OMR::IlBuilder::appendExceptionHandler(TR::Block *blockThrowsException, TR::IlBuilder **handler, uint32_t catchType)
    {
    //split block after overflowCHK, and add an goto to blockAfterExceptionHandler
    appendBlock();
@@ -1093,60 +1092,51 @@ OMR::IlBuilderRecorder::getOpCode(TR::IlValue *leftValue, TR::IlValue *rightValu
       }
    return op;
    }
+#endif 
 
 TR::IlValue *
 OMR::IlBuilderRecorder::AddWithOverflow(TR::IlBuilder **handler, TR::IlValue *left, TR::IlValue *right)
    {
-   TR::Node *leftNode = loadValue(left);
-   TR::Node *rightNode = loadValue(right);
-   TR::ILOpCodes opcode = getOpCode(left, right);
-   TR::IlValue *addValue = genOperationWithOverflowCHK(opcode, leftNode, rightNode, handler, TR::OverflowCHK);
-   TraceIL("IlBuilder[ %p ]::%d is AddWithOverflow %d + %d\n", this, addValue->getID(), left->getID(), right->getID());
-   //ILB_REPLAY("%s = %s->AddWithOverflow(%s, %s);", REPLAY_VALUE(addValue), REPLAY_BUILDER(this), REPLAY_BUILDER(*handler), REPLAY_VALUE(left), REPLAY_VALUE(right));
-   return addValue;
+   TR::IlValue *returnValue = newValue();
+   TR::JitBuilderRecorder *rec = recorder();
+   assertNotRecorded(rec);
+   return returnValue;
    }
 
 TR::IlValue *
 OMR::IlBuilderRecorder::AddWithUnsignedOverflow(TR::IlBuilder **handler, TR::IlValue *left, TR::IlValue *right)
    {
-   TR::Node *leftNode = loadValue(left);
-   TR::Node *rightNode = loadValue(right);
-   TR::ILOpCodes opcode = getOpCode(left, right);
-   TR::IlValue *addValue = genOperationWithOverflowCHK(opcode, leftNode, rightNode, handler, TR::UnsignedOverflowCHK);
-   TraceIL("IlBuilder[ %p ]::%d is AddWithUnsignedOverflow %d + %d\n", this, addValue->getID(), left->getID(), right->getID());
-   //ILB_REPLAY("%s = %s->AddWithUnsignedOverflow(%s, %s, %s);", REPLAY_VALUE(addValue), REPLAY_BUILDER(this), REPLAY_PTRTOBUILDER(handler), REPLAY_VALUE(left), REPLAY_VALUE(right));
-   return addValue;
+   TR::IlValue *returnValue = newValue();
+   TR::JitBuilderRecorder *rec = recorder();
+   assertNotRecorded(rec);
+   return returnValue;
    }
 
 TR::IlValue *
 OMR::IlBuilderRecorder::SubWithOverflow(TR::IlBuilder **handler, TR::IlValue *left, TR::IlValue *right)
    {
-   TR::Node *leftNode = loadValue(left);
-   TR::Node *rightNode = loadValue(right);
-   TR::IlValue *subValue = genOperationWithOverflowCHK(TR::ILOpCode::subtractOpCode(leftNode->getDataType()), leftNode, rightNode, handler, TR::OverflowCHK);
-   TraceIL("IlBuilder[ %p ]::%d is SubWithOverflow %d + %d\n", this, subValue->getID(), left->getID(), right->getID());
-   return subValue;
+   TR::IlValue *returnValue = newValue();
+   TR::JitBuilderRecorder *rec = recorder();
+   assertNotRecorded(rec);
+   return returnValue;
    }
 
 TR::IlValue *
 OMR::IlBuilderRecorder::SubWithUnsignedOverflow(TR::IlBuilder **handler, TR::IlValue *left, TR::IlValue *right)
    {
-   TR::Node *leftNode = loadValue(left);
-   TR::Node *rightNode = loadValue(right);
-   TR::IlValue *unsignedSubValue = genOperationWithOverflowCHK(TR::ILOpCode::subtractOpCode(leftNode->getDataType()), leftNode, rightNode, handler, TR::UnsignedOverflowCHK);
-   TraceIL("IlBuilder[ %p ]::%d is UnsignedSubWithOverflow %d + %d\n", this, unsignedSubValue->getID(), left->getID(), right->getID());
-   //ILB_REPLAY("%s = %s->UnsignedSubWithOverflow(%s, %s, %s);", REPLAY_VALUE(unsignedSubValue), REPLAY_BUILDER(this), REPLAY_PTRTOBUILDER(handler), REPLAY_VALUE(left), REPLAY_VALUE(right));
-   return unsignedSubValue;
+   TR::IlValue *returnValue = newValue();
+   TR::JitBuilderRecorder *rec = recorder();
+   assertNotRecorded(rec);
+   return returnValue;
    }
 
 TR::IlValue *
 OMR::IlBuilderRecorder::MulWithOverflow(TR::IlBuilder **handler, TR::IlValue *left, TR::IlValue *right)
    {
-   TR::Node *leftNode = loadValue(left);
-   TR::Node *rightNode = loadValue(right);
-   TR::IlValue *mulValue = genOperationWithOverflowCHK(TR::ILOpCode::multiplyOpCode(leftNode->getDataType()), leftNode, rightNode, handler, TR::OverflowCHK);
-   TraceIL("IlBuilder[ %p ]::%d is MulWithOverflow %d + %d\n", this, mulValue->getID(), left->getID(), right->getID());
-   return mulValue;
+   TR::IlValue *returnValue = newValue();
+   TR::JitBuilderRecorder *rec = recorder();
+   assertNotRecorded(rec);
+   return returnValue;
    }
 
 /*
@@ -1171,36 +1161,11 @@ OMR::IlBuilderRecorder::MulWithOverflow(TR::IlBuilder **handler, TR::IlValue *le
 void
 OMR::IlBuilderRecorder::IfAnd(TR::IlBuilder **allTrueBuilder, TR::IlBuilder **anyFalseBuilder, int32_t numTerms, ...)
    {
-   TR::IlBuilder *mergePoint = asIlBuilder()->OrphanBuilder();
-   *allTrueBuilder = createBuilderIfNeeded(*allTrueBuilder);
-   *anyFalseBuilder = createBuilderIfNeeded(*anyFalseBuilder);
-
-   va_list terms;
-   va_start(terms, numTerms);
-   for (int32_t t=0;t < numTerms;t++)
-      {
-      TR::IlBuilder *condBuilder = va_arg(terms, TR::IlBuilder*);
-      TR::IlValue *condValue = va_arg(terms, TR::IlValue*);
-      AppendBuilder(condBuilder);
-      condBuilder->IfCmpEqualZero(anyFalseBuilder, condValue);
-      // otherwise fall through to test next term
-      }
-   va_end(terms);
-
-   // if control gets here, all the provided terms were true
-   AppendBuilder(*allTrueBuilder);
-   Goto(mergePoint);
-
-   // also need to handle the false case
-   AppendBuilder(*anyFalseBuilder);
-   Goto(mergePoint);
-
-   AppendBuilder(mergePoint);
-
-   // return state for "this" can get confused by the Goto's in this service
-   setComesBack();
+   TR::JitBuilderRecorder *rec = recorder();
+   assertNotRecorded(rec);
    }
 
+#if 0
 /*
  * @brief IfOr service for constructing short circuit OR conditional nests (like the || operator)
  * @param anyTrueBuilder builder containing operations to execute if any conditional test evaluates to true
@@ -1906,7 +1871,6 @@ OMR::IlBuilderRecorder::IfThenElse(TR::IlBuilder **thenPath, TR::IlBuilder **els
    IfThenElse(bThen, bElse, condition);
    }
 
-#if 0
 void
 OMR::IlBuilderRecorder::Switch(const char *selectionVar,
                   TR::IlBuilder **defaultBuilder,
@@ -1915,103 +1879,20 @@ OMR::IlBuilderRecorder::Switch(const char *selectionVar,
                   TR::IlBuilder **caseBuilders,
                   bool *caseFallsThrough)
    {
-   //ILB_REPLAY_BEGIN();
-   TR::IlValue *selectorValue = Load(selectionVar);
-   TR_ASSERT(selectorValue->getDataType() == TR::Int32, "Switch only supports selector having type Int32");
-   *defaultBuilder = createBuilderIfNeeded(*defaultBuilder);
-
-   TR::Node *defaultNode = TR::Node::createCase(0, (*defaultBuilder)->getEntry()->getEntry());
-   TR::Node *lookupNode = TR::Node::create(TR::lookup, numCases + 2, loadValue(selectorValue), defaultNode);
-
-   // get the lookup tree into this builder, even though we haven't completely filled it in yet
-   genTreeTop(lookupNode);
-   TR::Block *switchBlock = _currentBlock;
-
-   // make sure no fall through edge created from the lookup
-   appendNoFallThroughBlock();
-
-   TR::IlBuilder *breakBuilder = asIlBuilder()->OrphanBuilder();
-
-   // each case handler is a sequence of two builder objects: first the one passed in via caseBuilder (or will be passed
-   //   back via caseBuilders, and second a builder that branches to the breakBuilder (unless this case falls through)
-   for (int32_t c=0;c < numCases;c++)
-      {
-      int32_t value = caseValues[c];
-      TR::IlBuilder *handler = NULL;
-      if (!caseFallsThrough[c])
-         {
-         handler = asIlBuilder()->OrphanBuilder();
-
-         caseBuilders[c] = createBuilderIfNeeded(caseBuilders[c]);
-         handler->AppendBuilder(caseBuilders[c]);
-
-         // handle "break" with a separate builder so user can add whatever they want into caseBuilders[c]
-         TR::IlBuilder *branchToBreak = asIlBuilder()->OrphanBuilder();
-         branchToBreak->Goto(&breakBuilder);
-         handler->AppendBuilder(branchToBreak);
-         }
-      else
-         {
-         caseBuilders[c] = createBuilderIfNeeded(caseBuilders[c]);
-         handler = caseBuilders[c];
-         }
-
-      TR::Block *caseBlock = handler->getEntry();
-      cfg()->addEdge(switchBlock, caseBlock);
-      AppendBuilder(handler);
-
-      TR::Node *caseNode = TR::Node::createCase(0, caseBlock->getEntry(), value);
-      lookupNode->setAndIncChild(c+2, caseNode);
-      }
-
-   cfg()->addEdge(switchBlock, (*defaultBuilder)->getEntry());
-   AppendBuilder(*defaultBuilder);
-
-   AppendBuilder(breakBuilder);
-   //ILB_REPLAY_END();
+   TR::JitBuilderRecorder *rec = recorder();
+   assertNotRecorded(rec);
    }
 
+// TODO: Which switch to keep?
 void
-OMR::IlBuilder::Switch(const char *selectionVar,
+OMR::IlBuilderRecorder::Switch(const char *selectionVar,
                   TR::IlBuilder **defaultBuilder,
                   uint32_t numCases,
                   ...)
    {
-   //TODO figure out switch replay
-   // ILB_REPLAY("%s->IfCmpGreaterThan(%s, %s);", REPLAY_BUILDER(this), REPLAY_BUILDER(target), REPLAY_VALUE(left), REPLAY_VALUE(right));
-   int32_t *caseValues = (int32_t *) _comp->trMemory()->allocateHeapMemory(numCases * sizeof(int32_t));
-   TR_ASSERT(0 != caseValues, "out of memory");
-
-   TR::IlBuilder **caseBuilders = (TR::IlBuilder **) _comp->trMemory()->allocateHeapMemory(numCases * sizeof(TR::IlBuilder *));
-   TR_ASSERT(0 != caseBuilders, "out of memory");
-
-   bool *caseFallsThrough = (bool *) _comp->trMemory()->allocateHeapMemory(numCases * sizeof(bool));
-   TR_ASSERT(0 != caseFallsThrough, "out of memory");
-
-   va_list cases;
-   va_start(cases, numCases);
-   for (int32_t c=0;c < numCases;c++)
-      {
-      caseValues[c] = (int32_t) va_arg(cases, int);
-      caseBuilders[c] = *(TR::IlBuilder **) va_arg(cases, TR::IlBuilder **);
-      caseFallsThrough[c] = (bool) va_arg(cases, int);
-      }
-   va_end(cases);
-
-   Switch(selectionVar, defaultBuilder, numCases, caseValues, caseBuilders, caseFallsThrough);
-
-   // if Switch created any new builders, we need to put those back into the arguments passed into this Switch call
-   va_start(cases, numCases);
-   for (int32_t c=0;c < numCases;c++)
-      {
-      int throwawayValue = va_arg(cases, int);
-      TR::IlBuilder **caseBuilder = va_arg(cases, TR::IlBuilder **);
-      (*caseBuilder) = caseBuilders[c];
-      int throwAwayFallsThrough = va_arg(cases, int);
-      }
-   va_end(cases);
+   TR::JitBuilderRecorder *rec = recorder();
+   assertNotRecorded(rec);
    }
-#endif
 
 void
 OMR::IlBuilderRecorder::ForLoop(bool countsUp,
@@ -2078,15 +1959,19 @@ OMR::IlBuilderRecorder::ForLoop(bool countsUp,
 void
 OMR::IlBuilderRecorder::DoWhileLoop(const char *whileCondition, TR::IlBuilder **body, TR::IlBuilder **breakBuilder, TR::IlBuilder **continueBuilder)
    {
-   // TODO: ASSERT
+   TR::IlValue *returnValue = newValue();
+   TR::JitBuilderRecorder *rec = recorder();
+   assertNotRecorded(rec);
     }
 
 void 
 OMR::IlBuilderRecorder::WhileDoLoop(const char *whileCondition, TR::IlBuilder **body, TR::IlBuilder **breakBuilder, TR::IlBuilder **continueBuilder)
    {
-     // TODO: ASSERT
+   TR::IlValue *returnValue = newValue();
+   TR::JitBuilderRecorder *rec = recorder();
+   assertNotRecorded(rec);
    }
-   
+
 #if 0
 
    // make sure any subsequent operations go into their own block *after* the loop

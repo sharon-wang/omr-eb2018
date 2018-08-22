@@ -1428,6 +1428,7 @@ OMR::IlBuilder::getOpCode(TR::IlValue *leftValue, TR::IlValue *rightValue)
 TR::IlValue *
 OMR::IlBuilder::AddWithOverflow(TR::IlBuilder **handler, TR::IlValue *left, TR::IlValue *right)
    {
+   TR::IlValue *returnValue = TR::IlBuilderRecorder::AddWithOverflow(handler, left, right); // TODO: make a genOperationWithOverflowCHK the takes a returnValue
    TR::Node *leftNode = loadValue(left);
    TR::Node *rightNode = loadValue(right);
    TR::ILOpCodes opcode = getOpCode(left, right);
@@ -1649,6 +1650,8 @@ OMR::IlBuilder::IfAnd(TR::IlBuilder **allTrueBuilder, TR::IlBuilder **anyFalseBu
       // otherwise fall through to test next term
       }
    va_end(terms);
+
+   TR::IlBuilderRecorder::IfAnd(allTrueBuilder, anyFalseBuilder, numTerms);
 
    // if control gets here, all the provided terms were true
    self()->AppendBuilder(*allTrueBuilder);
@@ -2599,6 +2602,8 @@ OMR::IlBuilder::Switch(const char *selectionVar,
          {
          handler = builder;
          }
+
+      TR::IlBuilderRecorder::Switch(selectionVar, defaultBuilder, numCases, cases, builder);
 
       TR::Block *caseBlock = handler->getEntry();
       cfg()->addEdge(switchBlock, caseBlock);

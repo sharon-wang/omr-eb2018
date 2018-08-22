@@ -59,7 +59,7 @@ public:
    TR::IlValue *NewValue(TR::IlType *dt);
 
    void DoneConstructor(const char * value);
-   void assertNotRecorded();
+   void assertNotRecorded(TR::JitBuilderRecorder *rec);
 
    // constants
    TR::IlValue *NullAddress();
@@ -221,26 +221,27 @@ public:
 
      void DoWhileLoop(const char *exitCondition, TR::IlBuilder **body, TR::IlBuilder **breakBuilder = NULL, TR::IlBuilder **continueBuilder = NULL);
      void WhileDoLoop(const char *exitCondition, TR::IlBuilder **body, TR::IlBuilder **breakBuilder = NULL, TR::IlBuilder **continueBuilder = NULL);
-#if 0
-   void WhileDoLoopWithBreak(const char *exitCondition, TR::IlBuilder **body, TR::IlBuilder **breakBuilder)
-      {
-      WhileDoLoop(exitCondition, body, breakBuilder);
-      }
+  
+     void WhileDoLoopWithBreak(const char *exitCondition, TR::IlBuilder **body, TR::IlBuilder **breakBuilder)
+          {
+          WhileDoLoop(exitCondition, body, breakBuilder);
+          }
 
-   void WhileDoLoopWithContinue(const char *exitCondition, TR::IlBuilder **body, TR::IlBuilder **continueBuilder)
-      {
-      WhileDoLoop(exitCondition, body, NULL, continueBuilder);
-      }
+     void WhileDoLoopWithContinue(const char *exitCondition, TR::IlBuilder **body, TR::IlBuilder **continueBuilder)
+          {
+          WhileDoLoop(exitCondition, body, NULL, continueBuilder);
+          }
 
-    void DoWhileLoopWithBreak(const char *exitCondition, TR::IlBuilder **body, TR::IlBuilder **breakBuilder)
-      {
-      DoWhileLoop(exitCondition, body, breakBuilder);
-      }
-   void DoWhileLoopWithContinue(const char *exitCondition, TR::IlBuilder **body, TR::IlBuilder **continueBuilder)
-      {
-      DoWhileLoop(exitCondition, body, NULL, continueBuilder);
-      }
-#endif
+     void DoWhileLoopWithBreak(const char *exitCondition, TR::IlBuilder **body, TR::IlBuilder **breakBuilder)
+          {
+          DoWhileLoop(exitCondition, body, breakBuilder);
+          }
+
+     void DoWhileLoopWithContinue(const char *exitCondition, TR::IlBuilder **body, TR::IlBuilder **continueBuilder)
+          {
+          DoWhileLoop(exitCondition, body, NULL, continueBuilder);
+          }
+
 
    /* @brief creates an AND nest of short-circuited conditions, for each term pass an IlBuilder containing the condition and the IlValue that computes the condition */
    void IfAnd(TR::IlBuilder **allTrueBuilder, TR::IlBuilder **anyFalseBuilder, int32_t numTerms, ... );
@@ -278,18 +279,17 @@ public:
       {
       IfThenElse(thenPath, NULL, condition);
       }
-#if 0
    void Switch(const char *selectionVar,
                TR::IlBuilder **defaultBuilder,
                uint32_t numCases,
                int32_t *caseValues,
                TR::IlBuilder **caseBuilders,
                bool *caseFallsThrough);
+
    void Switch(const char *selectionVar,
                TR::IlBuilder **defaultBuilder,
                uint32_t numCases,
                ...);
-#endif
 
 protected:
 
