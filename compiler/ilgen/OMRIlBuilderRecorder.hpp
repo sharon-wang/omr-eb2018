@@ -85,40 +85,40 @@ public:
 
    // arithmetic
    TR::IlValue *Add(TR::IlValue *left, TR::IlValue *right);
-   TR::IlValue *AddWithOverflow(TR::IlBuilder **handler, TR::IlValue *left, TR::IlValue *right);
-   TR::IlValue *AddWithUnsignedOverflow(TR::IlBuilder **handler, TR::IlValue *left, TR::IlValue *right);
    TR::IlValue *Sub(TR::IlValue *left, TR::IlValue *right);
-   TR::IlValue *SubWithOverflow(TR::IlBuilder **handler, TR::IlValue *left, TR::IlValue *right);
-   TR::IlValue *SubWithUnsignedOverflow(TR::IlBuilder **handler, TR::IlValue *left, TR::IlValue *right);
    TR::IlValue *Mul(TR::IlValue *left, TR::IlValue *right);
-   TR::IlValue *MulWithOverflow(TR::IlBuilder **handler, TR::IlValue *left, TR::IlValue *right);
    TR::IlValue *Div(TR::IlValue *left, TR::IlValue *right);
    TR::IlValue *And(TR::IlValue *left, TR::IlValue *right);
    TR::IlValue *Or(TR::IlValue *left, TR::IlValue *right);
    TR::IlValue *Xor(TR::IlValue *left, TR::IlValue *right);
-   TR::IlValue *ShiftL(TR::IlValue *v, TR::IlValue *amount);
    TR::IlValue *ShiftL(TR::IlValue *v, int8_t amount)                { return ShiftL(v, ConstInt8(amount)); }
-   TR::IlValue *ShiftR(TR::IlValue *v, TR::IlValue *amount);
    TR::IlValue *ShiftR(TR::IlValue *v, int8_t amount)                { return ShiftR(v, ConstInt8(amount)); }
    TR::IlValue *UnsignedShiftR(TR::IlValue *v, TR::IlValue *amount);
    TR::IlValue *UnsignedShiftR(TR::IlValue *v, int8_t amount)        { return UnsignedShiftR(v, ConstInt8(amount)); }
    TR::IlValue *NotEqualTo(TR::IlValue *left, TR::IlValue *right);
-   TR::IlValue *UnsignedLessThan(TR::IlValue *left, TR::IlValue *right);
-   TR::IlValue *LessOrEqualTo(TR::IlValue *left, TR::IlValue *right);
-   TR::IlValue *UnsignedLessOrEqualTo(TR::IlValue *left, TR::IlValue *right);
    TR::IlValue *GreaterThan(TR::IlValue *left, TR::IlValue *right);
-   TR::IlValue *UnsignedGreaterThan(TR::IlValue *left, TR::IlValue *right);
-   TR::IlValue *GreaterOrEqualTo(TR::IlValue *left, TR::IlValue *right);
-   TR::IlValue *UnsignedGreaterOrEqualTo(TR::IlValue *left, TR::IlValue *right);
    TR::IlValue *ConvertTo(TR::IlType *t, TR::IlValue *v);
    TR::IlValue *UnsignedConvertTo(TR::IlType *t, TR::IlValue *v);
-
    TR::IlValue *LessThan(TR::IlValue *left, TR::IlValue *right);
    TR::IlValue *IfThenElse(TR::IlValue *left, TR::IlValue *right);
 
    // TODO: implement recording for the following
-   TR::IlValue *Rem(TR::IlValue *left, TR::IlValue *right);
    TR::IlValue *EqualTo(TR::IlValue *left, TR::IlValue *right);
+   TR::IlValue *ShiftL(TR::IlValue *v, TR::IlValue *amount);
+   TR::IlValue *ShiftR(TR::IlValue *v, TR::IlValue *amount);
+   TR::IlValue *LessOrEqualTo(TR::IlValue *left, TR::IlValue *right);
+   TR::IlValue *GreaterOrEqualTo(TR::IlValue *left, TR::IlValue *right);
+   TR::IlValue *UnsignedLessThan(TR::IlValue *left, TR::IlValue *right);
+   TR::IlValue *UnsignedGreaterThan(TR::IlValue *left, TR::IlValue *right);
+   TR::IlValue *UnsignedLessOrEqualTo(TR::IlValue *left, TR::IlValue *right);
+   TR::IlValue *UnsignedGreaterOrEqualTo(TR::IlValue *left, TR::IlValue *right);
+   TR::IlValue *Rem(TR::IlValue *left, TR::IlValue *right);
+   TR::IlValue *AddWithOverflow(TR::IlBuilder **handler, TR::IlValue *left, TR::IlValue *right);
+   TR::IlValue *AddWithUnsignedOverflow(TR::IlBuilder **handler, TR::IlValue *left, TR::IlValue *right);
+   TR::IlValue *SubWithOverflow(TR::IlBuilder **handler, TR::IlValue *left, TR::IlValue *right);
+   TR::IlValue *SubWithUnsignedOverflow(TR::IlBuilder **handler, TR::IlValue *left, TR::IlValue *right);
+   TR::IlValue *MulWithOverflow(TR::IlBuilder **handler, TR::IlValue *left, TR::IlValue *right);
+
 
    // memory
    void Store(const char *name, TR::IlValue *value);
@@ -219,6 +219,7 @@ public:
       ForLoop(countsUp, indVar, body, NULL, continueBody, initial, iterateWhile, increment);
       }
 
+     // TODO: implement recording for DoWhileLoop and WhileDoLoop
      void DoWhileLoop(const char *exitCondition, TR::IlBuilder **body, TR::IlBuilder **breakBuilder = NULL, TR::IlBuilder **continueBuilder = NULL);
      void WhileDoLoop(const char *exitCondition, TR::IlBuilder **body, TR::IlBuilder **breakBuilder = NULL, TR::IlBuilder **continueBuilder = NULL);
   
@@ -244,7 +245,7 @@ public:
 
 
    /* @brief creates an AND nest of short-circuited conditions, for each term pass an IlBuilder containing the condition and the IlValue that computes the condition */
-   void IfAnd(TR::IlBuilder **allTrueBuilder, TR::IlBuilder **anyFalseBuilder, int32_t numTerms, ... );
+   void IfAnd(TR::IlBuilder **allTrueBuilder, TR::IlBuilder **anyFalseBuilder, int32_t numTerms, ... ); // TODO: implement recording
    /* @brief creates an OR nest of short-circuited conditions, for each term pass an IlBuilder containing the condition and the IlValue that computes the condition */
    void IfOr(TR::IlBuilder **anyTrueBuilder, TR::IlBuilder **allFalseBuilder, int32_t numTerms, ... );
 
@@ -279,6 +280,7 @@ public:
       {
       IfThenElse(thenPath, NULL, condition);
       }
+   // TODO: implement recording for Switch
    void Switch(const char *selectionVar,
                TR::IlBuilder **defaultBuilder,
                uint32_t numCases,
