@@ -1696,6 +1696,8 @@ OMR::IlBuilder::IfOr(TR::IlBuilder **anyTrueBuilder, TR::IlBuilder **allFalseBui
    *anyTrueBuilder = createBuilderIfNeeded(*anyTrueBuilder);
    *allFalseBuilder = createBuilderIfNeeded(*allFalseBuilder);
 
+   TR::IlBuilderRecorder::IfOr(anyTrueBuilder, allFalseBuilder, numTerms);
+
    va_list terms;
    va_start(terms, numTerms);
    for (int32_t t=0;t < numTerms-1;t++)
@@ -2099,7 +2101,7 @@ OMR::IlBuilder::AtomicAddWithOffset(TR::IlValue * baseAddress, TR::IlValue * off
    callNode->setAndIncChild(0, loadValue(baseAddress));
    callNode->setAndIncChild(1, loadValue(value));
 
-   TR::IlValue *returnValue = newValue(callNode->getDataType(), callNode);
+   TR::IlValue *returnValue = TR::IlBuilderRecorder::AtomicAddWithOffset(baseAddress, offset, value);
    return returnValue;
    }
 

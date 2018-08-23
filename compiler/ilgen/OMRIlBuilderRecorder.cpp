@@ -1165,7 +1165,6 @@ OMR::IlBuilderRecorder::IfAnd(TR::IlBuilder **allTrueBuilder, TR::IlBuilder **an
    assertNotRecorded(rec);
    }
 
-#if 0
 /*
  * @brief IfOr service for constructing short circuit OR conditional nests (like the || operator)
  * @param anyTrueBuilder builder containing operations to execute if any conditional test evaluates to true
@@ -1188,41 +1187,11 @@ OMR::IlBuilderRecorder::IfAnd(TR::IlBuilder **allTrueBuilder, TR::IlBuilder **an
 void
 OMR::IlBuilderRecorder::IfOr(TR::IlBuilder **anyTrueBuilder, TR::IlBuilder **allFalseBuilder, int32_t numTerms, ...)
    {
-   TR::IlBuilder *mergePoint = asIlBuilder()->OrphanBuilder();
-   *anyTrueBuilder = createBuilderIfNeeded(*anyTrueBuilder);
-   *allFalseBuilder = createBuilderIfNeeded(*allFalseBuilder);
-
-   va_list terms;
-   va_start(terms, numTerms);
-   for (int32_t t=0;t < numTerms-1;t++)
-      {
-      TR::IlBuilder *condBuilder = va_arg(terms, TR::IlBuilder*);
-      TR::IlValue *condValue = va_arg(terms, TR::IlValue*);
-      AppendBuilder(condBuilder);
-      condBuilder->IfCmpNotEqualZero(anyTrueBuilder, condValue);
-      // otherwise fall through to test next term
-      }
-
-   // reverse condition on last term so that it can fall through to anyTrueBuilder
-   TR::IlBuilder *condBuilder = va_arg(terms, TR::IlBuilder*);
-   TR::IlValue *condValue = va_arg(terms, TR::IlValue*);
-   AppendBuilder(condBuilder);
-   condBuilder->IfCmpEqualZero(allFalseBuilder, condValue);
-   va_end(terms);
-
-   // any true term will end up here
-   AppendBuilder(*anyTrueBuilder);
-   Goto(mergePoint);
-
-   // if control gets here, all the provided terms were false
-   AppendBuilder(*allFalseBuilder);
-   Goto(mergePoint);
-
-   AppendBuilder(mergePoint);
-
-   // return state for "this" can get confused by the Goto's in this service
-   setComesBack();
+   TR::JitBuilderRecorder *rec = recorder();
+   assertNotRecorded(rec);
    }
+
+#if 0
 
 void
 OMR::IlBuilderRecorder::integerizeAddresses(TR::IlValue **leftPtr, TR::IlValue **rightPtr)
@@ -1247,6 +1216,8 @@ OMR::IlBuilderRecorder::processCallArgs(TR::Compilation *comp, int numArgs, va_l
    return argValues;
    }
 
+#endif
+
 /*
  * \param numArgs
  *    Number of actual arguments for the method  plus 1
@@ -1256,19 +1227,10 @@ OMR::IlBuilderRecorder::processCallArgs(TR::Compilation *comp, int numArgs, va_l
 TR::IlValue *
 OMR::IlBuilderRecorder::ComputedCall(const char *functionName, int32_t numArgs, ...)
    {
-   // TODO: figure out Call REPLAY
-   TraceIL("IlBuilder[ %p ]::ComputedCall %s\n", this, functionName);
-   va_list args;
-   va_start(args, numArgs);
-   TR::IlValue **argValues = processCallArgs(_comp, numArgs, args);
-   va_end(args);
-   TR::ResolvedMethod *resolvedMethod = _methodBuilder->lookupFunction(functionName);
-   if (resolvedMethod == NULL && _methodBuilder->RequestFunction(functionName))
-      resolvedMethod = _methodBuilder->lookupFunction(functionName);
-   TR_ASSERT(resolvedMethod, "Could not identify function %s\n", functionName);
-
-   TR::SymbolReference *methodSymRef = symRefTab()->findOrCreateComputedStaticMethodSymbol(JITTED_METHOD_INDEX, -1, resolvedMethod);
-   return genCall(methodSymRef, numArgs, argValues, false /*isDirectCall*/);
+   TR::IlValue *returnValue = newValue();
+   TR::JitBuilderRecorder *rec = recorder();
+   assertNotRecorded(rec);
+   return returnValue;
    }
 
 /*
@@ -1280,41 +1242,18 @@ OMR::IlBuilderRecorder::ComputedCall(const char *functionName, int32_t numArgs, 
 TR::IlValue *
 OMR::IlBuilderRecorder::ComputedCall(const char *functionName, int32_t numArgs, TR::IlValue **argValues)
    {
-   // TODO: figure out Call REPLAY
-   TraceIL("IlBuilder[ %p ]::ComputedCall %s\n", this, functionName);
-   TR::ResolvedMethod *resolvedMethod = _methodBuilder->lookupFunction(functionName);
-   if (resolvedMethod == NULL && _methodBuilder->RequestFunction(functionName))
-      resolvedMethod = _methodBuilder->lookupFunction(functionName);
-   TR_ASSERT(resolvedMethod, "Could not identify function %s\n", functionName);
-
-   TR::SymbolReference *methodSymRef = symRefTab()->findOrCreateComputedStaticMethodSymbol(JITTED_METHOD_INDEX, -1, resolvedMethod);
-   return genCall(methodSymRef, numArgs, argValues, false /*isDirectCall*/);
+   TR::IlValue *returnValue = newValue();
+   TR::JitBuilderRecorder *rec = recorder();
+   assertNotRecorded(rec);
+   return returnValue;
    }
-#endif
 
 TR::IlValue *
 OMR::IlBuilderRecorder::Call(const char *functionName, TR::DataType returnType, int32_t numArgs, TR::IlValue ** argValues)
    {
-   TR::IlValue *returnValue = NULL;
-   if (returnType != TR::NoType)
-      {
-      returnValue = newValue();
-      }
+   TR::IlValue *returnValue = newValue();
    TR::JitBuilderRecorder *rec = recorder();
-   if (NULL != rec)
-      {
-      rec->BeginStatement(asIlBuilder(), rec->STATEMENT_CALL);
-      rec->String(functionName);
-      rec->Number(numArgs);
-      for (int32_t v=0;v < numArgs;v++)
-         rec->Value(argValues[v]);
-      if (returnType != TR::NoType)
-         {
-         rec->StoreID(returnValue);
-         rec->Value(returnValue);
-         }
-      rec->EndStatement();
-      }
+   assertNotRecorded(rec);
    return returnValue;
    }
 
@@ -1347,6 +1286,8 @@ OMR::IlBuilderRecorder::genCall(TR::SymbolReference *methodSymRef, int32_t numAr
    return NULL;
    }
 
+#endif 
+
 /** \brief
  *     The service is used to atomically increase memory location [\p baseAddress + \p offset] by amount of \p value.
  *
@@ -1362,53 +1303,11 @@ OMR::IlBuilderRecorder::genCall(TR::SymbolReference *methodSymRef, int32_t numAr
 TR::IlValue *
 OMR::IlBuilderRecorder::AtomicAddWithOffset(TR::IlValue * baseAddress, TR::IlValue * offset, TR::IlValue * value)
    {
-   TR_ASSERT(comp()->cg()->supportsAtomicAdd(), "this platform doesn't support AtomicAdd() yet");
-   TR_ASSERT(baseAddress->getDataType() == TR::Address, "baseAddress must be TR::Address");
-   TR_ASSERT(offset == NULL || offset->getDataType() == TR::Int32 || offset->getDataType() == TR::Int64, "offset must be TR::Int32/64 or NULL");
-
-   //Determine the implementation type and returnType by detecting "value"'s type
-   TR::DataType returnType = value->getDataType();
-   TR_ASSERT(returnType == TR::Int32 || (returnType == TR::Int64 && TR::Compiler->target.is64Bit()), "AtomicAdd currently only supports Int32/64 values");
-   TraceIL("IlBuilder[ %p ]::AtomicAddWithOffset (%d, %d, %d)\n", this, baseAddress->getID(), offset == NULL ? 0 : offset->getID(), value->getID());
-
-   OMR::SymbolReferenceTable::CommonNonhelperSymbol atomicBitSymbol = returnType == TR::Int32 ? TR::SymbolReferenceTable::atomicAdd32BitSymbol : TR::SymbolReferenceTable::atomicAdd64BitSymbol;//lock add
-   TR::SymbolReference *methodSymRef = symRefTab()->findOrCreateCodeGenInlinedHelper(atomicBitSymbol);
-   TR::Node *callNode;
-   //Evaluator will handle if it's (baseAddress+offset) or baseAddress based on the number of children the call node have
-   callNode = TR::Node::createWithSymRef(TR::ILOpCode::getDirectCall(returnType), offset == NULL ? 2 : 3, methodSymRef);
-   callNode->setAndIncChild(0, loadValue(baseAddress));
-   if (offset == NULL)
-      {
-      callNode->setAndIncChild(1, loadValue(value));
-      }
-   else
-      {
-      callNode->setAndIncChild(1, loadValue(offset));
-      callNode->setAndIncChild(2, loadValue(value));
-      }
-
-   TR::IlValue *returnValue = newValue(callNode->getDataType(), callNode);
+   TR::IlValue *returnValue = newValue();
+   TR::JitBuilderRecorder *rec = recorder();
+   assertNotRecorded(rec);
    return returnValue;
    }
-
-/** \brief
- *     The service is used to atomically increase memory location \p baseAddress by amount of \p value.
- *
- *  \param value
- *     The amount to increase for the memory location.
- *
- *  \note
- *     This service currently only supports Int32/Int64.
- *
- *  \return
- *     The old value at the location \p baseAddress.
- */
-TR::IlValue *
-OMR::IlBuilderRecorder::AtomicAdd(TR::IlValue * baseAddress, TR::IlValue * value)
-   {
-   return AtomicAddWithOffset(baseAddress, NULL, value);
-   }
-
 
 /**
  * \brief
@@ -1483,65 +1382,8 @@ OMR::IlBuilderRecorder::AtomicAdd(TR::IlValue * baseAddress, TR::IlValue * value
 void
 OMR::IlBuilderRecorder::Transaction(TR::IlBuilder **persistentFailureBuilder, TR::IlBuilder **transientFailureBuilder, TR::IlBuilder **transactionBuilder)
    {
-   //This assertion is to rule out platforms which don't have tstart evaluator yet.
-   TR_ASSERT(comp()->cg()->hasTMEvaluator(), "this platform doesn't support tstart or tfinish evaluator yet");
-
-   //ILB_REPLAY("%s->TransactionBegin(%s, %s, %s);", REPLAY_BUILDER(this), REPLAY_BUILDER(persistentFailureBuilder), REPLAY_BUILDER(transientFailureBuilder), REPLAY_BUILDER(transactionBuilder));
-   TraceIL("IlBuilder[ %p ]::transactionBegin %p, %p, %p, %p)\n", this, *persistentFailureBuilder, *transientFailureBuilder, *transactionBuilder);
-
-   appendBlock();
-
-   TR::Block *mergeBlock = emptyBlock();
-   *persistentFailureBuilder = createBuilderIfNeeded(*persistentFailureBuilder);
-   *transientFailureBuilder = createBuilderIfNeeded(*transientFailureBuilder);
-   *transactionBuilder = createBuilderIfNeeded(*transactionBuilder);
-
-   if (!comp()->cg()->getSupportsTM())
-      {
-      //if user's processor doesn't support TM.
-      //we will walk around transaction and transientFailure paths
-
-      Goto(persistentFailureBuilder);
-
-      AppendBuilder(*transactionBuilder);
-      AppendBuilder(*transientFailureBuilder);
-
-      AppendBuilder(*persistentFailureBuilder);
-      appendBlock(mergeBlock);
-      return;
-      }
-
-   TR::Node *persistentFailureNode = TR::Node::create(TR::branch, 0, (*persistentFailureBuilder)->getEntry()->getEntry());
-   TR::Node *transientFailureNode = TR::Node::create(TR::branch, 0, (*transientFailureBuilder)->getEntry()->getEntry());
-   TR::Node *transactionNode = TR::Node::create(TR::branch, 0, (*transactionBuilder)->getEntry()->getEntry());
-
-   TR::Node *tStartNode = TR::Node::create(TR::tstart, 3, persistentFailureNode, transientFailureNode, transactionNode);
-   tStartNode->setSymbolReference(comp()->getSymRefTab()->findOrCreateTransactionEntrySymbolRef(comp()->getMethodSymbol()));
-
-   genTreeTop(tStartNode);
-
-   //connecting the block having tstart with persistentFailure's and transaction's blocks
-   cfg()->addEdge(_currentBlock, (*persistentFailureBuilder)->getEntry());
-   cfg()->addEdge(_currentBlock, (*transientFailureBuilder)->getEntry());
-   cfg()->addEdge(_currentBlock, (*transactionBuilder)->getEntry());
-
-   appendNoFallThroughBlock();
-   AppendBuilder(*transientFailureBuilder);
-   gotoBlock(mergeBlock);
-
-   AppendBuilder(*persistentFailureBuilder);
-   gotoBlock(mergeBlock);
-
-   AppendBuilder(*transactionBuilder);
-
-   //ending the transaction at the end of transactionBuilder
-   appendBlock();
-   TR::Node *tEndNode=TR::Node::create(TR::tfinish,0);
-   tEndNode->setSymbolReference(comp()->getSymRefTab()->findOrCreateTransactionExitSymbolRef(comp()->getMethodSymbol()));
-   genTreeTop(tEndNode);
-
-   //Three IlBuilders above merged here
-   appendBlock(mergeBlock);
+   TR::JitBuilderRecorder *rec = recorder();
+   assertNotRecorded(rec);
    }
 
 
@@ -1551,183 +1393,165 @@ OMR::IlBuilderRecorder::Transaction(TR::IlBuilder **persistentFailureBuilder, TR
 void
 OMR::IlBuilderRecorder::TransactionAbort()
    {
-   TraceIL("IlBuilder[ %p ]::transactionAbort", this);
-   TR::Node *tAbortNode = TR::Node::create(TR::tabort, 0);
-   tAbortNode->setSymbolReference(comp()->getSymRefTab()->findOrCreateTransactionAbortSymbolRef(comp()->getMethodSymbol()));
-   genTreeTop(tAbortNode);
+   TR::JitBuilderRecorder *rec = recorder();
+   assertNotRecorded(rec);
    }
 
 void
 OMR::IlBuilderRecorder::IfCmpNotEqualZero(TR::IlBuilder **target, TR::IlValue *condition)
    {
-   *target = createBuilderIfNeeded(*target);
-   IfCmpNotEqualZero(*target, condition);
+   TR::JitBuilderRecorder *rec = recorder();
+   assertNotRecorded(rec);
    }
 
 void
 OMR::IlBuilderRecorder::IfCmpNotEqualZero(TR::IlBuilder *target, TR::IlValue *condition)
    {
-   TR_ASSERT(target != NULL, "This IfCmpNotEqualZero requires a non-NULL builder object");
-   ILB_REPLAY("%s->IfCmpNotEqualZero(%s, %s, %s);", REPLAY_BUILDER(this), REPLAY_BUILDER(target), REPLAY_VALUE(condition));
-   TraceIL("IlBuilder[ %p ]::IfCmpNotEqualZero %d? -> [ %p ] B%d\n", this, condition->getID(), target, target->getEntry()->getNumber());
-   ifCmpNotEqualZero(condition, target->getEntry());
+   TR::JitBuilderRecorder *rec = recorder();
+   assertNotRecorded(rec);
    }
 
 void
 OMR::IlBuilderRecorder::IfCmpNotEqual(TR::IlBuilder **target, TR::IlValue *left, TR::IlValue *right)
    {
-   *target = createBuilderIfNeeded(*target);
-   IfCmpNotEqual(*target, left, right);
+   TR::JitBuilderRecorder *rec = recorder();
+   assertNotRecorded(rec);
    }
 
 void
 OMR::IlBuilderRecorder::IfCmpNotEqual(TR::IlBuilder *target, TR::IlValue *left, TR::IlValue *right)
    {
-   TR_ASSERT(target != NULL, "This IfCmpNotEqual requires a non-NULL builder object");
-   ILB_REPLAY("%s->IfCmpNotEqual(%s, %s, %s);", REPLAY_BUILDER(this), REPLAY_BUILDER(target), REPLAY_VALUE(left), REPLAY_VALUE(right));
-   TraceIL("IlBuilder[ %p ]::IfCmpNotEqual %d == %d? -> [ %p ] B%d\n", this, left->getID(), right->getID(), target, target->getEntry()->getNumber());
-   ifCmpCondition(TR_cmpNE, false, left, right, target->getEntry());
+   TR::JitBuilderRecorder *rec = recorder();
+   assertNotRecorded(rec);
    }
 
 void
 OMR::IlBuilderRecorder::IfCmpEqual(TR::IlBuilder **target, TR::IlValue *left, TR::IlValue *right)
    {
-   *target = createBuilderIfNeeded(*target);
-   IfCmpEqual(*target, left, right);
+   TR::JitBuilderRecorder *rec = recorder();
+   assertNotRecorded(rec);
    }
 
 void
 OMR::IlBuilderRecorder::IfCmpEqual(TR::IlBuilder *target, TR::IlValue *left, TR::IlValue *right)
    {
-   TR_ASSERT(target != NULL, "This IfCmpEqual requires a non-NULL builder object");
-   ILB_REPLAY("%s->IfCmpEqual(%s, %s, %s);", REPLAY_BUILDER(this), REPLAY_BUILDER(target), REPLAY_VALUE(left), REPLAY_VALUE(right));
-   TraceIL("IlBuilder[ %p ]::IfCmpEqual %d == %d? -> [ %p ] B%d\n", this, left->getID(), right->getID(), target, target->getEntry()->getNumber());
-   ifCmpCondition(TR_cmpEQ, false, left, right, target->getEntry());
+   TR::JitBuilderRecorder *rec = recorder();
+   assertNotRecorded(rec);
    }
 
 void
 OMR::IlBuilderRecorder::IfCmpLessThan(TR::IlBuilder **target, TR::IlValue *left, TR::IlValue *right)
    {
-   *target = createBuilderIfNeeded(*target);
-   IfCmpLessThan(*target, left, right);
+   TR::JitBuilderRecorder *rec = recorder();
+   assertNotRecorded(rec);
    }
 
 void
 OMR::IlBuilderRecorder::IfCmpLessThan(TR::IlBuilder *target, TR::IlValue *left, TR::IlValue *right)
    {
-   TR_ASSERT(target != NULL, "This IfCmpLessThan requires a non-NULL builder object");
-   ILB_REPLAY("%s->IfCmpLessThan(%s, %s, %s);", REPLAY_BUILDER(this), REPLAY_BUILDER(target), REPLAY_VALUE(left), REPLAY_VALUE(right));
-   TraceIL("IlBuilder[ %p ]::IfCmpLessThan %d < %d? -> [ %p ] B%d\n", this, left->getID(), right->getID(), target, target->getEntry()->getNumber());
-   ifCmpCondition(TR_cmpLT, false, left, right, target->getEntry());
+   TR::JitBuilderRecorder *rec = recorder();
+   assertNotRecorded(rec);
    }
 
 void
 OMR::IlBuilderRecorder::IfCmpUnsignedLessThan(TR::IlBuilder **target, TR::IlValue *left, TR::IlValue *right)
    {
-   *target = createBuilderIfNeeded(*target);
-   IfCmpUnsignedLessThan(*target, left, right);
+   TR::JitBuilderRecorder *rec = recorder();
+   assertNotRecorded(rec);
    }
 
 void
 OMR::IlBuilderRecorder::IfCmpUnsignedLessThan(TR::IlBuilder *target, TR::IlValue *left, TR::IlValue *right)
    {
-   TR_ASSERT(target != NULL, "This IfCmpUnsignedLessThan requires a non-NULL builder object");
-   ILB_REPLAY("%s->IfCmpUnsignedLessThan(%s, %s, %s);", REPLAY_BUILDER(this), REPLAY_BUILDER(target), REPLAY_VALUE(left), REPLAY_VALUE(right));
-   TraceIL("IlBuilder[ %p ]::IfCmpUnsignedLessThan %d < %d? -> [ %p ] B%d\n", this, left->getID(), right->getID(), target, target->getEntry()->getNumber());
-   ifCmpCondition(TR_cmpLT, true, left, right, target->getEntry());
+   TR::JitBuilderRecorder *rec = recorder();
+   assertNotRecorded(rec);
    }
 
 void
 OMR::IlBuilderRecorder::IfCmpLessOrEqual(TR::IlBuilder **target, TR::IlValue *left, TR::IlValue *right)
    {
-   *target = createBuilderIfNeeded(*target);
-   IfCmpLessOrEqual(*target, left, right);
+   TR::JitBuilderRecorder *rec = recorder();
+   assertNotRecorded(rec);
    }
 
 void
 OMR::IlBuilderRecorder::IfCmpLessOrEqual(TR::IlBuilder *target, TR::IlValue *left, TR::IlValue *right)
    {
-   TR_ASSERT(target != NULL, "This IfCmpLessOrEqual requires a non-NULL builder object");
-   ILB_REPLAY("%s->IfCmpLessOrEqual(%s, %s, %s);", REPLAY_BUILDER(this), REPLAY_BUILDER(target), REPLAY_VALUE(left), REPLAY_VALUE(right));
-   TraceIL("IlBuilder[ %p ]::IfCmpLessOrEqual %d <= %d? -> [ %p ] B%d\n", this, left->getID(), right->getID(), target, target->getEntry()->getNumber());
-   ifCmpCondition(TR_cmpLE, false, left, right, target->getEntry());
+   TR::JitBuilderRecorder *rec = recorder();
+   assertNotRecorded(rec);
    }
 
 void
 OMR::IlBuilderRecorder::IfCmpUnsignedLessOrEqual(TR::IlBuilder **target, TR::IlValue *left, TR::IlValue *right)
    {
-   *target = createBuilderIfNeeded(*target);
-   IfCmpUnsignedLessOrEqual(*target, left, right);
+   TR::JitBuilderRecorder *rec = recorder();
+   assertNotRecorded(rec);
    }
 
 void
 OMR::IlBuilderRecorder::IfCmpUnsignedLessOrEqual(TR::IlBuilder *target, TR::IlValue *left, TR::IlValue *right)
    {
-   TR_ASSERT(target != NULL, "This IfCmpUnsignedLessOrEqual requires a non-NULL builder object");
-   ILB_REPLAY("%s->IfCmpUnsignedLessOrEqual(%s, %s, %s);", REPLAY_BUILDER(this), REPLAY_BUILDER(target), REPLAY_VALUE(left), REPLAY_VALUE(right));
-   TraceIL("IlBuilder[ %p ]::IfCmpUnsignedLessOrEqual %d <= %d? -> [ %p ] B%d\n", this, left->getID(), right->getID(), target, target->getEntry()->getNumber());
-   ifCmpCondition(TR_cmpLE, true, left, right, target->getEntry());
+   TR::JitBuilderRecorder *rec = recorder();
+   assertNotRecorded(rec);
    }
 
 void
 OMR::IlBuilderRecorder::IfCmpGreaterThan(TR::IlBuilder **target, TR::IlValue *left, TR::IlValue *right)
    {
-   *target = createBuilderIfNeeded(*target);
-   IfCmpGreaterThan(*target, left, right);
+   TR::JitBuilderRecorder *rec = recorder();
+   assertNotRecorded(rec);
    }
 
 void
 OMR::IlBuilderRecorder::IfCmpGreaterThan(TR::IlBuilder *target, TR::IlValue *left, TR::IlValue *right)
    {
-   ILB_REPLAY("%s->IfCmpGreaterThan(%s, %s, %s);", REPLAY_BUILDER(this), REPLAY_BUILDER(target), REPLAY_VALUE(left), REPLAY_VALUE(right));
-   TraceIL("IlBuilder[ %p ]::IfCmpGreaterThan %d > %d? -> [ %p ] B%d\n", this, left->getID(), right->getID(), target, target->getEntry()->getNumber());
-   ifCmpCondition(TR_cmpGT, false, left, right, target->getEntry());
+   TR::JitBuilderRecorder *rec = recorder();
+   assertNotRecorded(rec);
    }
 
 void
 OMR::IlBuilderRecorder::IfCmpUnsignedGreaterThan(TR::IlBuilder **target, TR::IlValue *left, TR::IlValue *right)
    {
-   *target = createBuilderIfNeeded(*target);
-   IfCmpUnsignedGreaterThan(*target, left, right);
+   TR::JitBuilderRecorder *rec = recorder();
+   assertNotRecorded(rec);
    }
 
 void
 OMR::IlBuilderRecorder::IfCmpUnsignedGreaterThan(TR::IlBuilder *target, TR::IlValue *left, TR::IlValue *right)
    {
-   ILB_REPLAY("%s->IfCmpUnsignedGreaterThan(%s, %s, %s);", REPLAY_BUILDER(this), REPLAY_BUILDER(target), REPLAY_VALUE(left), REPLAY_VALUE(right));
-   TraceIL("IlBuilder[ %p ]::IfCmpUnsignedGreaterThan %d > %d? -> [ %p ] B%d\n", this, left->getID(), right->getID(), target, target->getEntry()->getNumber());
-   ifCmpCondition(TR_cmpGT, true, left, right, target->getEntry());
+   TR::JitBuilderRecorder *rec = recorder();
+   assertNotRecorded(rec);
    }
 
 void
 OMR::IlBuilderRecorder::IfCmpGreaterOrEqual(TR::IlBuilder **target, TR::IlValue *left, TR::IlValue *right)
    {
-   *target = createBuilderIfNeeded(*target);
-   IfCmpGreaterOrEqual(*target, left, right);
+   TR::JitBuilderRecorder *rec = recorder();
+   assertNotRecorded(rec);
    }
 
 void
 OMR::IlBuilderRecorder::IfCmpGreaterOrEqual(TR::IlBuilder *target, TR::IlValue *left, TR::IlValue *right)
    {
-   ILB_REPLAY("%s->IfCmpGreaterOrEqual(%s, %s, %s);", REPLAY_BUILDER(this), REPLAY_BUILDER(target), REPLAY_VALUE(left), REPLAY_VALUE(right));
-   TraceIL("IlBuilder[ %p ]::IfCmpGreaterOrEqual %d >= %d? -> [ %p ] B%d\n", this, left->getID(), right->getID(), target, target->getEntry()->getNumber());
-   ifCmpCondition(TR_cmpGE, false, left, right, target->getEntry());
+   TR::JitBuilderRecorder *rec = recorder();
+   assertNotRecorded(rec);
    }
 
 void
 OMR::IlBuilderRecorder::IfCmpUnsignedGreaterOrEqual(TR::IlBuilder **target, TR::IlValue *left, TR::IlValue *right)
    {
-   *target = createBuilderIfNeeded(*target);
-   IfCmpUnsignedGreaterOrEqual(*target, left, right);
+   TR::JitBuilderRecorder *rec = recorder();
+   assertNotRecorded(rec);
    }
 
 void
 OMR::IlBuilderRecorder::IfCmpUnsignedGreaterOrEqual(TR::IlBuilder *target, TR::IlValue *left, TR::IlValue *right)
    {
-   ILB_REPLAY("%s->IfCmpUnsignedGreaterOrEqual(%s, %s, %s);", REPLAY_BUILDER(this), REPLAY_BUILDER(target), REPLAY_VALUE(left), REPLAY_VALUE(right));
-   TraceIL("IlBuilder[ %p ]::IfCmpUnsignedGreaterOrEqual %d >= %d? -> [ %p ] B%d\n", this, left->getID(), right->getID(), target, target->getEntry()->getNumber());
-   ifCmpCondition(TR_cmpGE, true, left, right, target->getEntry());
+   TR::JitBuilderRecorder *rec = recorder();
+   assertNotRecorded(rec);
    }
+
+#if 0
 
 void
 OMR::IlBuilderRecorder::ifCmpCondition(TR_ComparisonTypes ct, bool isUnsignedCmp, TR::IlValue *left, TR::IlValue *right, TR::Block *target)
