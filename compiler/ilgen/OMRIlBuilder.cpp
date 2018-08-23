@@ -1862,7 +1862,11 @@ OMR::IlBuilder::ComputedCall(const char *functionName, int32_t numArgs, ...)
    TR_ASSERT(resolvedMethod, "Could not identify function %s\n", functionName);
 
    TR::SymbolReference *methodSymRef = symRefTab()->findOrCreateComputedStaticMethodSymbol(JITTED_METHOD_INDEX, -1, resolvedMethod);
-   return genCall(methodSymRef, numArgs, argValues, false /*isDirectCall*/);
+
+   TR::IlValue *returnValue = TR::IlBuilderRecorder::ComputedCall(functionName, numArgs);
+   genCall(returnValue, methodSymRef, numArgs, argValues);
+
+   return returnValue;
    }
 
 /*
@@ -1881,7 +1885,11 @@ OMR::IlBuilder::ComputedCall(const char *functionName, int32_t numArgs, TR::IlVa
    TR_ASSERT(resolvedMethod, "Could not identify function %s\n", functionName);
 
    TR::SymbolReference *methodSymRef = symRefTab()->findOrCreateComputedStaticMethodSymbol(JITTED_METHOD_INDEX, -1, resolvedMethod);
-   return genCall(methodSymRef, numArgs, argValues, false /*isDirectCall*/);
+   
+   TR::IlValue *returnValue = TR::IlBuilderRecorder::ComputedCall(functionName, numArgs, argValues);
+   genCall(returnValue, methodSymRef, numArgs, argValues);
+   
+   return returnValue;
    }
 
 /*
@@ -2201,6 +2209,8 @@ OMR::IlBuilder::Transaction(TR::IlBuilder **persistentFailureBuilder, TR::IlBuil
 
    TraceIL("IlBuilder[ %p ]::transactionBegin %p, %p, %p, %p)\n", this, *persistentFailureBuilder, *transientFailureBuilder, *transactionBuilder);
 
+   TR::IlBuilderRecorder::Transaction(persistentFailureBuilder, transientFailureBuilder, transactionBuilder);
+
    appendBlock();
 
    TR::Block *mergeBlock = emptyBlock();
@@ -2264,6 +2274,9 @@ void
 OMR::IlBuilder::TransactionAbort()
    {
    TraceIL("IlBuilder[ %p ]::transactionAbort", this);
+
+   TR::IlBuilderRecorder::TransactionAbort();
+
    TR::Node *tAbortNode = TR::Node::create(TR::tabort, 0);
    tAbortNode->setSymbolReference(comp()->getSymRefTab()->findOrCreateTransactionAbortSymbolRef(comp()->getMethodSymbol()));
    genTreeTop(tAbortNode);
