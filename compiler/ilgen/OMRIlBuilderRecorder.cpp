@@ -1251,9 +1251,26 @@ OMR::IlBuilderRecorder::ComputedCall(const char *functionName, int32_t numArgs, 
 TR::IlValue *
 OMR::IlBuilderRecorder::Call(const char *functionName, TR::DataType returnType, int32_t numArgs, TR::IlValue ** argValues)
    {
-   TR::IlValue *returnValue = newValue();
+   TR::IlValue *returnValue = NULL;
+   if (returnType != TR::NoType)
+      {
+      returnValue = newValue();
+      }
    TR::JitBuilderRecorder *rec = recorder();
-   assertNotRecorded(rec);
+   if (NULL != rec)
+      {
+      rec->BeginStatement(asIlBuilder(), rec->STATEMENT_CALL);
+      rec->String(functionName);
+      rec->Number(numArgs);
+      for (int32_t v=0;v < numArgs;v++)
+         rec->Value(argValues[v]);
+      if (returnType != TR::NoType)
+         {
+         rec->StoreID(returnValue);
+         rec->Value(returnValue);
+         }
+      rec->EndStatement();
+      }
    return returnValue;
    }
 
@@ -1398,21 +1415,7 @@ OMR::IlBuilderRecorder::TransactionAbort()
    }
 
 void
-OMR::IlBuilderRecorder::IfCmpNotEqualZero(TR::IlBuilder **target, TR::IlValue *condition)
-   {
-   TR::JitBuilderRecorder *rec = recorder();
-   assertNotRecorded(rec);
-   }
-
-void
 OMR::IlBuilderRecorder::IfCmpNotEqualZero(TR::IlBuilder *target, TR::IlValue *condition)
-   {
-   TR::JitBuilderRecorder *rec = recorder();
-   assertNotRecorded(rec);
-   }
-
-void
-OMR::IlBuilderRecorder::IfCmpNotEqual(TR::IlBuilder **target, TR::IlValue *left, TR::IlValue *right)
    {
    TR::JitBuilderRecorder *rec = recorder();
    assertNotRecorded(rec);
@@ -1426,21 +1429,7 @@ OMR::IlBuilderRecorder::IfCmpNotEqual(TR::IlBuilder *target, TR::IlValue *left, 
    }
 
 void
-OMR::IlBuilderRecorder::IfCmpEqual(TR::IlBuilder **target, TR::IlValue *left, TR::IlValue *right)
-   {
-   TR::JitBuilderRecorder *rec = recorder();
-   assertNotRecorded(rec);
-   }
-
-void
 OMR::IlBuilderRecorder::IfCmpEqual(TR::IlBuilder *target, TR::IlValue *left, TR::IlValue *right)
-   {
-   TR::JitBuilderRecorder *rec = recorder();
-   assertNotRecorded(rec);
-   }
-
-void
-OMR::IlBuilderRecorder::IfCmpLessThan(TR::IlBuilder **target, TR::IlValue *left, TR::IlValue *right)
    {
    TR::JitBuilderRecorder *rec = recorder();
    assertNotRecorded(rec);
@@ -1454,21 +1443,7 @@ OMR::IlBuilderRecorder::IfCmpLessThan(TR::IlBuilder *target, TR::IlValue *left, 
    }
 
 void
-OMR::IlBuilderRecorder::IfCmpUnsignedLessThan(TR::IlBuilder **target, TR::IlValue *left, TR::IlValue *right)
-   {
-   TR::JitBuilderRecorder *rec = recorder();
-   assertNotRecorded(rec);
-   }
-
-void
 OMR::IlBuilderRecorder::IfCmpUnsignedLessThan(TR::IlBuilder *target, TR::IlValue *left, TR::IlValue *right)
-   {
-   TR::JitBuilderRecorder *rec = recorder();
-   assertNotRecorded(rec);
-   }
-
-void
-OMR::IlBuilderRecorder::IfCmpLessOrEqual(TR::IlBuilder **target, TR::IlValue *left, TR::IlValue *right)
    {
    TR::JitBuilderRecorder *rec = recorder();
    assertNotRecorded(rec);
@@ -1482,21 +1457,7 @@ OMR::IlBuilderRecorder::IfCmpLessOrEqual(TR::IlBuilder *target, TR::IlValue *lef
    }
 
 void
-OMR::IlBuilderRecorder::IfCmpUnsignedLessOrEqual(TR::IlBuilder **target, TR::IlValue *left, TR::IlValue *right)
-   {
-   TR::JitBuilderRecorder *rec = recorder();
-   assertNotRecorded(rec);
-   }
-
-void
 OMR::IlBuilderRecorder::IfCmpUnsignedLessOrEqual(TR::IlBuilder *target, TR::IlValue *left, TR::IlValue *right)
-   {
-   TR::JitBuilderRecorder *rec = recorder();
-   assertNotRecorded(rec);
-   }
-
-void
-OMR::IlBuilderRecorder::IfCmpGreaterThan(TR::IlBuilder **target, TR::IlValue *left, TR::IlValue *right)
    {
    TR::JitBuilderRecorder *rec = recorder();
    assertNotRecorded(rec);
@@ -1510,13 +1471,6 @@ OMR::IlBuilderRecorder::IfCmpGreaterThan(TR::IlBuilder *target, TR::IlValue *lef
    }
 
 void
-OMR::IlBuilderRecorder::IfCmpUnsignedGreaterThan(TR::IlBuilder **target, TR::IlValue *left, TR::IlValue *right)
-   {
-   TR::JitBuilderRecorder *rec = recorder();
-   assertNotRecorded(rec);
-   }
-
-void
 OMR::IlBuilderRecorder::IfCmpUnsignedGreaterThan(TR::IlBuilder *target, TR::IlValue *left, TR::IlValue *right)
    {
    TR::JitBuilderRecorder *rec = recorder();
@@ -1524,21 +1478,7 @@ OMR::IlBuilderRecorder::IfCmpUnsignedGreaterThan(TR::IlBuilder *target, TR::IlVa
    }
 
 void
-OMR::IlBuilderRecorder::IfCmpGreaterOrEqual(TR::IlBuilder **target, TR::IlValue *left, TR::IlValue *right)
-   {
-   TR::JitBuilderRecorder *rec = recorder();
-   assertNotRecorded(rec);
-   }
-
-void
 OMR::IlBuilderRecorder::IfCmpGreaterOrEqual(TR::IlBuilder *target, TR::IlValue *left, TR::IlValue *right)
-   {
-   TR::JitBuilderRecorder *rec = recorder();
-   assertNotRecorded(rec);
-   }
-
-void
-OMR::IlBuilderRecorder::IfCmpUnsignedGreaterOrEqual(TR::IlBuilder **target, TR::IlValue *left, TR::IlValue *right)
    {
    TR::JitBuilderRecorder *rec = recorder();
    assertNotRecorded(rec);

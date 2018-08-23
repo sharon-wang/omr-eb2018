@@ -2279,6 +2279,7 @@ OMR::IlBuilder::IfCmpNotEqualZero(TR::IlBuilder **target, TR::IlValue *condition
 void
 OMR::IlBuilder::IfCmpNotEqualZero(TR::IlBuilder *target, TR::IlValue *condition)
    {
+   TR::IlBuilderRecorder::IfCmpNotEqualZero(target, condition);
    TR_ASSERT(target != NULL, "This IfCmpNotEqualZero requires a non-NULL builder object");
    TraceIL("IlBuilder[ %p ]::IfCmpNotEqualZero %d? -> [ %p ] B%d\n", this, condition->getID(), target, target->getEntry()->getNumber());
    ifCmpNotEqualZero(condition, target->getEntry());
@@ -2294,6 +2295,7 @@ OMR::IlBuilder::IfCmpNotEqual(TR::IlBuilder **target, TR::IlValue *left, TR::IlV
 void
 OMR::IlBuilder::IfCmpNotEqual(TR::IlBuilder *target, TR::IlValue *left, TR::IlValue *right)
    {
+   TR::IlBuilderRecorder::IfCmpNotEqual(target, left, right);
    TR_ASSERT(target != NULL, "This IfCmpNotEqual requires a non-NULL builder object");
    TraceIL("IlBuilder[ %p ]::IfCmpNotEqual %d == %d? -> [ %p ] B%d\n", this, left->getID(), right->getID(), target, target->getEntry()->getNumber());
    ifCmpCondition(TR_cmpNE, false, left, right, target->getEntry());
@@ -2309,7 +2311,7 @@ OMR::IlBuilder::IfCmpEqualZero(TR::IlBuilder **target, TR::IlValue *condition)
 void
 OMR::IlBuilder::IfCmpEqualZero(TR::IlBuilder *target, TR::IlValue *condition)
    {
-   IlBuilderRecorder::IfCmpEqualZero(target, condition);
+   TR::IlBuilderRecorder::IfCmpEqualZero(target, condition);
    TR_ASSERT(target != NULL, "This IfCmpEqualZero requires a non-NULL builder object");
    TraceIL("IlBuilder[ %p ]::IfCmpEqualZero %d == 0? -> [ %p ] B%d\n", this, condition->getID(), target, target->getEntry()->getNumber());
    ifCmpEqualZero(condition, target->getEntry());
@@ -2325,6 +2327,7 @@ OMR::IlBuilder::IfCmpEqual(TR::IlBuilder **target, TR::IlValue *left, TR::IlValu
 void
 OMR::IlBuilder::IfCmpEqual(TR::IlBuilder *target, TR::IlValue *left, TR::IlValue *right)
    {
+   TR::IlBuilderRecorder::IfCmpEqual(target, left, right);
    TR_ASSERT(target != NULL, "This IfCmpEqual requires a non-NULL builder object");
    TraceIL("IlBuilder[ %p ]::IfCmpEqual %d == %d? -> [ %p ] B%d\n", this, left->getID(), right->getID(), target, target->getEntry()->getNumber());
    ifCmpCondition(TR_cmpEQ, false, left, right, target->getEntry());
@@ -2340,6 +2343,7 @@ OMR::IlBuilder::IfCmpLessThan(TR::IlBuilder **target, TR::IlValue *left, TR::IlV
 void
 OMR::IlBuilder::IfCmpLessThan(TR::IlBuilder *target, TR::IlValue *left, TR::IlValue *right)
    {
+   TR::IlBuilderRecorder::IfCmpLessThan(target, left, right);
    TR_ASSERT(target != NULL, "This IfCmpLessThan requires a non-NULL builder object");
    TraceIL("IlBuilder[ %p ]::IfCmpLessThan %d < %d? -> [ %p ] B%d\n", this, left->getID(), right->getID(), target, target->getEntry()->getNumber());
    ifCmpCondition(TR_cmpLT, false, left, right, target->getEntry());
@@ -2355,6 +2359,7 @@ OMR::IlBuilder::IfCmpUnsignedLessThan(TR::IlBuilder **target, TR::IlValue *left,
 void
 OMR::IlBuilder::IfCmpUnsignedLessThan(TR::IlBuilder *target, TR::IlValue *left, TR::IlValue *right)
    {
+   TR::IlBuilderRecorder::IfCmpUnsignedLessThan(target, left, right);
    TR_ASSERT(target != NULL, "This IfCmpUnsignedLessThan requires a non-NULL builder object");
    TraceIL("IlBuilder[ %p ]::IfCmpUnsignedLessThan %d < %d? -> [ %p ] B%d\n", this, left->getID(), right->getID(), target, target->getEntry()->getNumber());
    ifCmpCondition(TR_cmpLT, true, left, right, target->getEntry());
@@ -2370,6 +2375,7 @@ OMR::IlBuilder::IfCmpLessOrEqual(TR::IlBuilder **target, TR::IlValue *left, TR::
 void
 OMR::IlBuilder::IfCmpLessOrEqual(TR::IlBuilder *target, TR::IlValue *left, TR::IlValue *right)
    {
+   TR::IlBuilderRecorder::IfCmpLessOrEqual(target, left, right);
    TR_ASSERT(target != NULL, "This IfCmpLessOrEqual requires a non-NULL builder object");
    TraceIL("IlBuilder[ %p ]::IfCmpLessOrEqual %d <= %d? -> [ %p ] B%d\n", this, left->getID(), right->getID(), target, target->getEntry()->getNumber());
    ifCmpCondition(TR_cmpLE, false, left, right, target->getEntry());
@@ -2385,6 +2391,7 @@ OMR::IlBuilder::IfCmpUnsignedLessOrEqual(TR::IlBuilder **target, TR::IlValue *le
 void
 OMR::IlBuilder::IfCmpUnsignedLessOrEqual(TR::IlBuilder *target, TR::IlValue *left, TR::IlValue *right)
    {
+   TR::IlBuilderRecorder::IfCmpUnsignedLessOrEqual(target, left, right);
    TR_ASSERT(target != NULL, "This IfCmpUnsignedLessOrEqual requires a non-NULL builder object");
    TraceIL("IlBuilder[ %p ]::IfCmpUnsignedLessOrEqual %d <= %d? -> [ %p ] B%d\n", this, left->getID(), right->getID(), target, target->getEntry()->getNumber());
    ifCmpCondition(TR_cmpLE, true, left, right, target->getEntry());
@@ -2400,6 +2407,7 @@ OMR::IlBuilder::IfCmpGreaterThan(TR::IlBuilder **target, TR::IlValue *left, TR::
 void
 OMR::IlBuilder::IfCmpGreaterThan(TR::IlBuilder *target, TR::IlValue *left, TR::IlValue *right)
    {
+   TR::IlBuilderRecorder::IfCmpGreaterThan(target, left, right);
    TraceIL("IlBuilder[ %p ]::IfCmpGreaterThan %d > %d? -> [ %p ] B%d\n", this, left->getID(), right->getID(), target, target->getEntry()->getNumber());
    ifCmpCondition(TR_cmpGT, false, left, right, target->getEntry());
    }
@@ -2414,6 +2422,7 @@ OMR::IlBuilder::IfCmpUnsignedGreaterThan(TR::IlBuilder **target, TR::IlValue *le
 void
 OMR::IlBuilder::IfCmpUnsignedGreaterThan(TR::IlBuilder *target, TR::IlValue *left, TR::IlValue *right)
    {
+   TR::IlBuilderRecorder::IfCmpUnsignedGreaterThan(target, left, right);
    TraceIL("IlBuilder[ %p ]::IfCmpUnsignedGreaterThan %d > %d? -> [ %p ] B%d\n", this, left->getID(), right->getID(), target, target->getEntry()->getNumber());
    ifCmpCondition(TR_cmpGT, true, left, right, target->getEntry());
    }
@@ -2428,6 +2437,7 @@ OMR::IlBuilder::IfCmpGreaterOrEqual(TR::IlBuilder **target, TR::IlValue *left, T
 void
 OMR::IlBuilder::IfCmpGreaterOrEqual(TR::IlBuilder *target, TR::IlValue *left, TR::IlValue *right)
    {
+   TR::IlBuilderRecorder::IfCmpGreaterOrEqual(target, left, right);
    TraceIL("IlBuilder[ %p ]::IfCmpGreaterOrEqual %d >= %d? -> [ %p ] B%d\n", this, left->getID(), right->getID(), target, target->getEntry()->getNumber());
    ifCmpCondition(TR_cmpGE, false, left, right, target->getEntry());
    }
@@ -2442,6 +2452,7 @@ OMR::IlBuilder::IfCmpUnsignedGreaterOrEqual(TR::IlBuilder **target, TR::IlValue 
 void
 OMR::IlBuilder::IfCmpUnsignedGreaterOrEqual(TR::IlBuilder *target, TR::IlValue *left, TR::IlValue *right)
    {
+   TR::IlBuilderRecorder::IfCmpUnsignedGreaterOrEqual(target, left, right);
    TraceIL("IlBuilder[ %p ]::IfCmpUnsignedGreaterOrEqual %d >= %d? -> [ %p ] B%d\n", this, left->getID(), right->getID(), target, target->getEntry()->getNumber());
    ifCmpCondition(TR_cmpGE, true, left, right, target->getEntry());
    }

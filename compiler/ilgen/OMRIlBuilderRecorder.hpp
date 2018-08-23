@@ -119,7 +119,6 @@ public:
    TR::IlValue *SubWithUnsignedOverflow(TR::IlBuilder **handler, TR::IlValue *left, TR::IlValue *right);
    TR::IlValue *MulWithOverflow(TR::IlBuilder **handler, TR::IlValue *left, TR::IlValue *right);
 
-
    // memory
    void Store(const char *name, TR::IlValue *value);
    void StoreOver(TR::IlValue *dest, TR::IlValue *value);
@@ -249,6 +248,7 @@ public:
    /* @brief creates an OR nest of short-circuited conditions, for each term pass an IlBuilder containing the condition and the IlValue that computes the condition */
    void IfOr(TR::IlBuilder **anyTrueBuilder, TR::IlBuilder **allFalseBuilder, int32_t numTerms, ... );
 
+   // TODO: implement recording for the following
    void IfCmpNotEqualZero(TR::IlBuilder **target, TR::IlValue *condition);
    void IfCmpNotEqualZero(TR::IlBuilder *target, TR::IlValue *condition);
    void IfCmpNotEqual(TR::IlBuilder **target, TR::IlValue *left, TR::IlValue *right);
