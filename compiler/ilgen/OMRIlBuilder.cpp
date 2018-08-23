@@ -1511,14 +1511,14 @@ OMR::IlBuilder::Rem(TR::IlValue *left, TR::IlValue *right)
    left = widenIntegerTo32Bits(left);
    right = widenIntegerTo32Bits(right);
 
-// //    TR::IlValue *returnValue = TR::IlBuilderRecorder::Rem(left, right);
-//    binaryOpFromOpMap(TR::ILOpCode::remainderOpCode, returnValue, left, right);
-//    TraceIL("IlBuilder[ %p ]::%d is Rem %d %% %d\n", this, returnValue->getID(), left->getID(), right->getID());
+   TR::IlValue *returnValue = TR::IlBuilderRecorder::Rem(left, right);
+   binaryOpFromOpMap(TR::ILOpCode::remainderOpCode, returnValue, left, right);
+   TraceIL("IlBuilder[ %p ]::%d is Rem %d %% %d\n", this, returnValue->getID(), left->getID(), right->getID());
 
-//    if (returnValue->getDataType() != returnType)
-//       returnValue = ConvertTo(_types->PrimitiveType(returnType), returnValue);
+   if (returnValue->getDataType() != returnType)
+      returnValue = ConvertTo(_types->PrimitiveType(returnType), returnValue);
 
-//    return returnValue;
+   return returnValue;
    }
 
 TR::IlValue *
@@ -1863,7 +1863,7 @@ OMR::IlBuilder::ComputedCall(const char *functionName, int32_t numArgs, ...)
 
    TR::SymbolReference *methodSymRef = symRefTab()->findOrCreateComputedStaticMethodSymbol(JITTED_METHOD_INDEX, -1, resolvedMethod);
 
-   TR::IlValue *returnValue = TR::IlBuilderRecorder::ComputedCall(functionName, numArgs);
+   TR::IlValue *returnValue = TR::IlBuilderRecorder::ComputedCall(functionName, numArgs, argValues);
    genCall(returnValue, methodSymRef, numArgs, argValues);
 
    return returnValue;
