@@ -1368,8 +1368,8 @@ OMR::IlBuilder::genOverflowCHKTreeTop(TR::Node *operationNode, TR::ILOpCodes ove
    return overflowChkNode;
    }
 
-TR::IlValue *
-OMR::IlBuilder::genOperationWithOverflowCHK(TR::ILOpCodes op, TR::Node *leftNode, TR::Node *rightNode, TR::IlBuilder **handler, TR::ILOpCodes overflow)
+void
+OMR::IlBuilder::genOperationWithOverflowCHK(TR::IlValue *returnValue, TR::ILOpCodes op, TR::Node *leftNode, TR::Node *rightNode, TR::IlBuilder **handler, TR::ILOpCodes overflow)
    {
    /*
     * BB1:
@@ -1392,11 +1392,10 @@ OMR::IlBuilder::genOperationWithOverflowCHK(TR::ILOpCodes op, TR::Node *leftNode
    TR::Node *overflowChkNode = genOverflowCHKTreeTop(operationNode, overflow);
 
    TR::Block *blockWithOverflowCHK = _currentBlock;
-   TR::IlValue *resultValue = newValue(operationNode->getDataType(), operationNode);
-   genTreeTop(TR::Node::createStore(resultValue->getSymbolReference(), operationNode));
+   closeValue(returnValue, operationNode->getDataType(), operationNode);
+   genTreeTop(TR::Node::createStore(returnValue->getSymbolReference(), operationNode));
 
    appendExceptionHandler(blockWithOverflowCHK, handler, TR::Block::CanCatchOverflowCheck);
-   return resultValue;
    }
 
 // This function takes 4 arguments and generate the addValue.
@@ -1428,54 +1427,58 @@ OMR::IlBuilder::getOpCode(TR::IlValue *leftValue, TR::IlValue *rightValue)
 TR::IlValue *
 OMR::IlBuilder::AddWithOverflow(TR::IlBuilder **handler, TR::IlValue *left, TR::IlValue *right)
    {
-   TR::IlValue *returnValue = TR::IlBuilderRecorder::AddWithOverflow(handler, left, right); // TODO: make a genOperationWithOverflowCHK the takes a returnValue
+   TR::IlValue *returnValue = TR::IlBuilderRecorder::AddWithOverflow(handler, left, right);
    TR::Node *leftNode = loadValue(left);
    TR::Node *rightNode = loadValue(right);
    TR::ILOpCodes opcode = getOpCode(left, right);
-   TR::IlValue *addValue = genOperationWithOverflowCHK(opcode, leftNode, rightNode, handler, TR::OverflowCHK);
-   TraceIL("IlBuilder[ %p ]::%d is AddWithOverflow %d + %d\n", this, addValue->getID(), left->getID(), right->getID());
-   return addValue;
+   genOperationWithOverflowCHK(returnValue, opcode, leftNode, rightNode, handler, TR::OverflowCHK);
+   TraceIL("IlBuilder[ %p ]::%d is AddWithOverflow %d + %d\n", this, returnValue->getID(), left->getID(), right->getID());
+   return returnValue;
    }
 
 TR::IlValue *
 OMR::IlBuilder::AddWithUnsignedOverflow(TR::IlBuilder **handler, TR::IlValue *left, TR::IlValue *right)
    {
+   TR::IlValue *returnValue = TR::IlBuilderRecorder::AddWithUnsignedOverflow(handler, left, right);
    TR::Node *leftNode = loadValue(left);
    TR::Node *rightNode = loadValue(right);
    TR::ILOpCodes opcode = getOpCode(left, right);
-   TR::IlValue *addValue = genOperationWithOverflowCHK(opcode, leftNode, rightNode, handler, TR::UnsignedOverflowCHK);
-   TraceIL("IlBuilder[ %p ]::%d is AddWithUnsignedOverflow %d + %d\n", this, addValue->getID(), left->getID(), right->getID());
-   return addValue;
+   genOperationWithOverflowCHK(returnValue, opcode, leftNode, rightNode, handler, TR::UnsignedOverflowCHK);
+   TraceIL("IlBuilder[ %p ]::%d is AddWithUnsignedOverflow %d + %d\n", this, returnValue->getID(), left->getID(), right->getID());
+   return returnValue;
    }
 
 TR::IlValue *
 OMR::IlBuilder::SubWithOverflow(TR::IlBuilder **handler, TR::IlValue *left, TR::IlValue *right)
    {
+   TR::IlValue *returnValue = TR::IlBuilderRecorder::SubWithOverflow(handler, left, right);
    TR::Node *leftNode = loadValue(left);
    TR::Node *rightNode = loadValue(right);
-   TR::IlValue *subValue = genOperationWithOverflowCHK(TR::ILOpCode::subtractOpCode(leftNode->getDataType()), leftNode, rightNode, handler, TR::OverflowCHK);
-   TraceIL("IlBuilder[ %p ]::%d is SubWithOverflow %d + %d\n", this, subValue->getID(), left->getID(), right->getID());
-   return subValue;
+   genOperationWithOverflowCHK(returnValue, TR::ILOpCode::subtractOpCode(leftNode->getDataType()), leftNode, rightNode, handler, TR::OverflowCHK);
+   TraceIL("IlBuilder[ %p ]::%d is SubWithOverflow %d + %d\n", this, returnValue->getID(), left->getID(), right->getID());
+   return returnValue;
    }
 
 TR::IlValue *
 OMR::IlBuilder::SubWithUnsignedOverflow(TR::IlBuilder **handler, TR::IlValue *left, TR::IlValue *right)
    {
+   TR::IlValue *returnValue = TR::IlBuilderRecorder::SubWithUnsignedOverflow(handler, left, right);
    TR::Node *leftNode = loadValue(left);
    TR::Node *rightNode = loadValue(right);
-   TR::IlValue *unsignedSubValue = genOperationWithOverflowCHK(TR::ILOpCode::subtractOpCode(leftNode->getDataType()), leftNode, rightNode, handler, TR::UnsignedOverflowCHK);
-   TraceIL("IlBuilder[ %p ]::%d is UnsignedSubWithOverflow %d + %d\n", this, unsignedSubValue->getID(), left->getID(), right->getID());
-   return unsignedSubValue;
+   genOperationWithOverflowCHK(returnValue, TR::ILOpCode::subtractOpCode(leftNode->getDataType()), leftNode, rightNode, handler, TR::UnsignedOverflowCHK);
+   TraceIL("IlBuilder[ %p ]::%d is UnsignedSubWithOverflow %d + %d\n", this, returnValue->getID(), left->getID(), right->getID());
+   return returnValue;
    }
 
 TR::IlValue *
 OMR::IlBuilder::MulWithOverflow(TR::IlBuilder **handler, TR::IlValue *left, TR::IlValue *right)
    {
+   TR::IlValue *returnValue = TR::IlBuilderRecorder::MulWithOverflow(handler, left, right);
    TR::Node *leftNode = loadValue(left);
    TR::Node *rightNode = loadValue(right);
-   TR::IlValue *mulValue = genOperationWithOverflowCHK(TR::ILOpCode::multiplyOpCode(leftNode->getDataType()), leftNode, rightNode, handler, TR::OverflowCHK);
-   TraceIL("IlBuilder[ %p ]::%d is MulWithOverflow %d + %d\n", this, mulValue->getID(), left->getID(), right->getID());
-   return mulValue;
+   genOperationWithOverflowCHK(returnValue, TR::ILOpCode::multiplyOpCode(leftNode->getDataType()), leftNode, rightNode, handler, TR::OverflowCHK);
+   TraceIL("IlBuilder[ %p ]::%d is MulWithOverflow %d + %d\n", this, returnValue->getID(), left->getID(), right->getID());
+   return returnValue;
    }
 
 TR::IlValue *
