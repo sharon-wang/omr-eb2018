@@ -308,6 +308,8 @@ JITBUILDER_FILES=$(RELEASE_DIR)/Makefile \
              $(RELEASE_SRC)/NestedLoop.cpp \
              $(RELEASE_SRC)/Pointer.hpp \
              $(RELEASE_SRC)/Pointer.cpp \
+             $(RELEASE_SRC)/RecordReplayTest.hpp \
+             $(RELEASE_SRC)/RecordReplayTest.cpp \
              $(RELEASE_SRC)/RecursiveFib.hpp \
              $(RELEASE_SRC)/RecursiveFib.cpp \
              $(RELEASE_SRC)/Simple.hpp \

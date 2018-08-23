@@ -41,8 +41,9 @@ create_jitbuilder_test(recurfib        src/RecursiveFib.cpp)
 create_jitbuilder_test(nestedloop      src/NestedLoop.cpp)
 create_jitbuilder_test(mandelbrot      src/Mandelbrot.cpp)
 create_jitbuilder_test(pow2            src/Pow2.cpp)
-create_jitbuilder_test(matmul          src/MatMult.cpp)
+create_jitbuilder_test(matmult         src/MatMult.cpp)
 create_jitbuilder_test(simple          src/Simple.cpp)
+create_jitbuilder_test(recordReplayTest  src/RecordReplayTest.cpp)
 create_jitbuilder_test(worklist        src/Worklist.cpp)
 
 # Additional Tests: These may not run properly on all platforms
