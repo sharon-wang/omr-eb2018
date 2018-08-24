@@ -29,10 +29,11 @@
 #include <cstring>
 
 #include "Jit.hpp"
-#include "ilgen/TypeDictionary.hpp"
-#include "ilgen/JitBuilderRecorderTextFile.hpp"
+//#include "ilgen/JitBuilderRecorderTextFile.hpp"
+#include "ilgen/JitBuilderRecorderBinaryFile.hpp"
 #include "ilgen/JitBuilderReplayTextFile.hpp"
 #include "ilgen/MethodBuilderReplay.hpp"
+#include "ilgen/TypeDictionary.hpp"
 #include "Simple.hpp"
 
 using std::cout;
@@ -52,7 +53,8 @@ main(int argc, char *argv[])
    cout << "Step 2: define type dictionary\n";
    TR::TypeDictionary types;
    // Create a recorder so we can directly control the file for this particular test
-   TR::JitBuilderRecorderTextFile recorder(NULL, "simple.out");
+   //TR::JitBuilderRecorderTextFile recorder(NULL, "simple.out");
+   TR::JitBuilderRecorderBinaryFile recorder(NULL, "simple.bin");
 
    cout << "Step 3: compile method builder\n";
    SimpleMethod method(&types, &recorder);
@@ -64,7 +66,7 @@ main(int argc, char *argv[])
       cerr << "FAIL: compilation error " << rc << "\n";
       exit(-2);
       }
-
+/*
    cout << "Step 4: Replay\n";
    TR::JitBuilderReplayTextFile replay("simple.out");
    TR::JitBuilderRecorderTextFile recorder2(NULL, "simple2.out");
@@ -90,7 +92,7 @@ main(int argc, char *argv[])
    v=1; cout << "increment(" << v << ") == " << increment(v) << "\n";
    v=10; cout << "increment(" << v << ") == " << increment(v) << "\n";
    v=-15; cout << "increment(" << v << ") == " << increment(v) << "\n";
-
+*/
    cout << "Step 7: shutdown JIT\n";
    shutdownJit();
    }
@@ -125,10 +127,12 @@ SimpleMethod::buildIL()
 
    // *****************************************************************
    // ORIGINAL SIMPLE.cpp
-   Return(
-      Add(
-         Load("value"),
-         ConstInt32(1)));
+   // Return(
+   //    Add(
+   //       Load("value"),
+   //       ConstInt32(1)));
+
+   Return(Load("value"));
 
    // *****************************************************************
    // COMPLICATED SIMPLE.cpp

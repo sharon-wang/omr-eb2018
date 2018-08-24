@@ -16,13 +16,13 @@
  *    Multiple authors (IBM Corp.) - initial implementation and documentation
  ******************************************************************************/
 
- #ifndef OMR_JITBUILDERREPLAY_TEXTFILE_INCL
- #define OMR_JITBUILDERREPLAY_TEXTFILE_INCL
+ #ifndef OMR_JITBUILDERREPLAY_BINARYFILE_INCL
+ #define OMR_JITBUILDERREPLAY_BINARYFILE_INCL
 
 
- #ifndef TR_JITBUILDERREPLAY_TEXTFILE_DEFINED
- #define TR_JITBUILDERREPLAY_TEXTFILE_DEFINED
- #define PUT_OMR_JITBUILDERREPLAY_TEXTFILE_INTO_TR
+ #ifndef TR_JITBUILDERREPLAY_BINARYFILE_DEFINED
+ #define TR_JITBUILDERREPLAY_BINARYFILE_DEFINED
+ #define PUT_OMR_JITBUILDERREPLAY_BINARYFILE_INTO_TR
  #endif
 
 
@@ -39,25 +39,31 @@
  namespace OMR
  {
 
- class JitBuilderReplayTextFile : public TR::JitBuilderReplay
+ class JitBuilderReplayBinaryFile : public TR::JitBuilderReplay
     {
     public:
 
     // enum to handle Service method to distinguish between a MethodBuilder and an IlBuilder
     enum BuilderFlag {METHOD_BUILDER, IL_BUILDER};
 
-    JitBuilderReplayTextFile(const char *fileName);
-    JitBuilderReplayTextFile(std::string fileString);
+    JitBuilderReplayBinaryFile(const char *fileName);
+    JitBuilderReplayBinaryFile(std::string fileString);
 
     void start();//;;;;;;
-    void processFirstLineFromTextFile();
-    char * getLineAsChar();
-    char * getTokensFromLine(std::string);
+    uint8_t getFileAsByte()；
 
-    bool parseConstructor();
+    bool parseConstructor();//;;;;;;;
     bool parseBuildIL();
 
     void addIDPointerPairToMap(char * tokens);//;;;;;;;
+    /*
+    void processFirstLineFromBinaryFile();
+    char * getLineAsChar();
+    char * getTokensFromLine(std::string);
+
+
+    bool parseBuildIL();
+
     char * getServiceStringFromToken(uint32_t strLen, char * tokens);
     const char * getServiceStringFromMap(char ** tokens);
 
@@ -115,7 +121,7 @@
     void handleIndexAt(TR::IlBuilder * ilmb, char * tokens);
 
     uint32_t getNumberFromToken(char * token);
-
+*/
     const char * SPACE = " ";
     const char * NEW_LINE = "\r\n";
 
@@ -129,20 +135,20 @@
  } // namespace OMR
 
 
- #if defined(PUT_OMR_JITBUILDERREPLAY_TEXTFILE_INTO_TR)
+ #if defined(PUT_OMR_JITBUILDERREPLAY_BINARYFILE_INTO_TR)
 
  namespace TR
  {
-    class JitBuilderReplayTextFile : public OMR::JitBuilderReplayTextFile
+    class JitBuilderReplayBinaryFile : public OMR::JitBuilderReplayBinaryFile
        {
        public:
-          JitBuilderReplayTextFile(const char *fileName)
-             : OMR::JitBuilderReplayTextFile(fileName)
+          JitBuilderReplayBinaryFile(const char *fileName)
+             : OMR::JitBuilderReplayBinaryFile(fileName)
              { }
-          JitBuilderReplayTextFile(std::string fileString)
-             : OMR::JitBuilderReplayTextFile(fileString)
+          JitBuilderReplayBinaryFile(std::string fileString)
+             : OMR::JitBuilderReplayBinaryFile(fileString)
              { }
-          virtual ~JitBuilderReplayTextFile()
+          virtual ~JitBuilderReplayBinaryFile()
              { }
        };
 
