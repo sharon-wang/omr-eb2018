@@ -60,7 +60,6 @@ public:
 
    void DoneConstructor(const char * value);
    void assertNotRecorded(TR::JitBuilderRecorder * rec, const char * statement);
-   void assertNotRecorded(TR::JitBuilderRecorder * rec);
 
    // constants
    TR::IlValue *NullAddress();

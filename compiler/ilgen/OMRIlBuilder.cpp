@@ -99,18 +99,6 @@ OMR::IlBuilder::IlBuilder(TR::IlBuilder *source)
    {
    }
 
-TR::IlBuilder *
-OMR::IlBuilder::self()
-   {
-   return static_cast<TR::IlBuilder *>(this);
-   }
-
-TR_HeapMemory
-OMR::IlBuilder::trHeapMemory()
-   {
-   return _types->trMemory()->trHeapMemory();
-   }
-
 bool
 OMR::IlBuilder::TraceEnabled_log()
    {
@@ -526,20 +514,20 @@ TR::IlBuilder *
 OMR::IlBuilder::createBuilderIfNeeded(TR::IlBuilder *builder)
    {
    if (builder == NULL)
-      builder = self()->OrphanBuilder();
+       builder = OrphanBuilder();
    return builder;
    }
 
 OMR::IlBuilder::SequenceEntry *
 OMR::IlBuilder::blockEntry(TR::Block *block)
    {
-   return new (trHeapMemory()) IlBuilder::SequenceEntry(block);
+   return new (_comp->trMemory()->trHeapMemory()) IlBuilder::SequenceEntry(block);
    }
 
 OMR::IlBuilder::SequenceEntry *
 OMR::IlBuilder::builderEntry(TR::IlBuilder *builder)
    {
-   return new (trHeapMemory()) IlBuilder::SequenceEntry(builder);
+   return new (_comp->trMemory()->trHeapMemory()) IlBuilder::SequenceEntry(builder);
    }
 
 void
@@ -1177,7 +1165,7 @@ void
 OMR::IlBuilder::Goto(TR::IlBuilder **dest)
    {
    *dest = createBuilderIfNeeded(*dest);
-   self()->Goto(*dest);
+   Goto(*dest);
    }
 
 void
@@ -1638,7 +1626,7 @@ OMR::IlBuilder::UnsignedShiftR(TR::IlValue *v, TR::IlValue *amount)
 void
 OMR::IlBuilder::IfAnd(TR::IlBuilder **allTrueBuilder, TR::IlBuilder **anyFalseBuilder, int32_t numTerms, ...)
    {
-   TR::IlBuilder *mergePoint = self()->OrphanBuilder();
+   TR::IlBuilder *mergePoint = OrphanBuilder();
    *allTrueBuilder = createBuilderIfNeeded(*allTrueBuilder);
    *anyFalseBuilder = createBuilderIfNeeded(*anyFalseBuilder);
 
@@ -1648,7 +1636,7 @@ OMR::IlBuilder::IfAnd(TR::IlBuilder **allTrueBuilder, TR::IlBuilder **anyFalseBu
       {
       TR::IlBuilder *condBuilder = va_arg(terms, TR::IlBuilder*);
       TR::IlValue *condValue = va_arg(terms, TR::IlValue*);
-      self()->AppendBuilder(condBuilder);
+      AppendBuilder(condBuilder);
       condBuilder->IfCmpEqualZero(anyFalseBuilder, condValue);
       // otherwise fall through to test next term
       }
@@ -1657,14 +1645,14 @@ OMR::IlBuilder::IfAnd(TR::IlBuilder **allTrueBuilder, TR::IlBuilder **anyFalseBu
    TR::IlBuilderRecorder::IfAnd(allTrueBuilder, anyFalseBuilder, numTerms);
 
    // if control gets here, all the provided terms were true
-   self()->AppendBuilder(*allTrueBuilder);
-   self()->Goto(mergePoint);
+   AppendBuilder(*allTrueBuilder);
+   Goto(mergePoint);
 
    // also need to handle the false case
-   self()->AppendBuilder(*anyFalseBuilder);
-   self()->Goto(mergePoint);
+   AppendBuilder(*anyFalseBuilder);
+   Goto(mergePoint);
 
-   self()->AppendBuilder(mergePoint);
+   AppendBuilder(mergePoint);
 
    // return state for "this" can get confused by the Goto's in this service
    setComesBack();
@@ -1692,7 +1680,7 @@ OMR::IlBuilder::IfAnd(TR::IlBuilder **allTrueBuilder, TR::IlBuilder **anyFalseBu
 void
 OMR::IlBuilder::IfOr(TR::IlBuilder **anyTrueBuilder, TR::IlBuilder **allFalseBuilder, int32_t numTerms, ...)
    {
-   TR::IlBuilder *mergePoint = self()->OrphanBuilder();
+   TR::IlBuilder *mergePoint = OrphanBuilder();
    *anyTrueBuilder = createBuilderIfNeeded(*anyTrueBuilder);
    *allFalseBuilder = createBuilderIfNeeded(*allFalseBuilder);
 
@@ -1704,7 +1692,7 @@ OMR::IlBuilder::IfOr(TR::IlBuilder **anyTrueBuilder, TR::IlBuilder **allFalseBui
       {
       TR::IlBuilder *condBuilder = va_arg(terms, TR::IlBuilder*);
       TR::IlValue *condValue = va_arg(terms, TR::IlValue*);
-      self()->AppendBuilder(condBuilder);
+      AppendBuilder(condBuilder);
       condBuilder->IfCmpNotEqualZero(anyTrueBuilder, condValue);
       // otherwise fall through to test next term
       }
@@ -1712,19 +1700,19 @@ OMR::IlBuilder::IfOr(TR::IlBuilder **anyTrueBuilder, TR::IlBuilder **allFalseBui
    // reverse condition on last term so that it can fall through to anyTrueBuilder
    TR::IlBuilder *condBuilder = va_arg(terms, TR::IlBuilder*);
    TR::IlValue *condValue = va_arg(terms, TR::IlValue*);
-   self()->AppendBuilder(condBuilder);
+   AppendBuilder(condBuilder);
    condBuilder->IfCmpEqualZero(allFalseBuilder, condValue);
    va_end(terms);
 
    // any true term will end up here
-   self()->AppendBuilder(*anyTrueBuilder);
-   self()->Goto(mergePoint);
+   AppendBuilder(*anyTrueBuilder);
+   Goto(mergePoint);
 
    // if control gets here, all the provided terms were false
-   self()->AppendBuilder(*allFalseBuilder);
-   self()->Goto(mergePoint);
+   AppendBuilder(*allFalseBuilder);
+   Goto(mergePoint);
 
-   self()->AppendBuilder(mergePoint);
+   AppendBuilder(mergePoint);
 
    // return state for "this" can get confused by the Goto's in this service
    setComesBack();
@@ -2223,12 +2211,12 @@ OMR::IlBuilder::Transaction(TR::IlBuilder **persistentFailureBuilder, TR::IlBuil
       //if user's processor doesn't support TM.
       //we will walk around transaction and transientFailure paths
 
-      self()->Goto(persistentFailureBuilder);
+      Goto(persistentFailureBuilder);
 
-      self()->AppendBuilder(*transactionBuilder);
-      self()->AppendBuilder(*transientFailureBuilder);
+      AppendBuilder(*transactionBuilder);
+      AppendBuilder(*transientFailureBuilder);
 
-      self()->AppendBuilder(*persistentFailureBuilder);
+      AppendBuilder(*persistentFailureBuilder);
       appendBlock(mergeBlock);
       return;
       }
@@ -2248,13 +2236,13 @@ OMR::IlBuilder::Transaction(TR::IlBuilder **persistentFailureBuilder, TR::IlBuil
    cfg()->addEdge(_currentBlock, (*transactionBuilder)->getEntry());
 
    appendNoFallThroughBlock();
-   self()->AppendBuilder(*transientFailureBuilder);
+   AppendBuilder(*transientFailureBuilder);
    gotoBlock(mergeBlock);
 
-   self()->AppendBuilder(*persistentFailureBuilder);
+   AppendBuilder(*persistentFailureBuilder);
    gotoBlock(mergeBlock);
 
-   self()->AppendBuilder(*transactionBuilder);
+   AppendBuilder(*transactionBuilder);
 
    //ending the transaction at the end of transactionBuilder
    appendBlock();
@@ -2553,7 +2541,7 @@ OMR::IlBuilder::IfThenElse(TR::IlBuilder **thenPath, TR::IlBuilder **elsePath, T
       if ((*elsePath)->_partOfSequence)
          gotoBlock(elseEntry);
       else
-         self()->AppendBuilder(*elsePath);
+         AppendBuilder(*elsePath);
       }
    else if (elsePath == NULL) // case #2
       {
@@ -2561,7 +2549,7 @@ OMR::IlBuilder::IfThenElse(TR::IlBuilder **thenPath, TR::IlBuilder **elsePath, T
       if ((*thenPath)->_partOfSequence)
          gotoBlock(thenEntry);
       else
-         self()->AppendBuilder(*thenPath);
+         AppendBuilder(*thenPath);
       }
    else // case #1
       {
@@ -2572,11 +2560,11 @@ OMR::IlBuilder::IfThenElse(TR::IlBuilder **thenPath, TR::IlBuilder **elsePath, T
          }
       else
          {
-         self()->AppendBuilder(*elsePath);
+         AppendBuilder(*elsePath);
          appendGoto(mergeBlock);
          }
       if (!(*thenPath)->_partOfSequence)
-         self()->AppendBuilder(*thenPath);
+         AppendBuilder(*thenPath);
       // if then path exists elsewhere already,
       //  then IfCmpNotEqual above already brances to it
       }
@@ -2607,7 +2595,7 @@ OMR::IlBuilder::Switch(const char *selectionVar,
    // make sure no fall through edge created from the lookup
    appendNoFallThroughBlock();
 
-   TR::IlBuilder *breakBuilder = self()->OrphanBuilder();
+   TR::IlBuilder *breakBuilder = OrphanBuilder();
 
    // each case handler is a sequence of two builder objects: first the one passed in via `cases`,
    //   and second a builder that branches to the breakBuilder (unless this case falls through)
@@ -2618,12 +2606,12 @@ OMR::IlBuilder::Switch(const char *selectionVar,
       TR::IlBuilder *builder = cases[c]->_builder;
       if (!cases[c]->_fallsThrough)
          {
-         handler = self()->OrphanBuilder();
+         handler = OrphanBuilder();
 
          handler->AppendBuilder(builder);
 
          // handle "break" with a separate builder so user can add whatever they want into caseBuilders[c]
-         TR::IlBuilder *branchToBreak = self()->OrphanBuilder();
+         TR::IlBuilder *branchToBreak = OrphanBuilder();
          branchToBreak->Goto(&breakBuilder);
          handler->AppendBuilder(branchToBreak);
          }
@@ -2636,16 +2624,16 @@ OMR::IlBuilder::Switch(const char *selectionVar,
 
       TR::Block *caseBlock = handler->getEntry();
       cfg()->addEdge(switchBlock, caseBlock);
-      self()->AppendBuilder(handler);
+      AppendBuilder(handler);
 
       TR::Node *caseNode = TR::Node::createCase(0, caseBlock->getEntry(), value);
       lookupNode->setAndIncChild(c+2, caseNode);
       }
 
    cfg()->addEdge(switchBlock, (*defaultBuilder)->getEntry());
-   self()->AppendBuilder(*defaultBuilder);
+   AppendBuilder(*defaultBuilder);
 
-   self()->AppendBuilder(breakBuilder);
+   AppendBuilder(breakBuilder);
    }
 
 TR::IlBuilder::JBCase *
@@ -2699,10 +2687,10 @@ OMR::IlBuilder::ForLoop(bool countsUp,
    if (breakBuilder)
       {
       TR_ASSERT(*breakBuilder == NULL, "ForLoop returns breakBuilder, cannot provide breakBuilder as input");
-      bBreak = *breakBuilder = self()->OrphanBuilder();
+      bBreak = *breakBuilder = OrphanBuilder();
       }
 
-   TR::IlBuilder *loopContinue = self()->OrphanBuilder();
+   TR::IlBuilder *loopContinue = OrphanBuilder();
 
    TR::IlBuilder *bContinue = NULL;
    if (continueBuilder)
@@ -2724,14 +2712,14 @@ OMR::IlBuilder::ForLoop(bool countsUp,
    Store(indVar, initial);
 
    TR::IlValue *loopCondition;
-   TR::IlBuilder *loopBody = self()->OrphanBuilder();
+   TR::IlBuilder *loopBody = OrphanBuilder();
    loopCondition = countsUp ? LessThan(Load(indVar), end) : GreaterThan(Load(indVar), end);
    IfThen(&loopBody, loopCondition);
    loopBody->AppendBuilder(*loopCode);
    loopBody->AppendBuilder(loopContinue);
 
    if (breakBuilder)
-      self()->AppendBuilder(*breakBuilder);
+      AppendBuilder(*breakBuilder);
 
    if (countsUp)
       {
@@ -2772,28 +2760,28 @@ OMR::IlBuilder::DoWhileLoop(const char *whileCondition, TR::IlBuilder **body, TR
    *body = createBuilderIfNeeded(*body);
    TraceIL("IlBuilder[ %p ]::DoWhileLoop do body B%d while %s\n", this, (*body)->getEntry()->getNumber(), whileCondition);
 
-   self()->AppendBuilder(*body);
+   AppendBuilder(*body);
    TR::IlBuilder *loopContinue = NULL;
 
    if (continueBuilder)
       {
       TR_ASSERT(*continueBuilder == NULL, "DoWhileLoop returns continueBuilder, cannot provide continueBuilder as input");
-      loopContinue = *continueBuilder = self()->OrphanBuilder();
+      loopContinue = *continueBuilder = OrphanBuilder();
       }
    else
-      loopContinue = self()->OrphanBuilder();
+      loopContinue = OrphanBuilder();
 
    TR::IlBuilderRecorder::DoWhileLoop(whileCondition, body, breakBuilder, continueBuilder);
 
-   self()->AppendBuilder(loopContinue);
+   AppendBuilder(loopContinue);
    loopContinue->IfCmpNotEqualZero(body,
    loopContinue->   Load(whileCondition));
 
    if (breakBuilder)
       {
       TR_ASSERT(*breakBuilder == NULL, "DoWhileLoop returns breakBuilder, cannot provide breakBuilder as input");
-      *breakBuilder = self()->OrphanBuilder();
-      self()->AppendBuilder(*breakBuilder);
+      *breakBuilder = OrphanBuilder();
+      AppendBuilder(*breakBuilder);
       }
 
    // make sure any subsequent operations go into their own block *after* the loop
@@ -2807,14 +2795,14 @@ OMR::IlBuilder::WhileDoLoop(const char *whileCondition, TR::IlBuilder **body, TR
    TR_ASSERT(body != NULL, "WhileDo needs to have a body");
    TraceIL("IlBuilder[ %p ]::WhileDoLoop while %s do body %p\n", this, whileCondition, *body);
 
-   TR::IlBuilder *done = self()->OrphanBuilder();
+   TR::IlBuilder *done = OrphanBuilder();
    if (breakBuilder)
       {
       TR_ASSERT(*breakBuilder == NULL, "WhileDoLoop returns breakBuilder, cannot provide breakBuilder as input");
       *breakBuilder = done;
       }
 
-   TR::IlBuilder *loopContinue = self()->OrphanBuilder();
+   TR::IlBuilder *loopContinue = OrphanBuilder();
    if (continueBuilder)
       {
       TR_ASSERT(*continueBuilder == NULL, "WhileDoLoop returns continueBuilder, cannot provide continueBuilder as input");
@@ -2823,15 +2811,15 @@ OMR::IlBuilder::WhileDoLoop(const char *whileCondition, TR::IlBuilder **body, TR
 
    TR::IlBuilderRecorder::WhileDoLoop(whileCondition, body, breakBuilder, continueBuilder);
 
-   self()->AppendBuilder(loopContinue);
+   AppendBuilder(loopContinue);
    loopContinue->IfCmpEqualZero(&done,
    loopContinue->   Load(whileCondition));
 
    *body = createBuilderIfNeeded(*body);
-   self()->AppendBuilder(*body);
+   AppendBuilder(*body);
 
-   self()->Goto(&loopContinue);
+   Goto(&loopContinue);
    setComesBack(); // this goto is on one particular flow path, doesn't mean every path does a goto
 
-   self()->AppendBuilder(done);
+   AppendBuilder(done);
    }

@@ -83,6 +83,7 @@ main(int argc, char *argv[])
 
    #ifdef REPLAY
 
+   cout << "********** REPLAY ON **********\n";
    uint8_t *entry2 = 0;
    cout << "Step 4: Replay\n";
    TR::JitBuilderReplayTextFile replay("recordReplayIL.ilt");
@@ -113,7 +114,8 @@ main(int argc, char *argv[])
 
    #ifndef REPLAY
 
-   cout << "Step 4: run compiled code from replay\n";
+   cout << "********** REPLAY OFF **********\n";
+   cout << "Step 4: run compiled code\n";
    RecordReplayMethodFunction *incrementTwo = (RecordReplayMethodFunction *) entry1;
 
    v=0, t=5; cout << "incrementTwo(" << v << "+" << t << ") == " << incrementTwo(v,t) << "\n";

@@ -91,16 +91,9 @@ OMR::IlBuilderRecorder::DoneConstructor(const char * value)
 void
 OMR::IlBuilderRecorder::assertNotRecorded(TR::JitBuilderRecorder * rec, const char * statement)
    {
+   std::cout << "222222222222222222\n";
    if (rec)
-      TR_ASSERT(0, "does not have Recorder support\n");
-   }
-
-// TODO: Temporary hack to make sure examples run - not used by all services
-void
-OMR::IlBuilderRecorder::assertNotRecorded(TR::JitBuilderRecorder * rec)
-   {
-   if (rec)
-      TR_ASSERT(0, "does not have Recorder support\n");
+      TR_ASSERT(0, "%s does not have Recorder support\n", statement);
    }
 
 void
@@ -381,7 +374,8 @@ OMR::IlBuilderRecorder::AddWithOverflow(TR::IlBuilder **handler, TR::IlValue *le
    {
    TR::IlValue *returnValue = newValue();
    TR::JitBuilderRecorder *rec = recorder();
-   assertNotRecorded(rec, rec->STATEMENT_ADDWITHOVERFLOW);
+   if (rec)
+      assertNotRecorded(rec, rec->STATEMENT_ADDWITHOVERFLOW);
    return returnValue;
    }
 
@@ -390,7 +384,8 @@ OMR::IlBuilderRecorder::AddWithUnsignedOverflow(TR::IlBuilder **handler, TR::IlV
    {
    TR::IlValue *returnValue = newValue();
    TR::JitBuilderRecorder *rec = recorder();
-   assertNotRecorded(rec, rec->STATEMENT_ADDWITHUNSIGNEDOVERFLOW);
+   if (rec)
+      assertNotRecorded(rec, rec->STATEMENT_ADDWITHUNSIGNEDOVERFLOW);
    return returnValue;
    }
 
@@ -409,7 +404,8 @@ OMR::IlBuilderRecorder::SubWithOverflow(TR::IlBuilder **handler, TR::IlValue *le
    {
    TR::IlValue *returnValue = newValue();
    TR::JitBuilderRecorder *rec = recorder();
-   assertNotRecorded(rec, rec->STATEMENT_SUBWITHOVERFLOW);
+   if (rec)
+      assertNotRecorded(rec, rec->STATEMENT_SUBWITHOVERFLOW);
    return returnValue;
    }
 
@@ -418,7 +414,8 @@ OMR::IlBuilderRecorder::SubWithUnsignedOverflow(TR::IlBuilder **handler, TR::IlV
    {
    TR::IlValue *returnValue = newValue();
    TR::JitBuilderRecorder *rec = recorder();
-   assertNotRecorded(rec, rec->STATEMENT_SUBWITHUNSIGNEDOVERFLOW);
+   if (rec)
+      assertNotRecorded(rec, rec->STATEMENT_SUBWITHUNSIGNEDOVERFLOW);
    return returnValue;
    }
 
@@ -437,7 +434,8 @@ OMR::IlBuilderRecorder::MulWithOverflow(TR::IlBuilder **handler, TR::IlValue *le
    {
    TR::IlValue *returnValue = newValue();
    TR::JitBuilderRecorder *rec = recorder();
-   assertNotRecorded(rec, rec->STATEMENT_MULWITHOVERFLOW);
+   if (rec)
+      assertNotRecorded(rec, rec->STATEMENT_MULWITHOVERFLOW);
    return returnValue;
    }
 
@@ -456,7 +454,8 @@ OMR::IlBuilderRecorder::Rem(TR::IlValue *left, TR::IlValue *right)
    {
    TR::IlValue *returnValue = newValue();
    TR::JitBuilderRecorder *rec = recorder();
-   assertNotRecorded(rec, rec->STATEMENT_REM);
+   if (rec)
+      assertNotRecorded(rec, rec->STATEMENT_REM);
    return returnValue;
    }
 
@@ -495,7 +494,8 @@ OMR::IlBuilderRecorder::ShiftL(TR::IlValue *v, TR::IlValue *amount)
    {
    TR::IlValue *returnValue = newValue();
    TR::JitBuilderRecorder *rec = recorder();
-   assertNotRecorded(rec, rec->STATEMENT_SHIFTL);
+   if (rec)
+      assertNotRecorded(rec, rec->STATEMENT_SHIFTL);
    return returnValue;
    }
 
@@ -504,7 +504,8 @@ OMR::IlBuilderRecorder::ShiftR(TR::IlValue *v, TR::IlValue *amount)
    {
    TR::IlValue *returnValue = newValue();
    TR::JitBuilderRecorder *rec = recorder();
-   assertNotRecorded(rec, rec->STATEMENT_SHIFTR);
+   if (rec)
+      assertNotRecorded(rec, rec->STATEMENT_SHIFTR);
    return returnValue;
    }
 
@@ -523,7 +524,8 @@ OMR::IlBuilderRecorder::EqualTo(TR::IlValue *left, TR::IlValue *right)
    {
    TR::IlValue *returnValue = newValue();
    TR::JitBuilderRecorder *rec = recorder();
-   assertNotRecorded(rec, rec->STATEMENT_EQUALTO);
+   if (rec)
+      assertNotRecorded(rec, rec->STATEMENT_EQUALTO);
    return returnValue;
    }
 
@@ -552,7 +554,8 @@ OMR::IlBuilderRecorder::UnsignedGreaterThan(TR::IlValue *left, TR::IlValue *righ
    {
    TR::IlValue *returnValue = newValue();
    TR::JitBuilderRecorder *rec = recorder();
-   assertNotRecorded(rec, rec->STATEMENT_UNSIGNEDGREATERTHAN);
+   if (rec)
+      assertNotRecorded(rec, rec->STATEMENT_UNSIGNEDGREATERTHAN);
    return returnValue;
    }
 
@@ -561,7 +564,8 @@ OMR::IlBuilderRecorder::GreaterOrEqualTo(TR::IlValue *left, TR::IlValue *right)
    {
    TR::IlValue *returnValue = newValue();
    TR::JitBuilderRecorder *rec = recorder();
-   assertNotRecorded(rec, rec->STATEMENT_GREATEROREQUALTO);
+   if (rec)
+      assertNotRecorded(rec, rec->STATEMENT_GREATEROREQUALTO);
    return returnValue;
    }
 
@@ -570,7 +574,8 @@ OMR::IlBuilderRecorder::UnsignedGreaterOrEqualTo(TR::IlValue *left, TR::IlValue 
    {
    TR::IlValue *returnValue = newValue();
    TR::JitBuilderRecorder *rec = recorder();
-   assertNotRecorded(rec, rec->STATEMENT_UNSIGNEDGREATEROREQUALTO);
+   if (rec)
+      assertNotRecorded(rec, rec->STATEMENT_UNSIGNEDGREATEROREQUALTO);
    return returnValue;
    }
 
@@ -589,7 +594,8 @@ OMR::IlBuilderRecorder::UnsignedLessThan(TR::IlValue *left, TR::IlValue *right)
    {
    TR::IlValue *returnValue = newValue();
    TR::JitBuilderRecorder *rec = recorder();
-   assertNotRecorded(rec, rec->STATEMENT_UNSIGNEDLESSTHAN);
+   if (rec)
+      assertNotRecorded(rec, rec->STATEMENT_UNSIGNEDLESSTHAN);
    return returnValue;
    }   
 
@@ -598,7 +604,8 @@ OMR::IlBuilderRecorder::LessOrEqualTo(TR::IlValue *left, TR::IlValue *right)
    {
    TR::IlValue *returnValue = newValue();
    TR::JitBuilderRecorder *rec = recorder();
-   assertNotRecorded(rec, rec->STATEMENT_LESSOREQUALTO);
+   if (rec)
+      assertNotRecorded(rec, rec->STATEMENT_LESSOREQUALTO);
    return returnValue;
    }
 
@@ -607,7 +614,8 @@ OMR::IlBuilderRecorder::UnsignedLessOrEqualTo(TR::IlValue *left, TR::IlValue *ri
    {
    TR::IlValue *returnValue = newValue();
    TR::JitBuilderRecorder *rec = recorder();
-   assertNotRecorded(rec, rec->STATEMENT_UNSIGNEDLESSOREQUALTO);
+   if (rec)
+      assertNotRecorded(rec, rec->STATEMENT_UNSIGNEDLESSOREQUALTO);
    return returnValue;
    }
 
@@ -805,7 +813,8 @@ OMR::IlBuilderRecorder::AtomicAddWithOffset(TR::IlValue * baseAddress, TR::IlVal
    {
    TR::IlValue *returnValue = newValue();
    TR::JitBuilderRecorder *rec = recorder();
-   assertNotRecorded(rec, rec->STATEMENT_ATOMICADDWITHOFFSET);
+   if (rec)
+      assertNotRecorded(rec, rec->STATEMENT_ATOMICADDWITHOFFSET);
    return returnValue;
    }
 
@@ -921,14 +930,16 @@ void
 OMR::IlBuilderRecorder::Transaction(TR::IlBuilder **persistentFailureBuilder, TR::IlBuilder **transientFailureBuilder, TR::IlBuilder **transactionBuilder)
    {
    TR::JitBuilderRecorder *rec = recorder();
-   assertNotRecorded(rec, rec->STATEMENT_TRANSACTION);
+   if (rec)
+      assertNotRecorded(rec, rec->STATEMENT_TRANSACTION);
    }
 
 void
 OMR::IlBuilderRecorder::TransactionAbort()
    {
    TR::JitBuilderRecorder *rec = recorder();
-   assertNotRecorded(rec, rec->STATEMENT_TRANSACTIONABORT);
+   if (rec)
+      assertNotRecorded(rec, rec->STATEMENT_TRANSACTIONABORT);
    }
 
 void
@@ -974,7 +985,8 @@ OMR::IlBuilderRecorder::ComputedCall(const char *functionName, int32_t numArgs, 
    {
    TR::IlValue *returnValue = newValue();
    TR::JitBuilderRecorder *rec = recorder();
-   assertNotRecorded(rec, rec->STATEMENT_COMPUTEDCALL);
+   if (rec)
+      assertNotRecorded(rec, rec->STATEMENT_COMPUTEDCALL);
    return returnValue;
    }
 
@@ -1087,7 +1099,8 @@ OMR::IlBuilderRecorder::DoWhileLoop(const char *whileCondition, TR::IlBuilder **
    {
    TR::IlValue *returnValue = newValue();
    TR::JitBuilderRecorder *rec = recorder();
-   assertNotRecorded(rec, rec->STATEMENT_DOWHILELOOP);
+   if (rec)
+      assertNotRecorded(rec, rec->STATEMENT_DOWHILELOOP);
     }
 
 void 
@@ -1096,35 +1109,40 @@ OMR::IlBuilderRecorder::WhileDoLoop(const char *whileCondition, TR::IlBuilder **
    TR::IlValue *returnValue = newValue();
    TR::JitBuilderRecorder *rec = recorder();
   //  assertNotRecorded(rec, rec->STATEMENT_WHILEDOLOOP);
-   assertNotRecorded(rec);
+   if (rec)
+      assertNotRecorded(rec, rec->STATEMENT_WHILEDOLOOP);
    }
 
 void
 OMR::IlBuilderRecorder::IfAnd(TR::IlBuilder **allTrueBuilder, TR::IlBuilder **anyFalseBuilder, int32_t numTerms, ...)
    {
    TR::JitBuilderRecorder *rec = recorder();
-   assertNotRecorded(rec, rec->STATEMENT_IFAND);
+   if (rec)
+      assertNotRecorded(rec, rec->STATEMENT_IFAND);
    }
 
 void
 OMR::IlBuilderRecorder::IfOr(TR::IlBuilder **anyTrueBuilder, TR::IlBuilder **allFalseBuilder, int32_t numTerms, ...)
    {
    TR::JitBuilderRecorder *rec = recorder();
-   assertNotRecorded(rec, rec->STATEMENT_IFOR);
+   if (rec)
+      assertNotRecorded(rec, rec->STATEMENT_IFOR);
    }
 
 void
 OMR::IlBuilderRecorder::IfCmpNotEqualZero(TR::IlBuilder *target, TR::IlValue *condition)
    {
    TR::JitBuilderRecorder *rec = recorder();
-   assertNotRecorded(rec, rec->STATEMENT_IFCMPNOTEQUALZERO);
+   if (rec)
+      assertNotRecorded(rec, rec->STATEMENT_IFCMPNOTEQUALZERO);
    }
 
 void
 OMR::IlBuilderRecorder::IfCmpNotEqual(TR::IlBuilder *target, TR::IlValue *left, TR::IlValue *right)
    {
    TR::JitBuilderRecorder *rec = recorder();
-   assertNotRecorded(rec, rec->STATEMENT_IFCMPNOTEQUAL);
+   if (rec)
+      assertNotRecorded(rec, rec->STATEMENT_IFCMPNOTEQUAL);
    }
 
 void
@@ -1145,7 +1163,8 @@ void
 OMR::IlBuilderRecorder::IfCmpEqual(TR::IlBuilder *target, TR::IlValue *left, TR::IlValue *right)
    {
    TR::JitBuilderRecorder *rec = recorder();
-   assertNotRecorded(rec, rec->STATEMENT_IFCMPEQUAL);
+   if (rec)
+      assertNotRecorded(rec, rec->STATEMENT_IFCMPEQUAL);
    }
 
 void
@@ -1153,56 +1172,64 @@ OMR::IlBuilderRecorder::IfCmpLessThan(TR::IlBuilder *target, TR::IlValue *left, 
    {
    TR::JitBuilderRecorder *rec = recorder();
   //  assertNotRecorded(rec, rec->STATEMENT_IFCMPLESSTHAN);
-   assertNotRecorded(rec);
+   if (rec)
+      assertNotRecorded(rec, rec->STATEMENT_IFCMPLESSTHAN);
    }
 
 void
 OMR::IlBuilderRecorder::IfCmpUnsignedLessThan(TR::IlBuilder *target, TR::IlValue *left, TR::IlValue *right)
    {
    TR::JitBuilderRecorder *rec = recorder();
-   assertNotRecorded(rec, rec->STATEMENT_IFCMPUNSIGNEDLESSTHAN);
+   if (rec)
+      assertNotRecorded(rec, rec->STATEMENT_IFCMPUNSIGNEDLESSTHAN);
    }
 
 void
 OMR::IlBuilderRecorder::IfCmpLessOrEqual(TR::IlBuilder *target, TR::IlValue *left, TR::IlValue *right)
    {
    TR::JitBuilderRecorder *rec = recorder();
-   assertNotRecorded(rec, rec->STATEMENT_IFCMPLESSOREQUAL);
+   if (rec)
+      assertNotRecorded(rec, rec->STATEMENT_IFCMPLESSOREQUAL);
    }
 
 void
 OMR::IlBuilderRecorder::IfCmpUnsignedLessOrEqual(TR::IlBuilder *target, TR::IlValue *left, TR::IlValue *right)
    {
    TR::JitBuilderRecorder *rec = recorder();
-   assertNotRecorded(rec, rec->STATEMENT_IFCMPUNSIGNEDLESSOREQUAL);
+   if (rec)
+      assertNotRecorded(rec, rec->STATEMENT_IFCMPUNSIGNEDLESSOREQUAL);
    }
 
 void
 OMR::IlBuilderRecorder::IfCmpGreaterThan(TR::IlBuilder *target, TR::IlValue *left, TR::IlValue *right)
    {
    TR::JitBuilderRecorder *rec = recorder();
-   assertNotRecorded(rec, rec->STATEMENT_IFCMPGREATERTHAN);
+   if (rec)
+      assertNotRecorded(rec, rec->STATEMENT_IFCMPGREATERTHAN);
    }
 
 void
 OMR::IlBuilderRecorder::IfCmpUnsignedGreaterThan(TR::IlBuilder *target, TR::IlValue *left, TR::IlValue *right)
    {
    TR::JitBuilderRecorder *rec = recorder();
-   assertNotRecorded(rec, rec->STATEMENT_IFCMPUNSIGNEDGREATERTHAN);
+   if (rec)
+      assertNotRecorded(rec, rec->STATEMENT_IFCMPUNSIGNEDGREATERTHAN);
    }
 
 void
 OMR::IlBuilderRecorder::IfCmpGreaterOrEqual(TR::IlBuilder *target, TR::IlValue *left, TR::IlValue *right)
    {
    TR::JitBuilderRecorder *rec = recorder();
-   assertNotRecorded(rec, rec->STATEMENT_IFCMPGREATEROREQUAL);
+   if (rec)
+      assertNotRecorded(rec, rec->STATEMENT_IFCMPGREATEROREQUAL);
    }
 
 void
 OMR::IlBuilderRecorder::IfCmpUnsignedGreaterOrEqual(TR::IlBuilder *target, TR::IlValue *left, TR::IlValue *right)
    {
    TR::JitBuilderRecorder *rec = recorder();
-   assertNotRecorded(rec, rec->STATEMENT_IFCMPUNSIGNEDGREATEROREQUAL);
+   if (rec)
+      assertNotRecorded(rec, rec->STATEMENT_IFCMPUNSIGNEDGREATEROREQUAL);
    }
 
 void
@@ -1246,7 +1273,8 @@ OMR::IlBuilderRecorder::Switch(const char *selectionVar,
                   bool *caseFallsThrough)
    {
    TR::JitBuilderRecorder *rec = recorder();
-   assertNotRecorded(rec, rec->STATEMENT_SWITCH);
+   if (rec)
+      assertNotRecorded(rec, rec->STATEMENT_SWITCH);
    }
 
 // TODO: Which switch to keep?
@@ -1257,5 +1285,6 @@ OMR::IlBuilderRecorder::Switch(const char *selectionVar,
                   ...)
    {
    TR::JitBuilderRecorder *rec = recorder();
-   assertNotRecorded(rec, rec->STATEMENT_SWITCH);
+   if (rec)
+      assertNotRecorded(rec, rec->STATEMENT_SWITCH);
    }

@@ -535,11 +535,7 @@ protected:
     */
    bool                          _isHandler;
 
-   TR::IlBuilder *self();
-
    virtual bool buildIL() { return true; }
-
-   TR_HeapMemory trHeapMemory();
 
    TR::SymbolReference *lookupSymbol(const char *name);
    TR::IlValue *newValue(TR::IlType *dt, TR::Node *n=NULL);
