@@ -30,9 +30,13 @@
 #include "Jit.hpp"
 #include "ilgen/TypeDictionary.hpp"
 #include "ilgen/JitBuilderRecorderTextFile.hpp"
+#include "RecordReplayTest.hpp"
+
+// Uncomment line on hpp file to enable REPLAY functionality 
+#ifdef REPLAY
 #include "ilgen/JitBuilderReplayTextFile.hpp"
 #include "ilgen/MethodBuilderReplay.hpp"
-#include "RecordReplayTest.hpp"
+#endif
 
 using std::cout;
 using std::cerr;
@@ -56,14 +60,30 @@ main(int argc, char *argv[])
    cout << "Step 3: compile method builder\n";
    RecordReplayTest method(&types, &recorder);
 
-   uint8_t *entry = 0;
+   #ifdef REPLAY
    int32_t rc = recordMethodBuilder(&method);
+   #endif
+
+   #ifndef REPLAY 
+   uint8_t *entry1 = 0;
+   int32_t rc = compileMethodBuilder(&method, &entry1); // Process buildIL
+   #endif
+
    if (rc != 0)
       {
       cerr << "FAIL: compilation error " << rc << "\n";
       exit(-2);
       }
+  
+   int32_t v, t;
 
+   // **********************************************************************
+   // ******************************** REPLAY ******************************
+   // **********************************************************************
+
+   #ifdef REPLAY
+
+   uint8_t *entry2 = 0;
    cout << "Step 4: Replay\n";
    TR::JitBuilderReplayTextFile replay("recordReplayIL.ilt");
    TR::JitBuilderRecorderTextFile recorder2(NULL, "recordReplayILReplay.ilt");
@@ -72,7 +92,7 @@ main(int argc, char *argv[])
 
    cout << "Step 5: verify output file\n";
    TR::MethodBuilderReplay mb(&types2, &replay, &recorder2); // Process Constructor
-   rc = compileMethodBuilder(&mb, &entry); // Process buildIL
+   rc = compileMethodBuilder(&mb, &entry2); // Process buildIL
 
    if (rc != 0)
       {
@@ -81,17 +101,32 @@ main(int argc, char *argv[])
       }
 
    cout << "Step 6: run compiled code from replay\n";
-   typedef int32_t (RecordReplayMethodFunction)(int32_t, int32_t);
 
-   RecordReplayMethodFunction *increment = (RecordReplayMethodFunction *) entry;
-   int32_t v, t;
-   v=0, t=5; cout << "increment(" << v << "+" << t << ") == " << increment(v,t) << "\n";
-   v=1, t=2; cout << "increment(" << v << "+" << t << ") == " << increment(v,t) << "\n";
-   v=10, t=15; cout << "increment(" << v << "+" << t << ") == " << increment(v,t) << "\n";
-   v=-15, t=7; cout << "increment(" << v << "+" << t << ") == " << increment(v,t) << "\n";
+   RecordReplayMethodFunction *incrementTwo = (RecordReplayMethodFunction *) entry2;
+   v=0, t=5; cout << "incrementTwo(" << v << "+" << t << ") == " << incrementTwo(v,t) << "\n";
+   v=1, t=2; cout << "incrementTwo(" << v << "+" << t << ") == " << incrementTwo(v,t) << "\n";
+   v=10, t=15; cout << "incrementTwo(" << v << "+" << t << ") == " << incrementTwo(v,t) << "\n";
+   v=-15, t=7; cout << "incrementTwo(" << v << "+" << t << ") == " << incrementTwo(v,t) << "\n";
 
    cout << "Step 7: shutdown JIT\n";
+   #endif
+
+   #ifndef REPLAY
+
+   cout << "Step 4: run compiled code from replay\n";
+   RecordReplayMethodFunction *incrementTwo = (RecordReplayMethodFunction *) entry1;
+
+   v=0, t=5; cout << "incrementTwo(" << v << "+" << t << ") == " << incrementTwo(v,t) << "\n";
+   v=1, t=2; cout << "incrementTwo(" << v << "+" << t << ") == " << incrementTwo(v,t) << "\n";
+   v=10, t=15; cout << "incrementTwo(" << v << "+" << t << ") == " << incrementTwo(v,t) << "\n";
+   v=-15, t=7; cout << "incrementTwo(" << v << "+" << t << ") == " << incrementTwo(v,t) << "\n";
+
+   cout << "Step 5: shutdown JIT\n";
+   #endif
+  
    shutdownJit();
+
+   printf("PASS\n");
    }
 
 
@@ -103,7 +138,7 @@ RecordReplayTest::RecordReplayTest(TR::TypeDictionary *d, TR::JitBuilderRecorder
    
    DefineFile(__FILE__);
 
-   DefineName("increment");
+   DefineName("incrementTwo");
 
    DefineParameter("value1", Int32);
    DefineParameter("value2", Int32);

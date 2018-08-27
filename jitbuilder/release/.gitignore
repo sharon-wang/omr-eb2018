@@ -31,11 +31,13 @@ controlflowtests
 dotproduct
 fieldaddress
 iterfib
+inliningrecfib
 issupportedtype
 jitbuilder.tgz
 linkedlist
 localarray
 structarray
+matmult
 mandelbrot
 nestedloop
 operandarraytests
@@ -43,6 +45,7 @@ operandstacktests
 pointer
 pow2
 recfib
+recordReplayTest
 simple
 switch
 thunks
