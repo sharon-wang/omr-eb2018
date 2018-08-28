@@ -37,7 +37,7 @@ class TypeDictionary : public OMR::TypeDictionary
       TypeDictionary()
          : OMR::TypeDictionary()
          { }
-      virtual ~TypeDictionary()
+      ~TypeDictionary()
          { }
    };
 } // namespace TR

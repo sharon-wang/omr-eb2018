@@ -197,13 +197,6 @@ OMR::BytecodeBuilder::setHandlerInfo(uint32_t catchType)
    catchBlock->setHandlerInfo(catchType, comp()->getInlineDepth(), -1, _methodSymbol->getResolvedMethod(), comp());
    }
 
-void
-OMR::BytecodeBuilder::propagateVMState(TR::VirtualMachineState *fromVMState)
-   {
-   _initialVMState = fromVMState->MakeCopy();
-   _vmState = fromVMState->MakeCopy();
-   }
-
 // transferVMState needs to be called before the actual transfer operation (Goto, IfCmp,
 // etc.) is created because we may need to insert a builder object along that control
 // flow edge to synchronize the vm state at the target (in the case of a merge point).

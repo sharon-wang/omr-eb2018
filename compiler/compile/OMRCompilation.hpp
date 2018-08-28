@@ -1218,13 +1218,13 @@ private:
 
    BitVectorPool _bitVectorPool; //MUST be declared after _trMemory
 
+   bool _shouldCompile;
+
    /*
     * This must be last
     * NOTE: TLS for Compilation needs to be set before any object that may use it is initialized.
     */
    TR::TLSCompilationManager _tlsManager;
-
-   bool _shouldCompile;
    };
 
 

@@ -87,7 +87,6 @@
 
 OMR::IlBuilder::IlBuilder(TR::IlBuilder *source)
    : TR::IlBuilderRecorder(source),
-   _methodBuilder(source->_methodBuilder),
    _sequence(0),
    _sequenceAppender(0),
    _entryBlock(0),
@@ -131,7 +130,6 @@ OMR::IlBuilder::injectIL()
 
    setupForBuildIL();
 
-   // About to call BuildIL. Output DONE for constructor
    DoneConstructor("Done");
 
    bool rc = buildIL();
@@ -343,9 +341,9 @@ OMR::IlBuilder::countBlocks()
 
 void
 OMR::IlBuilder::pullInBuilderTrees(TR::IlBuilder *builder,
-                              uint32_t *currentBlock,
-                              TR::TreeTop **firstTree,
-                              TR::TreeTop **newLastTree)
+                                   uint32_t *currentBlock,
+                                   TR::TreeTop **firstTree,
+                                   TR::TreeTop **newLastTree)
    {
    TraceIL("\n[ %p ] Calling connectTrees on inner builder %p\n", this, builder);
    builder->connectTrees();
@@ -713,7 +711,7 @@ OMR::IlBuilder::VectorStoreAt(TR::IlValue *address, TR::IlValue *value)
 TR::IlValue *
 OMR::IlBuilder::CreateLocalArray(int32_t numElements, TR::IlType *elementType)
    {
-   TR::IlValue *returnValue = IlBuilderRecorder::CreateLocalArray(numElements, elementType);
+   TR::IlValue *arrayAddressValue = IlBuilderRecorder::CreateLocalArray(numElements, elementType);
    uint32_t size = numElements * elementType->getSize();
    TR::SymbolReference *localArraySymRef = symRefTab()->createLocalPrimArray(size,
                                                                              methodSymbol(),
@@ -725,10 +723,10 @@ OMR::IlBuilder::CreateLocalArray(int32_t numElements, TR::IlType *elementType)
    _methodBuilder->defineSymbol(name, localArraySymRef);
 
    TR::Node *arrayAddress = TR::Node::createWithSymRef(TR::loadaddr, 0, localArraySymRef);
-   closeValue(returnValue, TR::Address, arrayAddress);
+   closeValue(arrayAddressValue, TR::Address, arrayAddress);
 
   //  TraceIL("IlBuilder[ %p ]::CreateLocalArray array allocated %d bytes, address in %d\n", this, size, arrayAddressValue->getID());
-   return returnValue;
+   return arrayAddressValue;
 
    }
 
@@ -1081,8 +1079,8 @@ OMR::IlBuilder::widenIntegerTo32Bits(TR::IlValue *v)
 
 TR::Node*
 OMR::IlBuilder::binaryOpNodeFromNodes(TR::ILOpCodes op,
-                             TR::Node *leftNode,
-                             TR::Node *rightNode)
+                                 TR::Node *leftNode,
+                                 TR::Node *rightNode) 
    {
    TR::DataType leftType = leftNode->getDataType();
    TR::DataType rightType = rightNode->getDataType();

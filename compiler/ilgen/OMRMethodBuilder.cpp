@@ -111,12 +111,10 @@ OMR::MethodBuilder::MethodBuilder(TR::TypeDictionary *types, TR::VirtualMachineS
    _cachedParameterTypes(0),
    _definingFile(""),
    _newSymbolsAreTemps(false),
-   _nextValueID(0),
    _useBytecodeBuilders(false),
    _countBlocksWorklist(0),
    _connectTreesWorklist(0),
    _allBytecodeBuilders(0),
-   _vmState(vmState),
    _bytecodeWorklist(NULL),
    _bytecodeHasBeenInWorklist(NULL),
    _inlineSiteIndex(-1),
@@ -143,12 +141,10 @@ OMR::MethodBuilder::MethodBuilder(TR::MethodBuilder *callerMB, TR::VirtualMachin
    _cachedParameterTypes(0),
    _definingFile(""),
    _newSymbolsAreTemps(false),
-   _nextValueID(0),
    _useBytecodeBuilders(false),
    _countBlocksWorklist(0),
    _connectTreesWorklist(0),
    _allBytecodeBuilders(0),
-   _vmState(vmState),
    _bytecodeWorklist(NULL),
    _bytecodeHasBeenInWorklist(NULL),
    _inlineSiteIndex(callerMB->getNextInlineSiteIndex()),
@@ -184,17 +180,6 @@ TR::MethodBuilder *
 OMR::MethodBuilder::self()
    {
    return static_cast<TR::MethodBuilder *>(this);
-   }
-
-int32_t
-OMR::MethodBuilder::getNextValueID()
-   {
-   TR::MethodBuilder *caller = callerMethodBuilder();
-   if (caller)
-      // let top most method assign value IDs
-      return caller->getNextValueID();
-
-   return _nextValueID++;
    }
 
 int32_t
@@ -510,15 +495,6 @@ OMR::MethodBuilder::OrphanBytecodeBuilder(int32_t bcIndex, char *name)
    }
 
 void
-OMR::MethodBuilder::AppendBuilder(TR::BytecodeBuilder *bb)
-   {
-   this->OMR::IlBuilder::AppendBuilder(bb);
-   if (_vmState)
-      bb->propagateVMState(_vmState);
-   addBytecodeBuilderToWorklist(bb);
-   }
-
-void
 OMR::MethodBuilder::DefineFile(const char *file)
    {
    TR::MethodBuilderRecorder::DefineFile(file);
@@ -630,8 +606,6 @@ OMR::MethodBuilder::DefineFunction(const char* const name,
    TR_ASSERT_FATAL(_functions.find(name) == _functions.end(), "Function '%s' already defined", name);
    TR::MethodBuilderRecorder::DefineFunction(name, fileName, lineNumber, entryPoint, returnType, numParms, parmTypes);
 
-   // TR::ResolvedMethod *method = new (PERSISTENT_NEW) TR::ResolvedMethod(
-   // TODO: check if above is correct or below
    TR::ResolvedMethod *method = new (trMemory()->heapMemoryRegion()) TR::ResolvedMethod(
                                                                         (char*)fileName,
                                                                         (char*)lineNumber,

@@ -110,8 +110,6 @@ class MethodBuilderRecorder : public TR::IlBuilder
     */
    int32_t GetNextBytecodeFromWorklist();
 
-   void addToAllBytecodeBuildersList(TR::BytecodeBuilder *bcBuilder);
-
    TR::JitBuilderRecorder *recorder() const { return _recorder; }
    void setRecorder(TR::JitBuilderRecorder *recorder) { _recorder = recorder; }
 

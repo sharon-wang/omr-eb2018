@@ -226,13 +226,13 @@ public:
    virtual size_t getSize() { return TR::DataType::getSize(TR::Address); }
 
    virtual void Record(TR::JitBuilderRecorder *recorder)
-   {
-   _baseType->RecordFirstTime(recorder);
-   recorder->BeginStatement(recorder->STATEMENT_POINTERTYPE);
-   recorder->Type(this);
-   recorder->Type(_baseType);
-   recorder->EndStatement();
-   }
+      {
+      _baseType->RecordFirstTime(recorder);
+      recorder->BeginStatement(recorder->STATEMENT_POINTERTYPE);
+      recorder->Type(this);
+      recorder->Type(_baseType);
+      recorder->EndStatement();
+      }
 
 protected:
    TR::IlType          * _baseType;

@@ -67,17 +67,10 @@ class MethodBuilder : public TR::MethodBuilderRecorder
     * this query is delegated to the caller's MethodBuilder, which means
     * only the top-level MethodBuilder object assigns value IDs.
     */
-   int32_t getNextValueID();
-
-   bool usesBytecodeBuilders()                               { return _useBytecodeBuilders; }
-   void setUseBytecodeBuilders()                             { _useBytecodeBuilders = true; }
 
    void addToAllBytecodeBuildersList(TR::BytecodeBuilder *bcBuilder);
    void addToTreeConnectingWorklist(TR::BytecodeBuilder *builder);
    void addToBlockCountingWorklist(TR::BytecodeBuilder *builder);
-
-   virtual TR::VirtualMachineState *vmState()                { return _vmState; }
-   virtual void setVMState(TR::VirtualMachineState *vmState) { _vmState = vmState; }
 
    virtual bool isMethodBuilder()                            { return true; }
    virtual TR::MethodBuilder *asMethodBuilder();
@@ -109,11 +102,6 @@ class MethodBuilder : public TR::MethodBuilderRecorder
    TR::ResolvedMethod *lookupFunction(const char *name);
 
    TR::BytecodeBuilder *OrphanBytecodeBuilder(int32_t bcIndex=0, char *name=NULL);
-
-   void AppendBuilder(TR::BytecodeBuilder *bb);
-   void AppendBuilder(TR::IlBuilder *b)                     { TR::MethodBuilderRecorder::AppendBuilder(b); }
-   // TODO: verify if above is correct or if below is correct
-   // void AppendBuilder(TR::IlBuilder *b)    { this->OMR::IlBuilder::AppendBuilder(b); }
 
    void DefineFile(const char *file);
 
@@ -242,7 +230,6 @@ class MethodBuilder : public TR::MethodBuilderRecorder
    TR::MethodBuilder *callerMethodBuilder();
 
    protected:
-   void initMaps();
    virtual uint32_t countBlocks();
    virtual bool connectTrees();
    TR::MethodBuilder *self();
@@ -316,7 +303,6 @@ class MethodBuilder : public TR::MethodBuilderRecorder
    TR::IlType                * _cachedParameterTypesArray[10];
 
    bool                        _newSymbolsAreTemps;
-   int32_t                     _nextValueID;
 
    bool                        _useBytecodeBuilders;
    uint32_t                    _numBlocksBeforeWorklist;

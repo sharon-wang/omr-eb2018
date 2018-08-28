@@ -296,8 +296,8 @@ OMR::Compilation::Compilation(
    _gpuKernelLineNumberList(m),
    _gpuPtxCount(0),
    _bitVectorPool(self()),
-   _tlsManager(*self()),
-   _shouldCompile(shouldCompile)
+   _shouldCompile(shouldCompile),
+   _tlsManager(*self())
    {
 
    //Avoid expensive initialization and uneeded option checking if we are doing AOT Loads
@@ -1009,7 +1009,6 @@ int32_t OMR::Compilation::compile()
    TR_ASSERT_FATAL(!self()->getOption(TR_CrashDuringCompilation), "crashDuringCompile option is set");
 
    {
-      
    LexicalTimer t("compile", self()->signature(), self()->phaseTimer());
    TR::LexicalMemProfiler mp("compile", self()->signature(), self()->phaseMemProfiler());
 
@@ -1184,6 +1183,7 @@ int32_t OMR::Compilation::compile()
    //
    if (self()->getOutFile() != NULL && self()->getOption(TR_TraceAll))
       trfflush(self()->getOutFile());
+
 
    }
 

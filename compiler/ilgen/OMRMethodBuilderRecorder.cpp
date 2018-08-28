@@ -55,7 +55,7 @@ OMR::MethodBuilderRecorder::MethodBuilderRecorder(TR::TypeDictionary *types, TR:
    : TR::IlBuilder(static_cast<TR::MethodBuilder *>(this), types),
    _nextValueID(0),
    _useBytecodeBuilders(false),
-   _vmState(NULL),
+   _vmState(vmState),
    _bytecodeWorklist(NULL),
    _bytecodeHasBeenInWorklist(NULL),
    _recorder(recorder)

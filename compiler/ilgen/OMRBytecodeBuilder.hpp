@@ -41,12 +41,6 @@ public:
 
    virtual bool isBytecodeBuilder() { return true; }
 
-   /**
-    * @brief bytecode index for this builder object
-    */
-   int32_t bcIndex() { return _bcIndex; }
-   virtual int32_t currentByteCodeIndex() { return _bcIndex; } // override from IlGenerator
-
    /* @brief after calling this, all IL nodes created will have this BytecodeBuilder's _bcIndex */
    void SetCurrentIlGenerator();
 
@@ -65,19 +59,9 @@ public:
    void AddSuccessorBuilders(uint32_t numBuilders, ...);
    void AddSuccessorBuilder(TR::BytecodeBuilder **b) { AddSuccessorBuilders(1, b); }
 
-   virtual TR::VirtualMachineState *initialVMState()        { return _initialVMState; }
-   virtual TR::VirtualMachineState *vmState()               { return _vmState; }
-   void setVMState(TR::VirtualMachineState *vmState)        { _vmState = vmState; }
-
-   void propagateVMState(TR::VirtualMachineState *fromVMState);
-
 protected:
    TR::BytecodeBuilder       * _fallThroughBuilder;
    List<TR::BytecodeBuilder> * _successorBuilders;
-   int32_t                     _bcIndex;
-   char                      * _name;
-   TR::VirtualMachineState   * _initialVMState;
-   TR::VirtualMachineState   * _vmState;
 
    virtual void appendBlock(TR::Block *block = 0, bool addEdge=true);
    void addAllSuccessorBuildersToWorklist();
