@@ -92,6 +92,8 @@ main(int argc, char *argv[])
 
    cout << "Step 7: shutdown JIT\n";
    shutdownJit();
+
+   cout << "PASS\n";
    }
 
 
