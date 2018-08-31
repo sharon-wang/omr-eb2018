@@ -207,19 +207,25 @@ void
 OMR::BytecodeBuilder::transferVMState(TR::BytecodeBuilder **b)
    {
    TR_ASSERT(_vmState != NULL, "asked to transfer a NULL vmState from builder %p [ bci %d ]", this, _bcIndex);
-   TR::BytecodeBuilder *originalB = *b;
-
-   TR::BytecodeBuilder *intermediateBuilder = *b;
-   TR::BytecodeBuilderRecorder::transferVMState(&intermediateBuilder);
-
-   // check if transferVMState had to insert a new object between "this" and "b" in order to merge vm state
-   if (intermediateBuilder != *b)
+   if ((*b)->initialVMState())
       {
+      // there is already a vm state at the target builder
+      // so we need to synchronize this builder's vm state with the target builder's vm state
+      // for example, the local variables holding the elements on the operand stack may not match
+      // create an intermediate builder object to do that work
+      TR::BytecodeBuilder *intermediateBuilder = _methodBuilder->OrphanBytecodeBuilder((*b)->_bcIndex, (*b)->_name);
+
+      _vmState->MergeInto((*b)->initialVMState(), intermediateBuilder);
       TraceIL("IlBuilder[ %p ]:: transferVMState merged vm state on way to [ %p ] using [ %p ]\n", this, *b, intermediateBuilder);
 
+      TR::IlBuilder *tgtb = *b;
+      intermediateBuilder->IlBuilder::Goto(&tgtb);
       intermediateBuilder->_fallThroughBuilder = *b;
       TraceIL("IlBuilder[ %p ]:: fallThrough successor [ %p ]\n", intermediateBuilder, *b);
-
       *b = intermediateBuilder; // branches should direct towards intermediateBuilder not original *b
+      }
+   else
+      {
+      (*b)->propagateVMState(_vmState);
       }
    }

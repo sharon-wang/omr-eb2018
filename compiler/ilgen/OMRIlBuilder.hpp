@@ -266,7 +266,6 @@ public:
    void StoreIndirect(const char *type, const char *field, TR::IlValue *object, TR::IlValue *value);
    TR::IlValue *IndexAt(TR::IlType *dt, TR::IlValue *base, TR::IlValue *index);
    TR::IlValue *AtomicAdd(TR::IlValue *baseAddress, TR::IlValue * value);
-   TR::IlValue *AtomicAddWithOffset(TR::IlValue *baseAddress, TR::IlValue * offset, TR::IlValue * value);
    void Transaction(TR::IlBuilder **persistentFailureBuilder, TR::IlBuilder **transientFailureBuilder, TR::IlBuilder **fallThroughBuilder);
    void TransactionAbort();
 

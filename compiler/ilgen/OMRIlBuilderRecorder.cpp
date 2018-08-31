@@ -809,12 +809,12 @@ OMR::IlBuilderRecorder::CreateLocalStruct(TR::IlType *structType)
    }
 
 TR::IlValue *
-OMR::IlBuilderRecorder::AtomicAddWithOffset(TR::IlValue * baseAddress, TR::IlValue * offset, TR::IlValue * value)
+OMR::IlBuilderRecorder::AtomicAdd(TR::IlValue * baseAddress, TR::IlValue * value)
    {
    TR::IlValue *returnValue = newValue();
    TR::JitBuilderRecorder *rec = recorder();
    if (rec)
-      assertNotRecorded(rec, rec->STATEMENT_ATOMICADDWITHOFFSET);
+      assertNotRecorded(rec, rec->STATEMENT_ATOMICADD);
    return returnValue;
    }
 

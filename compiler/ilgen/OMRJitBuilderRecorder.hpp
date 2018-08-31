@@ -125,7 +125,7 @@ class JitBuilderRecorder
    const char *STATEMENT_UNIONFIELDINSTANCEADDRESS    = "UnionFieldInstance";
    const char *STATEMENT_CONVERTTO                    = "ConvertTo";
    const char *STATEMENT_UNSIGNEDCONVERTTO            = "UnsignedConvertTo";
-   const char *STATEMENT_ATOMICADDWITHOFFSET          = "AtomicAddWithOffset";
+   const char *STATEMENT_ATOMICADD                    = "AtomicAdd";
    const char *STATEMENT_ADD                          = "Add";
    const char *STATEMENT_ADDWITHOVERFLOW              = "AddWithOverflow";
    const char *STATEMENT_ADDWITHUNSIGNEDOVERFLOW      = "AddWithUnsignedOverflow";

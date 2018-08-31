@@ -131,7 +131,6 @@ public:
    TR::IlValue *IndexAt(TR::IlType *dt, TR::IlValue *base, TR::IlValue *index);
    TR::IlValue *CreateLocalArray(int32_t numElements, TR::IlType *elementType);
    TR::IlValue *CreateLocalStruct(TR::IlType *structType);
-   TR::IlValue *AtomicAddWithOffset(TR::IlValue *baseAddress, TR::IlValue *offset, TR::IlValue *value);
    TR::IlValue *AtomicAdd(TR::IlValue *baseAddress, TR::IlValue * value);
 
    /**

@@ -95,8 +95,8 @@ public:
    void IfCmpUnsignedGreaterOrEqual(TR::BytecodeBuilder *dest, TR::IlValue *v1, TR::IlValue *v2);
 
 protected:
-   int32_t                             _bcIndex;
-   char                              * _name;
+   int32_t                          _bcIndex;
+   char                             * _name;
    TR::VirtualMachineState          * _initialVMState;
    TR::VirtualMachineState          * _vmState;
 
