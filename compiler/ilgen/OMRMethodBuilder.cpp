@@ -387,7 +387,7 @@ OMR::MethodBuilder::defineSymbol(const char *name, TR::SymbolReference *symRef)
 
    _symbols.insert(std::make_pair(name, symRef));
    _symbolNameFromSlot.insert(std::make_pair(symRef->getCPIndex(), name));
-
+   
    TR::IlType *type = typeDictionary()->PrimitiveType(symRef->getSymbol()->getDataType());
    _symbolTypes.insert(std::make_pair(name, type));
 
@@ -439,7 +439,7 @@ OMR::MethodBuilder::lookupSymbol(const char *name)
    else
       {
       symRef = symRefTab()->createTemporary(_methodSymbol, primitiveType);
-      const char *adjustedName = adjustNameForInlinedSite(name);
+      const char *adjustedName = adjustNameForInlinedSite(name); 
       symRef->getSymbol()->getAutoSymbol()->setName(adjustedName);
       _symbolNameFromSlot.insert(std::make_pair(symRef->getCPIndex(), name));
 
@@ -523,6 +523,23 @@ OMR::MethodBuilder::DefineName(const char *name)
    }
 
 void
+OMR::MethodBuilder::DefineLocal(const char *name, TR::IlType *dt)
+   {
+   TR_ASSERT_FATAL(_symbolTypes.find(name) == _symbolTypes.end(), "Symbol '%s' already defined", name);
+   TR::MethodBuilderRecorder::DefineLocal(name, dt);
+   _symbolTypes.insert(std::make_pair(name, dt)); // previously: _symbolIsArray->insert(name);
+   }
+
+void
+OMR::MethodBuilder::DefineMemory(const char *name, TR::IlType *dt, void *location)
+   {
+   TR_ASSERT_FATAL(_memoryLocations.find(name) == _memoryLocations.end(), "Memory '%s' already defined", name);
+   TR::MethodBuilderRecorder::DefineMemory(name, dt, location);
+   _symbolTypes.insert(std::make_pair(name, dt));
+   _memoryLocations.insert(std::make_pair(name, location));
+   }
+
+void
 OMR::MethodBuilder::DefineParameter(const char *name, TR::IlType *dt)
    {
    TR::MethodBuilderRecorder::DefineParameter(name, dt);
@@ -556,23 +573,6 @@ OMR::MethodBuilder::DefineReturnType(TR::IlType *dt)
    }
 
 void
-OMR::MethodBuilder::DefineLocal(const char *name, TR::IlType *dt)
-   {
-   TR_ASSERT_FATAL(_symbolTypes.find(name) == _symbolTypes.end(), "Symbol '%s' already defined", name);
-   TR::MethodBuilderRecorder::DefineLocal(name, dt);
-   _symbolTypes.insert(std::make_pair(name, dt)); // previously: _symbolIsArray->insert(name);
-   }
-
-void
-OMR::MethodBuilder::DefineMemory(const char *name, TR::IlType *dt, void *location)
-   {
-   TR_ASSERT_FATAL(_memoryLocations.find(name) == _memoryLocations.end(), "Memory '%s' already defined", name);
-   TR::MethodBuilderRecorder::DefineMemory(name, dt, location);
-   _symbolTypes.insert(std::make_pair(name, dt));
-   _memoryLocations.insert(std::make_pair(name, location));
-   }
-
-void
 OMR::MethodBuilder::DefineFunction(const char* const name,
                               const char* const fileName,
                               const char* const lineNumber,
@@ -602,7 +602,7 @@ OMR::MethodBuilder::DefineFunction(const char* const name,
                               TR::IlType     * returnType,
                               int32_t          numParms,
                               TR::IlType     ** parmTypes)
-   {
+   {   
    TR_ASSERT_FATAL(_functions.find(name) == _functions.end(), "Function '%s' already defined", name);
    TR::MethodBuilderRecorder::DefineFunction(name, fileName, lineNumber, entryPoint, returnType, numParms, parmTypes);
 
@@ -697,7 +697,7 @@ void
 OMR::MethodBuilder::AppendBytecodeBuilder(TR::BytecodeBuilder *builder)
    {
    IlBuilder::AppendBuilder(builder);
-
+   
    }
 
 void

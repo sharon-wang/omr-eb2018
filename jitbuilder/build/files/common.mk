@@ -225,11 +225,11 @@ JIT_PRODUCT_BACKEND_SOURCES+=\
     $(JIT_OMR_DIRTY_DIR)/ilgen/OMRJitBuilderRecorderBinaryBuffer.cpp \
     $(JIT_OMR_DIRTY_DIR)/ilgen/OMRJitBuilderRecorderBinaryFile.cpp \
     $(JIT_OMR_DIRTY_DIR)/ilgen/OMRJitBuilderRecorderTextFile.cpp \
-	 $(JIT_OMR_DIRTY_DIR)/ilgen/OMRJitBuilderReplay.cpp \
-	 $(JIT_OMR_DIRTY_DIR)/ilgen/OMRJitBuilderReplayTextFile.cpp \
+	$(JIT_OMR_DIRTY_DIR)/ilgen/OMRJitBuilderReplay.cpp \
+	$(JIT_OMR_DIRTY_DIR)/ilgen/OMRJitBuilderReplayTextFile.cpp \
     $(JIT_OMR_DIRTY_DIR)/ilgen/OMRIlBuilderRecorder.cpp \
     $(JIT_OMR_DIRTY_DIR)/ilgen/OMRMethodBuilderRecorder.cpp \
-	 $(JIT_OMR_DIRTY_DIR)/ilgen/OMRMethodBuilderReplay.cpp \
+	$(JIT_OMR_DIRTY_DIR)/ilgen/OMRMethodBuilderReplay.cpp \
     $(JIT_OMR_DIRTY_DIR)/ilgen/OMRBytecodeBuilderRecorder.cpp \
     $(JIT_OMR_DIRTY_DIR)/ilgen/IlInjector.cpp \
     $(JIT_OMR_DIRTY_DIR)/ilgen/OMRBytecodeBuilder.cpp \
@@ -240,6 +240,7 @@ JIT_PRODUCT_BACKEND_SOURCES+=\
     $(JIT_OMR_DIRTY_DIR)/ilgen/OMRThunkBuilder.cpp \
     $(JIT_OMR_DIRTY_DIR)/ilgen/OMRTypeDictionary.cpp \
     $(JIT_OMR_DIRTY_DIR)/ilgen/OMRVirtualMachineState.cpp \
+    $(JIT_OMR_DIRTY_DIR)/ilgen/OMRVirtualMachineRegister.cpp \
     $(JIT_OMR_DIRTY_DIR)/ilgen/OMRVirtualMachineOperandArray.cpp \
     $(JIT_OMR_DIRTY_DIR)/ilgen/OMRVirtualMachineOperandStack.cpp \
     $(JIT_OMR_DIRTY_DIR)/runtime/Alignment.cpp \

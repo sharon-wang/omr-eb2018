@@ -150,14 +150,14 @@ Call.o: src/Call.cpp src/Call.hpp
 	$(CXX) -o $@ $(CXXFLAGS) $<
 
 
-conditionals : libjitbuilder.a Conditionals.o
+conditionals : libjitbuilder.a Conditionals.o   
 	$(CXX) -g -fno-rtti -o $@ Conditionals.o $(JITBUILDER_LINK_FLAGS)
 
 Conditionals.o: src/Conditionals.cpp src/Conditionals.hpp
 	$(CXX) -o $@ $(CXXFLAGS) $<
 
 
-conststring : libjitbuilder.a ConstString.o
+conststring : libjitbuilder.a ConstString.o   
 	$(CXX) -g -fno-rtti -o $@ ConstString.o $(JITBUILDER_LINK_FLAGS)
 
 ConstString.o: src/ConstString.cpp src/ConstString.hpp
