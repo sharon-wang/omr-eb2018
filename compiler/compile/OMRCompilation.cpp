@@ -1186,7 +1186,6 @@ int32_t OMR::Compilation::compile()
 
 
    }
-
    if (self()->getOption(TR_Timing))
       {
       self()->phaseTimer().DumpSummary(*self());
