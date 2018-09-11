@@ -111,7 +111,6 @@ OMR::MethodBuilder::MethodBuilder(TR::TypeDictionary *types, TR::VirtualMachineS
    _cachedParameterTypes(0),
    _definingFile(""),
    _newSymbolsAreTemps(false),
-   _useBytecodeBuilders(false),
    _countBlocksWorklist(0),
    _connectTreesWorklist(0),
    _allBytecodeBuilders(0),
@@ -141,7 +140,6 @@ OMR::MethodBuilder::MethodBuilder(TR::MethodBuilder *callerMB, TR::VirtualMachin
    _cachedParameterTypes(0),
    _definingFile(""),
    _newSymbolsAreTemps(false),
-   _useBytecodeBuilders(false),
    _countBlocksWorklist(0),
    _connectTreesWorklist(0),
    _allBytecodeBuilders(0),
@@ -171,13 +169,6 @@ OMR::MethodBuilder::~MethodBuilder()
 
 TR::MethodBuilder *
 OMR::MethodBuilder::asMethodBuilder()
-   {
-   return static_cast<TR::MethodBuilder *>(this);
-   }
-
-// TODO: exact same as above -- remove redundancy
-TR::MethodBuilder *
-OMR::MethodBuilder::self()
    {
    return static_cast<TR::MethodBuilder *>(this);
    }
@@ -499,6 +490,15 @@ OMR::MethodBuilder::DefineFile(const char *file)
    {
    TR::MethodBuilderRecorder::DefineFile(file);
    _definingFile = file;
+   }
+
+void
+OMR::MethodBuilder::AppendBuilder(TR::BytecodeBuilder *bb)
+   {
+   this->OMR::IlBuilder::AppendBuilder(bb);
+   if (_vmState)
+      bb->propagateVMState(_vmState);
+   addBytecodeBuilderToWorklist(bb);
    }
 
 void

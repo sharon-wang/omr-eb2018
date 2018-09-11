@@ -60,14 +60,6 @@ class MethodBuilder : public TR::MethodBuilderRecorder
 
    virtual bool injectIL();
 
-   /**
-    * @brief returns the next index to be used for new values
-    * @returns the next value index
-    * If this method build is an inlined MethodBuilder, then the answer to
-    * this query is delegated to the caller's MethodBuilder, which means
-    * only the top-level MethodBuilder object assigns value IDs.
-    */
-
    void addToAllBytecodeBuildersList(TR::BytecodeBuilder *bcBuilder);
    void addToTreeConnectingWorklist(TR::BytecodeBuilder *builder);
    void addToBlockCountingWorklist(TR::BytecodeBuilder *builder);
@@ -102,6 +94,9 @@ class MethodBuilder : public TR::MethodBuilderRecorder
    TR::ResolvedMethod *lookupFunction(const char *name);
 
    TR::BytecodeBuilder *OrphanBytecodeBuilder(int32_t bcIndex=0, char *name=NULL);
+
+   void AppendBuilder(TR::BytecodeBuilder *bb);
+   void AppendBuilder(TR::IlBuilder *b)    { this->OMR::IlBuilder::AppendBuilder(b); }
 
    void DefineFile(const char *file);
 
@@ -232,7 +227,6 @@ class MethodBuilder : public TR::MethodBuilderRecorder
    protected:
    virtual uint32_t countBlocks();
    virtual bool connectTrees();
-   TR::MethodBuilder *self();
    TR_Memory *trMemory() { return memoryManager._trMemory; }
 
    /*
@@ -282,7 +276,7 @@ class MethodBuilder : public TR::MethodBuilderRecorder
    typedef TR::typed_allocator<std::pair<int32_t const, const char *>, TR::Region &> SlotToSymNameMapAllocator;
    typedef std::map<int32_t, const char *, std::less<int32_t>, SlotToSymNameMapAllocator> SlotToSymNameMap;
    SlotToSymNameMap            _symbolNameFromSlot;
-
+   
    typedef TR::typed_allocator<const char *, TR::Region &> StringSetAllocator;
    typedef std::set<const char *, StrComparator, StringSetAllocator> ArrayIdentifierSet;
 
@@ -304,12 +298,10 @@ class MethodBuilder : public TR::MethodBuilderRecorder
 
    bool                        _newSymbolsAreTemps;
 
-   bool                        _useBytecodeBuilders;
    uint32_t                    _numBlocksBeforeWorklist;
    List<TR::BytecodeBuilder> * _countBlocksWorklist;
    List<TR::BytecodeBuilder> * _connectTreesWorklist;
    List<TR::BytecodeBuilder> * _allBytecodeBuilders;
-   TR::VirtualMachineState   * _vmState;
 
    TR_BitVector              * _bytecodeWorklist;
    TR_BitVector              * _bytecodeHasBeenInWorklist;
