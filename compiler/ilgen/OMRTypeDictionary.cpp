@@ -135,7 +135,7 @@ public:
    virtual ~StructType()
       { }
 
-   TR::DataType getPrimitiveType()             { return TR::Address; }
+   TR::DataType getPrimitiveType()                 { return TR::Address; }
    void Close(size_t finalSize)                      { TR_ASSERT(_size <= finalSize, "Final size %d of struct %s is less than its current size %d\n", finalSize, _name, _size); _size = finalSize; _closed = true; };
    void Close()                                      { _closed = true; };
 
@@ -284,7 +284,7 @@ OMR::StructType::findField(const char *fieldName)
    OMR::FieldInfo *info = _firstField;
    while (NULL != info)
       {
-      if (strncmp(info->_name, fieldName, strlen(fieldName)) == 0)
+      if (strcmp(info->_name, fieldName) == 0)
          return info;
       info = info->_next;
       }
@@ -402,7 +402,7 @@ OMR::UnionType::findField(const char *fieldName)
    OMR::FieldInfo *info = _firstField;
    while (NULL != info)
       {
-      if (strncmp(info->_name, fieldName, strlen(fieldName)) == 0)
+      if (strcmp(info->_name, fieldName) == 0)
          return info;
       info = info->_next;
       }
