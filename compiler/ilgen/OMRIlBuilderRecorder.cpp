@@ -34,8 +34,6 @@
 #include "ilgen/IlValue.hpp"
 
 #include "ilgen/JitBuilderRecorderTextFile.hpp"
-#include "ilgen/JitBuilderReplayTextFile.hpp"
-#include "ilgen/MethodBuilderReplay.hpp"
 
 OMR::IlBuilderRecorder::IlBuilderRecorder(TR::MethodBuilder *methodBuilder, TR::TypeDictionary *types)
       : TR::IlInjector(types),
@@ -87,11 +85,9 @@ OMR::IlBuilderRecorder::DoneConstructor(const char * value)
         }
    }
 
-// TODO: Fix assertNotRecorded so that EXC_BAD_ACCESS does not happen
 void
 OMR::IlBuilderRecorder::assertNotRecorded(TR::JitBuilderRecorder * rec, const char * statement)
    {
-   std::cout << "222222222222222222\n";
    if (rec)
       TR_ASSERT(0, "%s does not have Recorder support\n", statement);
    }
@@ -879,8 +875,6 @@ OMR::IlBuilderRecorder::UnionFieldInstanceAddress(const char* unionName, const c
    }
 
 // vector memory
-
-
 TR::IlValue *
 OMR::IlBuilderRecorder::VectorLoad(const char *name)
    {
@@ -1066,7 +1060,6 @@ OMR::IlBuilderRecorder::ForLoop(bool countsUp,
    if (rec)
       {
       rec->BeginStatement(asIlBuilder(), rec->STATEMENT_FORLOOP);
-      // rec->Number((int8_t)countsUp);
       if(countsUp)
          rec->Number(1); // True
       else
@@ -1128,7 +1121,6 @@ OMR::IlBuilderRecorder::WhileDoLoop(const char *whileCondition, TR::IlBuilder **
    {
    TR::IlValue *returnValue = newValue();
    TR::JitBuilderRecorder *rec = recorder();
-  //  assertNotRecorded(rec, rec->STATEMENT_WHILEDOLOOP);
    if (rec)
       assertNotRecorded(rec, rec->STATEMENT_WHILEDOLOOP);
    }
@@ -1191,7 +1183,6 @@ void
 OMR::IlBuilderRecorder::IfCmpLessThan(TR::IlBuilder *target, TR::IlValue *left, TR::IlValue *right)
    {
    TR::JitBuilderRecorder *rec = recorder();
-  //  assertNotRecorded(rec, rec->STATEMENT_IFCMPLESSTHAN);
    if (rec)
       assertNotRecorded(rec, rec->STATEMENT_IFCMPLESSTHAN);
    }
@@ -1284,20 +1275,6 @@ OMR::IlBuilderRecorder::IfThenElse(TR::IlBuilder **thenPath, TR::IlBuilder **els
    IfThenElse(bThen, bElse, condition);
    }
 
-void
-OMR::IlBuilderRecorder::Switch(const char *selectionVar,
-                  TR::IlBuilder **defaultBuilder,
-                  uint32_t numCases,
-                  int32_t *caseValues,
-                  TR::IlBuilder **caseBuilders,
-                  bool *caseFallsThrough)
-   {
-   TR::JitBuilderRecorder *rec = recorder();
-   if (rec)
-      assertNotRecorded(rec, rec->STATEMENT_SWITCH);
-   }
-
-// TODO: Which switch to keep?
 void
 OMR::IlBuilderRecorder::Switch(const char *selectionVar,
                   TR::IlBuilder **defaultBuilder,
