@@ -281,12 +281,6 @@ public:
    void Switch(const char *selectionVar,
                TR::IlBuilder **defaultBuilder,
                uint32_t numCases,
-               int32_t *caseValues,
-               TR::IlBuilder **caseBuilders,
-               bool *caseFallsThrough);
-   void Switch(const char *selectionVar,
-               TR::IlBuilder **defaultBuilder,
-               uint32_t numCases,
                ...);
 
 protected:
