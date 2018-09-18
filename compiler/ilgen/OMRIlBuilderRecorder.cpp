@@ -620,6 +620,26 @@ OMR::IlBuilderRecorder::UnsignedLessOrEqualTo(TR::IlValue *left, TR::IlValue *ri
    }
 
 TR::IlValue *
+OMR::IlBuilderRecorder::Negate(TR::IlValue *v)
+   {
+   TR::IlValue *returnValue = newValue();
+   TR::JitBuilderRecorder *rec = recorder();
+   if (rec)
+      assertNotRecorded(rec, rec->STATEMENT_NEGATE);
+   return returnValue;
+   }
+
+TR::IlValue *
+OMR::IlBuilderRecorder::ConvertBitsTo(TR::IlType* type, TR::IlValue* value)
+   {
+   TR::IlValue *returnValue = newValue();
+   TR::JitBuilderRecorder *rec = recorder();
+   if (rec)
+      assertNotRecorded(rec, rec->STATEMENT_CONVERTBITSTO);
+   return returnValue;
+   }
+
+TR::IlValue *
 OMR::IlBuilderRecorder::ConvertTo(TR::IlType *dt, TR::IlValue *v)
    {
    TR::IlValue *returnValue = newValue();

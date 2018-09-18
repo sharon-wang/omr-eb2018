@@ -142,6 +142,8 @@ class JitBuilderRecorder
    const char *STATEMENT_LESSTHAN                     = "LessThan";
    const char *STATEMENT_UNSIGNEDLESSTHAN             = "UnsignedLessThan";
    const char *STATEMENT_UNSIGNEDLESSOREQUALTO        = "UnsignedLessOrEqualTo";
+   const char *STATEMENT_NEGATE                       = "Negate";
+   const char *STATEMENT_CONVERTBITSTO                = "ConvertBitsTo";
    const char *STATEMENT_GREATERTHAN                  = "GreaterThan";
    const char *STATEMENT_GREATEROREQUALTO             = "GreaterOrEqualTo";
    const char *STATEMENT_UNSIGNEDGREATERTHAN          = "UnsignedGreaterThan";

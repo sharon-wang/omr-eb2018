@@ -36,6 +36,11 @@ class MethodBuilder : public OMR::MethodBuilder
 public:
    TR_ALLOC(TR_Memory::IlGenerator)
 
+   MethodBuilder(TR::TypeDictionary *types)
+      : OMR::MethodBuilder(types)
+      {
+      }
+
    MethodBuilder(TR::TypeDictionary *types, TestDriver *test)
       : OMR::MethodBuilder(types)
       {

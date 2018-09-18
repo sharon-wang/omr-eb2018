@@ -116,7 +116,9 @@ public:
    TR::IlValue *UnsignedLessThan(TR::IlValue *left, TR::IlValue *right);
    TR::IlValue *LessOrEqualTo(TR::IlValue *left, TR::IlValue *right);
    TR::IlValue *UnsignedLessOrEqualTo(TR::IlValue *left, TR::IlValue *right);
+   TR::IlValue * Negate(TR::IlValue *v);
 
+   TR::IlValue* ConvertBitsTo(TR::IlType* type, TR::IlValue* value);
    TR::IlValue *ConvertTo(TR::IlType *t, TR::IlValue *v);
    TR::IlValue *UnsignedConvertTo(TR::IlType *t, TR::IlValue *v);
 

@@ -1027,6 +1027,20 @@ OMR::IlBuilder::UnsignedConvertTo(TR::IlType *t, TR::IlValue *v)
    return convertedValue;
    }
 
+TR::IlValue *
+OMR::IlBuilder::Negate(TR::IlValue *v)
+   {
+   TR::DataType dataType = v->getDataType();
+
+   TR::ILOpCodes negateOp = ILOpCode::negateOpCode(dataType);
+   TR_ASSERT(negateOp != TR::BadILOp, "Builder [ %p ] cannot negate value %d of type %s", this, v->getID(), dataType.toString());
+
+   TR::Node *result = TR::Node::create(negateOp, 1, loadValue(v));
+   TR::IlValue *negatedValue = newValue(dataType, result);
+   TraceIL("IlBuilder[ %p ]::%d is Negated %d\n", this, negatedValue->getID(), v->getID());
+   return negatedValue;
+   }
+
 void
 OMR::IlBuilder::convertTo(TR::IlValue *convertedValue, TR::IlType *t, TR::IlValue *v, bool needUnsigned)
    {
@@ -1038,6 +1052,30 @@ OMR::IlBuilder::convertTo(TR::IlValue *convertedValue, TR::IlType *t, TR::IlValu
 
    TR::Node *result = TR::Node::create(convertOp, 1, loadValue(v));
    closeValue(convertedValue, t, result);
+   }
+
+TR::IlValue*
+OMR::IlBuilder::ConvertBitsTo(TR::IlType* t, TR::IlValue* v)
+   {
+   TR::DataType typeFrom = v->getDataType();
+   TR::DataType typeTo = t->getPrimitiveType();
+
+   if (typeTo == typeFrom)
+      {
+      TraceIL("IlBuilder[ %p ]::%d is ConvertBitsTo (already has type %s) %d\n", this, v->getID(), t->getName(), v->getID());
+      return v;
+      }
+
+   TR::ILOpCodes convertOpcode = TR::DataType::getDataTypeBitConversion(typeFrom, typeTo);
+   TR_ASSERT(convertOpcode != TR::BadILOp && TR::DataType::getSize(typeTo) == TR::DataType::getSize(typeFrom),
+             "Builder [ %p ] requested bit conversion for value %d from type of size %d (%s) to type of size %d (%s) (consider using ConvertTo() to for narrowing/widening)",
+             this, v->getID(), TR::DataType::getSize(typeFrom), typeFrom.toString(), TR::DataType::getSize(typeTo), typeTo.toString());
+   TR_ASSERT(convertOpcode != TR::BadILOp, "Builder [ %p ] unknown bit conversion requested for value %d (%s) to type %s", this, v->getID(), typeFrom.toString(), t->getName());
+
+   TR::Node *result = TR::Node::create(convertOpcode, 1, loadValue(v));
+   TR::IlValue *convertedValue = newValue(t, result);
+   TraceIL("IlBuilder[ %p ]::%d is CoerceTo(%s) %d\n", this, convertedValue->getID(), t->getName(), v->getID());
+   return convertedValue;
    }
 
 TR::IlValue *
