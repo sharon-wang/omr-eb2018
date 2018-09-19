@@ -31,10 +31,10 @@ namespace TR { class TypeDictionary; }
 typedef int32_t (IterativeFibFunctionType)(int32_t);
 
 class IterativeFibonnaciMethod : public TR::MethodBuilder
- {
- public:
- IterativeFibonnaciMethod(TR::TypeDictionary *types,  TR::JitBuilderRecorder *recorder);
- virtual bool buildIL();
- };
+   {
+   public:
+   IterativeFibonnaciMethod(TR::TypeDictionary *types,  TR::JitBuilderRecorder *recorder);
+   virtual bool buildIL();
+   };
 
 #endif // !defined(ITERATIVEFIB_INCL)

@@ -29,7 +29,7 @@
 class SimpleMethod : public TR::MethodBuilder
    {
    public:
-   SimpleMethod(TR::TypeDictionary *, TR::JitBuilderRecorder *recorder);
+   SimpleMethod(TR::TypeDictionary *);
    virtual bool buildIL();
    };
 

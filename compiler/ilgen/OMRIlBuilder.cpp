@@ -1115,8 +1115,8 @@ OMR::IlBuilder::widenIntegerTo32Bits(TR::IlValue *v)
 
 TR::Node*
 OMR::IlBuilder::binaryOpNodeFromNodes(TR::ILOpCodes op,
-                                 TR::Node *leftNode,
-                                 TR::Node *rightNode) 
+                                      TR::Node *leftNode,
+                                      TR::Node *rightNode) 
    {
    TR::DataType leftType = leftNode->getDataType();
    TR::DataType rightType = rightNode->getDataType();
@@ -1138,9 +1138,9 @@ OMR::IlBuilder::binaryOpNodeFromNodes(TR::ILOpCodes op,
 
 void
 OMR::IlBuilder::binaryOpFromNodes(TR::ILOpCodes op,
-                             TR::IlValue *returnValue,
-                             TR::Node *leftNode,
-                             TR::Node *rightNode)
+                                  TR::IlValue *returnValue,
+                                  TR::Node *leftNode,
+                                  TR::Node *rightNode)
    {
    TR::Node *result = binaryOpNodeFromNodes(op, leftNode, rightNode);
    closeValue(returnValue, result->getDataType(), result);
@@ -1148,9 +1148,9 @@ OMR::IlBuilder::binaryOpFromNodes(TR::ILOpCodes op,
 
 void
 OMR::IlBuilder::binaryOpFromOpMap(OpCodeMapper mapOp,
-                             TR::IlValue *returnValue,
-                             TR::IlValue *left,
-                             TR::IlValue *right)
+                                  TR::IlValue *returnValue,
+                                  TR::IlValue *left,
+                                  TR::IlValue *right)
    {
    TR::Node *leftNode = loadValue(left);
    TR::Node *rightNode = loadValue(right);
@@ -1163,9 +1163,9 @@ OMR::IlBuilder::binaryOpFromOpMap(OpCodeMapper mapOp,
 
 void
 OMR::IlBuilder::binaryOpFromOpCode(TR::ILOpCodes op,
-                              TR::IlValue *returnValue,
-                              TR::IlValue *left,
-                              TR::IlValue *right)
+                                   TR::IlValue *returnValue,
+                                   TR::IlValue *left,
+                                   TR::IlValue *right)
    {
    TR::Node *leftNode = loadValue(left);
    TR::Node *rightNode = loadValue(right);
@@ -1175,10 +1175,10 @@ OMR::IlBuilder::binaryOpFromOpCode(TR::ILOpCodes op,
 
 void
 OMR::IlBuilder::compareOp(TR_ComparisonTypes ct,
-                     bool needUnsigned,
-                     TR::IlValue *returnValue,
-                     TR::IlValue *left,
-                     TR::IlValue *right)
+                          bool needUnsigned,
+                          TR::IlValue *returnValue,
+                          TR::IlValue *left,
+                          TR::IlValue *right)
    {
    TR::Node *leftNode = loadValue(left);
    TR::Node *rightNode = loadValue(right);
@@ -1564,8 +1564,8 @@ OMR::IlBuilder::Xor(TR::IlValue *left, TR::IlValue *right)
 
 TR::Node*
 OMR::IlBuilder::shiftOpNodeFromNodes(TR::ILOpCodes op,
-                                TR::Node *leftNode,
-                                TR::Node *rightNode) 
+                                     TR::Node *leftNode,
+                                     TR::Node *rightNode) 
    {
    TR::DataType leftType = leftNode->getDataType();
    TR::DataType rightType = rightNode->getDataType();
@@ -1576,9 +1576,9 @@ OMR::IlBuilder::shiftOpNodeFromNodes(TR::ILOpCodes op,
 
 void
 OMR::IlBuilder::shiftOpFromNodes(TR::ILOpCodes op,
-                            TR::IlValue *returnValue,
-                            TR::Node *leftNode,
-                            TR::Node *rightNode)
+                                 TR::IlValue *returnValue,
+                                 TR::Node *leftNode,
+                                 TR::Node *rightNode)
    {
    TR::Node *result = shiftOpNodeFromNodes(op, leftNode, rightNode);
    closeValue(returnValue, result->getDataType(), result);
@@ -1586,9 +1586,9 @@ OMR::IlBuilder::shiftOpFromNodes(TR::ILOpCodes op,
 
 void
 OMR::IlBuilder::shiftOpFromOpMap(OpCodeMapper mapOp,
-                            TR::IlValue *returnValue,
-                            TR::IlValue *left,
-                            TR::IlValue *right)
+                                 TR::IlValue *returnValue,
+                                 TR::IlValue *left,
+                                 TR::IlValue *right)
    {
    TR::Node *leftNode = loadValue(left);
    TR::DataType leftType = leftNode->getDataType();
