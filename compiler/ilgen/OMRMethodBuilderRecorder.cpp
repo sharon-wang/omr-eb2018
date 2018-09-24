@@ -280,8 +280,8 @@ OMR::MethodBuilderRecorder::addBytecodeBuilderToWorklist(TR::BytecodeBuilder *bu
    {
    if (_bytecodeWorklist == NULL)
       {
-      _bytecodeWorklist = new (_types->trMemory()->trHeapMemory()) TR_BitVector(32, comp()->trMemory());
-      _bytecodeHasBeenInWorklist = new (_types->trMemory()->trHeapMemory()) TR_BitVector(32, comp()->trMemory());
+      _bytecodeWorklist = new (comp()->trHeapMemory()) TR_BitVector(32, comp()->trMemory());
+      _bytecodeHasBeenInWorklist = new (comp()->trHeapMemory()) TR_BitVector(32, comp()->trMemory());
       }
 
    int32_t b_bci = builder->bcIndex();

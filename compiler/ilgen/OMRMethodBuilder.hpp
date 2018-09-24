@@ -303,9 +303,6 @@ class MethodBuilder : public TR::MethodBuilderRecorder
    List<TR::BytecodeBuilder> * _connectTreesWorklist;
    List<TR::BytecodeBuilder> * _allBytecodeBuilders;
 
-   TR_BitVector              * _bytecodeWorklist;
-   TR_BitVector              * _bytecodeHasBeenInWorklist;
-
    int32_t                     _inlineSiteIndex;
    int32_t                     _nextInlineSiteIndex;
    TR::IlBuilder             * _returnBuilder;

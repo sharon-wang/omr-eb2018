@@ -356,7 +356,6 @@ public:
     */
    TR::IlValue *ComputedCall(const char *name, int32_t numArgs, TR::IlValue **args);
    void genCall(TR::IlValue *returnValue, TR::SymbolReference *methodSymRef, int32_t numArgs, TR::IlValue ** paramValues, bool isDirectCall = true);
-   TR::IlValue *genCall(TR::SymbolReference *methodSymRef, int32_t numArgs, TR::IlValue ** paramValues, bool isDirectCall = true);
    void Goto(TR::IlBuilder **dest);
    void Goto(TR::IlBuilder *dest);
    void Return();
@@ -612,7 +611,7 @@ protected:
    TR::IlValue *compareOp(TR_ComparisonTypes ct, bool needUnsigned, TR::IlValue *left, TR::IlValue *right);
    void compareOp(TR_ComparisonTypes ct, bool needUnsigned, TR::IlValue *returnValue, TR::IlValue *left, TR::IlValue *right);
 
-   void convertTo(TR::IlValue *convertedValue, TR::IlType *t, TR::IlValue *v, bool needUnsigned);
+   void convertTo(TR::IlValue *convertedValue, TR::DataType t, TR::IlValue *v, bool needUnsigned);
 
    void ifCmpCondition(TR_ComparisonTypes ct, bool isUnsignedCmp, TR::IlValue *left, TR::IlValue *right, TR::Block *target);
    void ifCmpNotEqualZero(TR::IlValue *condition, TR::Block *target);
