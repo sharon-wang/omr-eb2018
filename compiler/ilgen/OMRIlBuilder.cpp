@@ -1956,7 +1956,7 @@ OMR::IlBuilder::ComputedCall(const char *functionName, int32_t numArgs, ...)
    TR::SymbolReference *methodSymRef = symRefTab()->findOrCreateComputedStaticMethodSymbol(JITTED_METHOD_INDEX, -1, resolvedMethod);
 
    TR::IlValue *returnValue = TR::IlBuilderRecorder::ComputedCall(functionName, numArgs, argValues);
-   genCall(returnValue, methodSymRef, numArgs, argValues);
+   genCall(returnValue, methodSymRef, numArgs, argValues, false /*isDirectCall*/);
 
    return returnValue;
    }
@@ -1979,7 +1979,7 @@ OMR::IlBuilder::ComputedCall(const char *functionName, int32_t numArgs, TR::IlVa
    TR::SymbolReference *methodSymRef = symRefTab()->findOrCreateComputedStaticMethodSymbol(JITTED_METHOD_INDEX, -1, resolvedMethod);
 
    TR::IlValue *returnValue = TR::IlBuilderRecorder::ComputedCall(functionName, numArgs, argValues);
-   genCall(returnValue, methodSymRef, numArgs, argValues);
+   genCall(returnValue, methodSymRef, numArgs, argValues, false /*isDirectCall*/);
 
    return returnValue;
    }
