@@ -1439,7 +1439,7 @@ OMR::JitBuilderReplayTextFile::parseBuildIL()
          {
              if (tokens[0] == 'S') // It's a statement. Ignore.
                {
-                  // TODO: Do something.
+                  // Future Use.
                   continue;
                }
              buildIlFlag = handleService(IL_BUILDER, tokens);

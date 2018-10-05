@@ -221,9 +221,7 @@ class JitBuilderReplay
     uint8_t                           _idSize;
 
     TypePointer lookupPointer(TypeID id);
-
-    // set method builder
-
+    
    };
 
 } // namespace OMR

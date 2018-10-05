@@ -43,13 +43,12 @@
     : TR::MethodBuilder(types, NULL, recorder)
     {
 
-    setReplay(replay); // _mb = replay
+    setReplay(replay);
 
     TR::JitBuilderReplay *rep = _replay;
     if(rep)
        {
            rep->initializeMethodBuilder(static_cast<TR::MethodBuilderReplay *>(this));
-        //    std::cout << "MethodBuilderReplay initialized.\n";
        }
     else
        {
